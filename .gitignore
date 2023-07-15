@@ -1,1 +1,4 @@
 poetry.lock
+.vscode/
+__pycache__/
+*.ini
