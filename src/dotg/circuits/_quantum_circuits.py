@@ -1,5 +1,6 @@
 """This module generates noiseless quantum circuits."""
 from typing import Optional
+import warnings
 
 import stim
 
@@ -55,7 +56,16 @@ def unrotated_surface_code(
     -------
     stim.Circuit
         stim circuit object representing the code implementation.
+
+    Rasies
+    ------
+    warnings.warn
+        User warning if the memory_basis argument is not recognised.
     """
+    if memory_basis.lower() not in ['x', 'z']:
+        warnings.warn(
+            f"Memory basis kwarg not recoginised: {memory_basis}."
+            " Defaulting to memory basis 'Z'.")
     return stim.Circuit.generated(
         code_task="surface_code:unrotated_memory"
         f"_{'x' if memory_basis.lower()!='z' else 'z'}",
