@@ -10,7 +10,8 @@ import stim
 def rotated_surface_code(
     distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
 ) -> stim.Circuit:
-    """Generate a stim circuit representing a rotated surface code without noise.
+    """Generate a stim circuit representing a rotated surface code without noise. The
+    circuit is always flattened.
 
     Parameters
     ----------
@@ -33,13 +34,14 @@ def rotated_surface_code(
         f"_{'x' if memory_basis.lower()!='z' else 'z'}",
         distance=distance,
         rounds=rounds or distance
-    )
+    ).flattened()
 
 
 def unrotated_surface_code(
     distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
 ) -> stim.Circuit:
-    """Generate a stim circuit representing a unrotated surface code without noise.
+    """Generate a stim circuit representing a unrotated surface code without noise. The
+    circuit is always flattened.
 
     Parameters
     ----------
@@ -71,11 +73,12 @@ def unrotated_surface_code(
         f"_{'x' if memory_basis.lower()!='z' else 'z'}",
         distance=distance,
         rounds=rounds or distance
-    )
+    ).flattened()
 
 
 def color_code(distance: int, rounds: Optional[int] = None) -> stim.Circuit:
-    """Generate a stim circuit representing a color code without noise.
+    """Generate a stim circuit representing a color code without noise. The circuit is
+    always flattened.
 
     Parameters
     ----------
@@ -92,4 +95,4 @@ def color_code(distance: int, rounds: Optional[int] = None) -> stim.Circuit:
     """
     return stim.Circuit.generated(
         code_task="color_code:memory_xyz", distance=distance, rounds=rounds or distance
-    )
+    ).flattened()
