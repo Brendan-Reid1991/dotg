@@ -1,7 +1,24 @@
+"""This module provides helpful enums for access to stim operations."""
+from typing import List
 from enum import Enum
 
 
-class SingleQubitGates(Enum):
+class StimGates(Enum):
+    """Top level enum for all stim operations.
+    """
+    @classmethod
+    def members(cls) -> List[str]:
+        """classmethod to get all members of an Enum returned as a list.
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        return list(map(lambda member: member.value, cls))
+
+
+class SingleQubitGates(StimGates):
     """An enum detailing all relevant single qubit stim gates. The values are the strings
     present in stim circuits.
 
@@ -31,7 +48,7 @@ class SingleQubitGates(Enum):
     SQRT_Z_DAG = "SQRT_Z_DAG"
 
 
-class TwoQubitGates(Enum):
+class TwoQubitGates(StimGates):
     """An enum detailing all relevant two qubit stim gates. The values are the strings
     present in stim circuits.
 
@@ -50,7 +67,7 @@ class TwoQubitGates(Enum):
     SQRT_XX = "SQRT_XX"
 
 
-class ResetGates(Enum):
+class ResetGates(StimGates):
     """An enum detailing all relevant reset stim gates. The values are the strings
     present in stim circuits.
 
@@ -66,7 +83,7 @@ class ResetGates(Enum):
     RY = "RY"
 
 
-class MeasurementGates(Enum):
+class MeasurementGates(StimGates):
     """An enum detailing all relevant measurment stim gates. The values are the strings 
     present in stim circuits.
 
@@ -81,3 +98,7 @@ class MeasurementGates(Enum):
     MX = "MX"
     MZ = "MZ"
     MY = "MY"
+
+
+if __name__ == "__main__":
+    print(MeasurementGates.members())
