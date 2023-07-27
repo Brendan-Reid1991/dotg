@@ -98,7 +98,3 @@ class MeasurementGates(StimGates):
     MX = "MX"
     MZ = "MZ"
     MY = "MY"
-
-
-if __name__ == "__main__":
-    print(MeasurementGates.members())
