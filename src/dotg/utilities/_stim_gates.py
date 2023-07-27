@@ -1,37 +1,21 @@
-"""This module provides helpful enums for access to stim operations."""
-from typing import List
-from enum import Enum
+"""This module provides helpful enums for access to stim gates."""
+from dotg.utilities._stim_operations import StimOperations
 
 
-class StimGates(Enum):
-    """Top level enum for all stim operations.
-    """
-    @classmethod
-    def members(cls) -> List[str]:
-        """classmethod to get all members of an Enum returned as a list.
-
-        Returns
-        -------
-        _type_
-            _description_
-        """
-        return list(map(lambda member: member.value, cls))
-
-
-class SingleQubitGates(StimGates):
+class SingleQubitGates(StimOperations):
     """An enum detailing all relevant single qubit stim gates. The values are the strings
     present in stim circuits.
 
     Options are:
-        I - Identity gate
-        X - Pauli-X gate
-        Y - Pauli-Y gate
-        Z - Pauli-Z gate
-        H - Hadamard gate
-        S - S gate
-        S_DAG - Inverse S gate
-        SQRT_{X, Y, Z} - SQRT_{X, Y, Z} gate
-        SQRT_{X, Y, Z}_DAG - SQRT_{X, Y, Z}_DAG gate
+        I - Identity gate\n
+        X - Pauli-X gate\n
+        Y - Pauli-Y gate\n
+        Z - Pauli-Z gate\n
+        H - Hadamard gate\n
+        S - S gate\n
+        S_DAG - Inverse S gate\n
+        SQRT_{X, Y, Z} - SQRT_{X, Y, Z} gate\n
+        SQRT_{X, Y, Z}_DAG - SQRT_{X, Y, Z}_DAG gate\n
     """
     I = "I"
     X = "X"
@@ -48,15 +32,15 @@ class SingleQubitGates(StimGates):
     SQRT_Z_DAG = "SQRT_Z_DAG"
 
 
-class TwoQubitGates(StimGates):
+class TwoQubitGates(StimOperations):
     """An enum detailing all relevant two qubit stim gates. The values are the strings
     present in stim circuits.
 
     Options are:
-        CX - Controlled-X gate
-        CNOT - Alterantive to CX
-        CY - Controlled-Y gate
-        CZ - Controlled-Z gate
+        CX - Controlled-X gate\n
+        CNOT - Alterantive to CX\n
+        CY - Controlled-Y gate\n
+        CZ - Controlled-Z gate\n
         SQRT_XX - Two qubit XX rotation. More commonly known as Molmer Sorensen 
         interaction
     """
@@ -67,15 +51,15 @@ class TwoQubitGates(StimGates):
     SQRT_XX = "SQRT_XX"
 
 
-class ResetGates(StimGates):
+class ResetGates(StimOperations):
     """An enum detailing all relevant reset stim gates. The values are the strings
     present in stim circuits.
 
     Options are:
-        R - Z-basis reset
-        RX - X-basis reset
-        RY - Y-basis reset
-        Rz - Z-basis reset
+        R - Z-basis reset\n
+        RX - X-basis reset\n
+        RY - Y-basis reset\n
+        RZ - Z-basis reset
     """
     R = "R"
     RX = "RX"
@@ -83,15 +67,15 @@ class ResetGates(StimGates):
     RY = "RY"
 
 
-class MeasurementGates(StimGates):
+class MeasurementGates(StimOperations):
     """An enum detailing all relevant measurment stim gates. The values are the strings 
     present in stim circuits.
 
     Options are:
-        M - Z-basis measurement
-        MX - X-basis measurement
-        MY - Y-basis measurement
-        MZ - Z-basis measurement
+        M - Z-basis measurement\n
+        MX - X-basis measurement\n
+        MY - Y-basis measurement\n
+        MZ - Z-basis measurement\n
 
     """
     M = "M"
