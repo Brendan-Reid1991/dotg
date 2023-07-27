@@ -17,6 +17,7 @@ class SingleQubitGates(StimOperations):
         SQRT_{X, Y, Z} - SQRT_{X, Y, Z} gate\n
         SQRT_{X, Y, Z}_DAG - SQRT_{X, Y, Z}_DAG gate\n
     """
+
     I = "I"
     X = "X"
     Z = "Z"
@@ -41,9 +42,10 @@ class TwoQubitGates(StimOperations):
         CNOT - Alterantive to CX\n
         CY - Controlled-Y gate\n
         CZ - Controlled-Z gate\n
-        SQRT_XX - Two qubit XX rotation. More commonly known as Molmer Sorensen 
+        SQRT_XX - Two qubit XX rotation. More commonly known as Molmer Sorensen
         interaction
     """
+
     CX = "CX"
     CNOT = "CX"
     CY = "CY"
@@ -61,6 +63,7 @@ class ResetGates(StimOperations):
         RY - Y-basis reset\n
         RZ - Z-basis reset
     """
+
     R = "R"
     RX = "RX"
     RZ = "RZ"
@@ -68,7 +71,7 @@ class ResetGates(StimOperations):
 
 
 class MeasurementGates(StimOperations):
-    """An enum detailing all relevant measurment stim gates. The values are the strings 
+    """An enum detailing all relevant measurment stim gates. The values are the strings
     present in stim circuits.
 
     Options are:
@@ -78,6 +81,7 @@ class MeasurementGates(StimOperations):
         MZ - Z-basis measurement\n
 
     """
+
     M = "M"
     MX = "MX"
     MZ = "MZ"

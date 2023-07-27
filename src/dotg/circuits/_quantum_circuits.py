@@ -33,15 +33,16 @@ def rotated_surface_code(
     warnings.warn
         User warning if the memory_basis argument is not recognised.
     """
-    if memory_basis.lower() not in ['x', 'z']:
+    if memory_basis.lower() not in ["x", "z"]:
         warnings.warn(
             f"Memory basis kwarg not recoginised: {memory_basis}."
-            " Defaulting to memory basis 'X'.")
+            " Defaulting to memory basis 'X'."
+        )
     return stim.Circuit.generated(
         code_task="surface_code:rotated_memory"
         f"_{'x' if memory_basis.lower()!='z' else 'z'}",
         distance=distance,
-        rounds=rounds or distance
+        rounds=rounds or distance,
     ).flattened()
 
 
@@ -72,15 +73,16 @@ def unrotated_surface_code(
     warnings.warn
         User warning if the memory_basis argument is not recognised.
     """
-    if memory_basis.lower() not in ['x', 'z']:
+    if memory_basis.lower() not in ["x", "z"]:
         warnings.warn(
             f"Memory basis kwarg not recoginised: {memory_basis}."
-            " Defaulting to memory basis 'X'.")
+            " Defaulting to memory basis 'X'."
+        )
     return stim.Circuit.generated(
         code_task="surface_code:unrotated_memory"
         f"_{'x' if memory_basis.lower()!='z' else 'z'}",
         distance=distance,
-        rounds=rounds or distance
+        rounds=rounds or distance,
     ).flattened()
 
 

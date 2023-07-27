@@ -12,6 +12,7 @@ class StimDecorators(StimOperations):
         QUBIT_COORDS - Qubit coordinates annotation\n
         TICK - Circuit layer annotation
     """
+
     DETECTOR = "DETECTOR"
     OBSERVABLE_INCLUDE = "OBSERVABLE_INCLUDE"
     QUBIT_COORDS = "QUBIT_COORDS"
