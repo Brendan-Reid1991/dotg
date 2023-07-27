@@ -4,6 +4,7 @@ from dotg.utilities._stim_gates import (
     TwoQubitGates,
     ResetGates,
     MeasurementGates,
+    MeasureAndReset,
 )
 from dotg.utilities._stim_noise_channels import (
     SingleQubitNoiseChannels,

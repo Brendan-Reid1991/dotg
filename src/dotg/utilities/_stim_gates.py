@@ -86,3 +86,13 @@ class MeasurementGates(StimOperations):
     MX = "MX"
     MZ = "MZ"
     MY = "MY"
+
+
+class MeasureAndReset(StimOperations):
+    """Unique enum to capture the MR stim instruction.
+
+    Options are:
+        MR - measurement and reset command.
+    """
+
+    MR = "MR"
