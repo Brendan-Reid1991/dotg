@@ -2,7 +2,7 @@
 from dotg.utilities._stim_operations import StimOperations
 
 
-class SingleQubitNoiseChannels(StimOperations):
+class OneQubitNoiseChannels(StimOperations):
     """An enum detailing all relevant single qubit stim noise channels. The values are
     the strings present in stim circuits.
 

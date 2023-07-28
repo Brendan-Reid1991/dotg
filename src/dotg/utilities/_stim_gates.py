@@ -2,7 +2,7 @@
 from dotg.utilities._stim_operations import StimOperations
 
 
-class SingleQubitGates(StimOperations):
+class OneQubitGates(StimOperations):
     """An enum detailing all relevant single qubit stim gates. The values are the strings
     present in stim circuits.
 
