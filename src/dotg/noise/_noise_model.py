@@ -1,5 +1,6 @@
+"""This module defines a bespoke noise model class."""
 from __future__ import annotations
-from typing import Tuple
+from typing import Tuple, TypeAlias
 import stim
 
 from dotg.utilities import (
@@ -13,6 +14,8 @@ from dotg.utilities import (
     MeasureAndReset,
 )
 
+NoiseParam: TypeAlias = float | Tuple[float]
+
 
 class NoiseModel:
     """Class that takes in specific noise channels and corresponding strengths, to be
@@ -21,11 +24,11 @@ class NoiseModel:
 
         Parameters
         ----------
-        two_qubit_gate_noise : Tuple[TwoQubitNoiseChannels, float]
+        two_qubit_gate_noise : Tuple[TwoQubitNoiseChannels, NoiseParam]
             Two qubit gate noise instruction.
-        one_qubit_gate_noise : Tuple[OneQubitNoiseChannels, float]
+        one_qubit_gate_noise : Tuple[OneQubitNoiseChannels, NoiseParam]
             One qubit gate noise instruction.
-        reset_noise : Tuple[OneQubitNoiseChannels, float]
+        reset_noise : Tuple[OneQubitNoiseChannels, NoiseParam]
             Reset noise instruction.
         measurement_noise : float
             Measurement noise value.
@@ -33,10 +36,11 @@ class NoiseModel:
         Raises
         ------
         ValueError
-            If, for each of two_qubit_gate_noise, one_qubit_gate_noise and reset_noise,:
-                - the first element is not in either OneQubitNoiseChannels or
-                TwoQubitNoiseChannels
-                - the second element does not lie in the range (0, 1).
+            If float parameter passed does not lie in the range (0, 1).
+        ValueError
+            If the noise channel given is OneQubitNoiseChannels.PAULI_CHANNEL_1
+            (equivalently TwoQubitNoiseChannels.PAULI_CHANNEL_2) and the parameter
+            is not a tuple of length 3 (equivalently length 15).
         ValueError
             If the measurement flip value does not lie in the range (0, 1).
 
@@ -44,22 +48,30 @@ class NoiseModel:
 
     def __init__(
         self,
-        two_qubit_gate_noise: Tuple[TwoQubitNoiseChannels, float],
-        one_qubit_gate_noise: Tuple[OneQubitNoiseChannels, float],
-        reset_noise: Tuple[OneQubitNoiseChannels, float],
+        two_qubit_gate_noise: Tuple[TwoQubitNoiseChannels, NoiseParam],
+        one_qubit_gate_noise: Tuple[OneQubitNoiseChannels, NoiseParam],
+        reset_noise: Tuple[OneQubitNoiseChannels, NoiseParam],
         measurement_noise: float,
     ) -> None:
-        if not all(
-            ((x in OneQubitNoiseChannels) | (x in TwoQubitNoiseChannels)) and 0 < y < 1
-            for x, y in zip(*[two_qubit_gate_noise, one_qubit_gate_noise, reset_noise])
-        ):
-            raise ValueError(
-                "Invalid noise channel and tuple pair passed. Either channel is not "
-                "permitted or parameter is outside (0, 1) range. Received:\n"
-                f"  two_qubit_gate_noise: {two_qubit_gate_noise},\n"
-                f"  one_qubit_gate_noise: {one_qubit_gate_noise},\n"
-                f"  reset_noise: {reset_noise}."
-            )
+        for _channel, _param in [
+            two_qubit_gate_noise,
+            one_qubit_gate_noise,
+            reset_noise,
+        ]:
+            if isinstance(_param, float | int):
+                if not 0 < _param < 1:
+                    raise ValueError(
+                        f"Invalid noise parameter passed for channel {_channel}: {_param}"
+                    )
+            if _channel in [
+                OneQubitNoiseChannels.PAULI_CHANNEL_1,
+                TwoQubitNoiseChannels.PAULI_CHANNEL_2,
+            ] and ((not isinstance(_param, tuple)) or (len(_param) not in [3, 15])):
+                raise ValueError(
+                    "Stim noise channels `PAULI_CHANNEL_1` and `PAULI_CHANNEL_2` "
+                    "must be accompanied with tuple of floats of lengths 3 and 15 "
+                    "respectively."
+                )
 
         if not 0 < measurement_noise < 1:
             raise ValueError(
