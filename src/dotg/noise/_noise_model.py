@@ -133,21 +133,27 @@ class NoiseModel:
                     arg=self._measurement_noise_parameter,
                 )
                 continue
-
             noisy_circuit.append(instr)
             if instr.name in StimDecorators.members():
                 continue
 
-            if instr.name in OneQubitGates.members() + ResetGates.members():
+            if instr.name in OneQubitGates.members():
                 noisy_circuit.append(
-                    name=self._one_qubit_gate_noise_channel,
+                    name=self._one_qubit_gate_noise_channel.value,
                     targets=instr.targets_copy(),
                     arg=self._one_qubit_gate_noise_parameter,
                 )
 
+            if instr.name in ResetGates.members():
+                noisy_circuit.append(
+                    name=self._reset_noise_channel.value,
+                    targets=instr.targets_copy(),
+                    arg=self._reset_noise_parameter,
+                )
+
             if instr.name in TwoQubitGates.members():
                 noisy_circuit.append(
-                    name=self._two_qubit_gate_noise_channel,
+                    name=self._two_qubit_gate_noise_channel.value,
                     targets=instr.targets_copy(),
                     arg=self._two_qubit_gate_noise_parameter,
                 )
