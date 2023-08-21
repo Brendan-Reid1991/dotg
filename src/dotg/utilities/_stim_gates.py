@@ -42,8 +42,7 @@ class TwoQubitGates(StimOperations):
         CNOT - Alterantive to CX\n
         CY - Controlled-Y gate\n
         CZ - Controlled-Z gate\n
-        SQRT_XX - Two qubit XX rotation. More commonly known as Molmer Sorensen
-        interaction
+        SQRT_XX - Two qubit XX rotation. More commonly known as Molmer -orensen interaction.
     """
 
     CX = "CX"
