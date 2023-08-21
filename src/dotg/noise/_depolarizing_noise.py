@@ -25,11 +25,11 @@ class DepolarizingNoise(NoiseModel):
     """
 
     def __init__(self, physical_error: float) -> None:
+        if not 0 < physical_error < 1:
+            raise ValueError("Physical error probability must be between 0 and 1.")
+
         self._physical_error = physical_error
         self.physical_error = self._physical_error
-
-        if not 0 < self._physical_error < 1:
-            raise ValueError("Physical error probability must be between 0 and 1.")
 
     @property
     def physical_error(self) -> float:
