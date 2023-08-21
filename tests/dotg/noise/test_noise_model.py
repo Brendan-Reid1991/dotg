@@ -1,4 +1,5 @@
 import pytest
+import stim
 
 from dotg.noise import NoiseModel
 from dotg.utilities import TwoQubitNoiseChannels, OneQubitNoiseChannels
@@ -96,3 +97,41 @@ class TestNoiseModel:
                 reset_noise=(OneQubitNoiseChannels.Y_ERROR, 0.001),
                 measurement_noise=2,
             )
+
+    @pytest.mark.parametrize(
+        "circuit, expected_output",
+        [
+            (
+                stim.Circuit(
+                    """R 0 1 2
+                M 0 1 2
+                """
+                ),
+                stim.Circuit(
+                    """R 0 1 2
+                Y_ERROR(0.001) 0 1 2
+                M(0.01) 0 1 2
+                """
+                ),
+            ),
+            (
+                stim.Circuit(
+                    """R 0 1 2
+                H 0 1
+                CX 1 2
+                M 0 1 2"""
+                ),
+                stim.Circuit(
+                    """R 0 1 2
+                Y_ERROR(0.001) 0 1 2
+                H 0 1
+                DEPOLARIZE1(0.01) 0 1
+                CX 1 2
+                DEPOLARIZE2(0.01) 1 2
+                M(0.01) 0 1 2"""
+                ),
+            ),
+        ],
+    )
+    def test_output_from_permute_circuit(self, noise_model, circuit, expected_output):
+        assert expected_output == noise_model.permute_circuit(circuit)
