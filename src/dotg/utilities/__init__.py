@@ -1,13 +1,7 @@
 """Top level module for utilities"""
-from dotg.utilities._stim_gates import (
-    OneQubitGates,
-    TwoQubitGates,
-    ResetGates,
-    MeasurementGates,
-    MeasureAndReset,
-)
-from dotg.utilities._stim_noise_channels import (
-    OneQubitNoiseChannels,
-    TwoQubitNoiseChannels,
-)
 from dotg.utilities._stim_decorators import StimDecorators
+from dotg.utilities._stim_gates import (MeasureAndReset, MeasurementGates,
+                                        OneQubitGates, ResetGates,
+                                        TwoQubitGates)
+from dotg.utilities._stim_noise_channels import (OneQubitNoiseChannels,
+                                                 TwoQubitNoiseChannels)

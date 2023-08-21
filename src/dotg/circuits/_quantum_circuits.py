@@ -1,6 +1,6 @@
 """This module generates noiseless quantum circuits."""
-from typing import Optional
 import warnings
+from typing import Optional
 
 import stim
 

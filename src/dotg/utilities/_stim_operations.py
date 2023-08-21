@@ -1,6 +1,6 @@
 """Module to define a base class for all stim enums."""
-from typing import List
 from enum import Enum
+from typing import List
 
 
 class StimOperations(Enum):
