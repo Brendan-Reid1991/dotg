@@ -87,7 +87,7 @@ class BeliefPropagation(Decoder):
 
         return bool(self._decoder.converge), error_pattern, remaining_syndrome
 
-    def logical_error(
+    def logical_error(  # type: ignore
         self, num_shots: int | float, exclude_empty: bool = False
     ) -> Tuple[float, float]:
         """Calculate the logical error probability of this decoder on the given circuit,
