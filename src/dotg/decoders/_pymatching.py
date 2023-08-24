@@ -1,23 +1,60 @@
-"""This module provides access to the pymatching decoding package."""
-from pymatching import Matching
-import stim
+"""This module provides access to the Minimum Weight Perfect Matching (MWPM) decoder via 
+the pymatching package: https://github.com/oscarhiggott/PyMatching"""
 import numpy as np
+import stim
+from pymatching import Matching
+
+from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 
 class MinimumWeightPerfectMatching:
-    """_summary_"""
+    """This class allows decoding on graphs via the Minimum Weight Perfect Matching
+    algorithm. Due to the functionality of the pymatching package, this class requires
+    no other dependencies to generate a logical error value from an input circuit.
+
+    Parameters
+    ----------
+    circuit : stim.Circuit
+        stim circuit to evaluate the decoder on.
+
+    Raises
+    ------
+    ValueError
+        If the circuit passed has no noise entries.
+    ValueError
+        If the circuit passed does not permit a graph-like error model.
+    ValueError
+        If building the pymatching.Matching object fails for any other reason.
+    """
 
     def __init__(self, circuit: stim.Circuit) -> None:
         self.circuit = circuit
         self.sampler = circuit.compile_detector_sampler()
 
-        self.matching = Matching.from_detector_error_model(
-            self.circuit.detector_error_model(
-                approximate_disjoint_errors=True, decompose_errors=True
+        if not any(
+            instr.name
+            in OneQubitNoiseChannels.members() + TwoQubitNoiseChannels.members()
+            for instr in circuit
+        ):
+            raise ValueError(
+                "Circuit passed has no noise; decoding will have no effect."
             )
-        )
 
-    def logical_error(self, num_shots: int):
+        try:
+            self.matching = Matching.from_detector_error_model(
+                self.circuit.detector_error_model(
+                    approximate_disjoint_errors=True, decompose_errors=True
+                )
+            )
+        except ValueError as exc:
+            if "Failed to decompose" in exc.args[0]:
+                raise ValueError(
+                    "Circuit passed does not permit a graph-like error model, "
+                    "which MWPM requires."
+                ) from exc
+            raise exc
+
+    def logical_error(self, num_shots: int) -> float:
         """_summary_
 
         Parameters
