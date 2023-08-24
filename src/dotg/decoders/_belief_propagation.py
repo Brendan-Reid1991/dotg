@@ -8,11 +8,13 @@ from ldpc import bp_decoder
 from numpy.typing import NDArray
 import warnings
 
+from dotg.decoders._decoder_base_class import Decoder
+from dotg.decoders import Sampler
 from dotg.decoders.decoder_options import MessageUpdates
 from dotg.utilities import CircuitUnderstander
 
 
-class BeliefPropagation:
+class BeliefPropagation(Decoder):
     """."""
 
     def __init__(
@@ -21,7 +23,7 @@ class BeliefPropagation:
         max_iterations,
         message_updates: MessageUpdates | int = MessageUpdates.PROD_SUM,
     ) -> None:
-        self.circuit = circuit
+        super().__init__(circuit=circuit)
         self.max_iterations = max_iterations
         self.message_updates = message_updates
         if self.message_updates not in [0, 1]:
@@ -76,7 +78,7 @@ class BeliefPropagation:
 
         remaining_syndrome: NDArray = np.asarray(
             [
-                sum(x * y for x, y in zip(parity_row, error_pattern))
+                sum(x * y for x, y in zip(parity_row, error_pattern)) % 2
                 for parity_row in self.parity_check
             ]
             if self._decoder.converge
@@ -85,29 +87,68 @@ class BeliefPropagation:
 
         return bool(self._decoder.converge), error_pattern, remaining_syndrome
 
-    def logical_error(self, num_shots: int | float) -> float:
+    def logical_error(
+        self, num_shots: int | float, exclude_empty: bool = False
+    ) -> Tuple[float, float]:
+        """Calculate the logical error probability of this decoder on the given circuit,
+        over a number of syndromes.
+
+        Parameters
+        ----------
+        num_shots : int | float
+            Number of syndromes to sample.
+        exclude_empty : bool
+            Whether or not to exclude empty syndromes from the simulation, by default
+            False.
+
+        Raises
+        ------
+        warnings.warn
+            As BP is not guaranteed to covnerge on quantum codes, it cannot provide a
+            true logical error probability. As such, we report on only those cases where
+            the algorithm converges.
+
+        Returns
+        -------
+        Tuple[float, float]
+            The logical error probability and the precision (1 over the sqrt of the
+            number of samples).
+        """
         warnings.warn(
             """As Belief Propagation is not guaranteed to converge on quantum codes, it 
             does not yet permit logical error functionality. This function will only 
             calculate the logical error on those cases where BP converges."""
         )
 
+        sampler = Sampler(circuit=self.circuit)
+        syndromes, logicals = sampler(num_shots=num_shots, exclude_empty=exclude_empty)
 
-# if __name__ == "__main__":
-#     from dotg.circuits import rotated_surface_code, color_code
-#     from dotg.noise import DepolarizingNoise
-#     from dotg.decoders._syndrome_sampler import Sampler
+        logical_failures = 0
+        convergence_events = 0
+        for syndrome, logical in zip(syndromes, logicals):
+            converged, error_pattern, _ = self.decode_syndrome(syndrome=syndrome)
+            if not converged:
+                continue
 
-#     noisy_circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
-#         color_code(distance=5)
-#     )
-#     sampler = Sampler(circuit=noisy_circuit)
-#     syndrome, logical = sampler(1, True)
-#     bp = BeliefPropagation(circuit=noisy_circuit, max_iterations=5)
+            convergence_events += 1
+            _logical_flip_observed = [
+                sum(x * y for x, y in zip(log, error_pattern)) % 2
+                for log in self.logical_check
+            ]
 
-#     converged, err_pat, remaining = bp.decode_syndrome(syndrome=syndrome[0])
+            if _logical_flip_observed != logical:
+                logical_failures += 1
 
-#     if converged:
-#         assert all(x == 0 for x in (bp.parity_check @ err_pat - np.asarray(syndrome))[0])
-#     else:
-#         assert all(x == y for x, y in zip(syndrome[0], remaining))
+        return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
+
+
+if __name__ == "__main__":
+    from dotg.circuits import rotated_surface_code, color_code
+    from dotg.noise import DepolarizingNoise
+    from dotg.decoders._syndrome_sampler import Sampler
+
+    noisy_circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
+        color_code(distance=5)
+    )
+    bp = BeliefPropagation(circuit=noisy_circuit, max_iterations=10)
+    print(bp.logical_error(num_shots=1e3))
