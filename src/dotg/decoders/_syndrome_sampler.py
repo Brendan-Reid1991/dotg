@@ -46,7 +46,7 @@ class Sampler:
         self.circuit = circuit
 
     def __call__(
-        self, shots: int | float = 1000, exclude_empty: bool = False
+        self, num_shots: int | float = 1000, exclude_empty: bool = False
     ) -> Tuple[NDArray[Any], List[bool]]:
         """Given a stim circuit, sample from the detectors and generate some syndromes.
 
@@ -54,7 +54,7 @@ class Sampler:
         ----------
         circuit : stim.Circuit
             Circuit to sample from.
-        shots : int, optional
+        num_shots : int, optional
             How many syndromes to generate, by default 1000.
         exclude_empty : bool, optional
             Whether to ignore zero-weight syndromes, by default False. If True,
@@ -65,9 +65,9 @@ class Sampler:
         Tuple[NDArray[Any], List[np.bool]]
             A tuple of iterables:
                 - The first element is an array of syndromes, of dimension
-                (shots * num_detectors). In each row, 1 (0) indicates detector did (not)
+                (num_shots * num_detectors). In each row, 1 (0) indicates detector did (not)
                 trigger.
-                - The second element is an list of booleans, of dimension (shots * 1).
+                - The second element is an list of booleans, of dimension (num_shots * 1).
                 These indicate whether the syndrome in the row triggered the logical
                 observable.
         """
@@ -75,13 +75,13 @@ class Sampler:
             raise NoNoiseInCircuitError()
 
         detector_sampler = self.circuit.compile_detector_sampler()
-        syndrome_batch: List[List[int]] = []
-        observable_batch: List[bool] = []
 
         if exclude_empty:
-            while len(syndrome_batch) < shots:
+            syndrome_batch: List[List[int]] = []
+            observable_batch: List[bool] = []
+            while len(syndrome_batch) < num_shots:
                 _syndrome_batch, _observable_batch = detector_sampler.sample(
-                    shots=int(shots), separate_observables=True
+                    num_shots=int(num_shots), separate_observables=True
                 )
                 for _syn, _ob in zip(_syndrome_batch, _observable_batch):
                     if any(_syn):
@@ -89,12 +89,12 @@ class Sampler:
                         observable_batch.append(_ob)
         else:
             syndrome_batch, observable_batch = detector_sampler.sample(
-                shots=int(shots), separate_observables=True
+                shots=int(num_shots), separate_observables=True
             )
 
         return (
             np.asarray([[int(bit) for bit in syndrome] for syndrome in syndrome_batch])[
-                0 : int(shots)
+                0 : int(num_shots)
             ],
-            observable_batch[0 : int(shots)],
+            observable_batch[0 : int(num_shots)],
         )
