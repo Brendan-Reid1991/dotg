@@ -10,8 +10,21 @@ import warnings
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.decoders import Sampler
-from dotg.decoders.decoder_options import MessageUpdates
 from dotg.utilities import CircuitUnderstander
+
+from enum import IntEnum
+
+
+class MessageUpdates(IntEnum):
+    """An enum for accessing min-sum and prod-sum updates in belief propagation.
+
+    Options:
+        - PROD_SUM = 0
+        - MIN_SUM = 1
+    """
+
+    PROD_SUM: int = 0
+    MIN_SUM: int = 1
 
 
 class BeliefPropagation(Decoder):
