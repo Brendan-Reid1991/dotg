@@ -6,10 +6,11 @@ import numpy as np
 import stim
 from pymatching import Matching
 
-from dotg.decoders._syndrome_sampler import check_if_noisy_circuit, NoNoiseInCircuitError
+from dotg.decoders._decoder_base_class import Decoder
+from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 
-class MinimumWeightPerfectMatching:
+class MinimumWeightPerfectMatching(Decoder):
     """This class allows decoding on graphs via the Minimum Weight Perfect Matching
     algorithm. Due to the functionality of the pymatching package, this class requires
     no other dependencies to generate a logical error value from an input circuit.
@@ -30,7 +31,7 @@ class MinimumWeightPerfectMatching:
     """
 
     def __init__(self, circuit: stim.Circuit) -> None:
-        self.circuit = circuit
+        super().__init__(circuit=circuit)
         self.sampler = circuit.compile_detector_sampler()
 
         if not check_if_noisy_circuit(circuit=self.circuit):
@@ -51,17 +52,17 @@ class MinimumWeightPerfectMatching:
             raise exc
 
     def logical_error(self, num_shots: int | float) -> float:
-        """_summary_
+        """Calculate the logical error probability of this decoder on the given circuit, over a number of syndromes.
 
         Parameters
         ----------
         num_shots : int
-            _description_
+            Number of syndromes to sample.
 
         Returns
         -------
-        _type_
-            _description_
+        float
+            The logical error probability.
         """
         syndrome_batch, observables = self.sampler.sample(
             shots=int(num_shots), separate_observables=True
