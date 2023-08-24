@@ -1,18 +1,17 @@
 """This module provides access to the Belief-Propagation decoder from the LDPC package: 
 https://github.com/quantumgizmos/ldpc"""
+import warnings
+from enum import IntEnum
 from typing import List, Tuple
 
 import numpy as np
 import stim
 from ldpc import bp_decoder
 from numpy.typing import NDArray
-import warnings
 
-from dotg.decoders._decoder_base_class import Decoder
 from dotg.decoders import Sampler
+from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
-
-from enum import IntEnum
 
 
 class MessageUpdates(IntEnum):
@@ -156,9 +155,9 @@ class BeliefPropagation(Decoder):
 
 
 if __name__ == "__main__":
-    from dotg.circuits import rotated_surface_code, color_code
-    from dotg.noise import DepolarizingNoise
+    from dotg.circuits import color_code, rotated_surface_code
     from dotg.decoders._syndrome_sampler import Sampler
+    from dotg.noise import DepolarizingNoise
 
     noisy_circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
         color_code(distance=5)
