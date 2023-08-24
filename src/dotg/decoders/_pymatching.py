@@ -1,5 +1,7 @@
 """This module provides access to the Minimum Weight Perfect Matching (MWPM) decoder via 
 the pymatching package: https://github.com/oscarhiggott/PyMatching"""
+from __future__ import annotations
+
 import numpy as np
 import stim
 from pymatching import Matching
@@ -48,7 +50,7 @@ class MinimumWeightPerfectMatching:
                 ) from exc
             raise exc
 
-    def logical_error(self, num_shots: int) -> float:
+    def logical_error(self, num_shots: int | float) -> float:
         """_summary_
 
         Parameters
