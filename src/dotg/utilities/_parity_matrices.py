@@ -4,7 +4,6 @@ mechanism."""
 from typing import List, TypeAlias
 import stim
 import numpy as np
-from numpy.typing import NDArray
 
 # pylint: disable=invalid-name
 ArrayT: TypeAlias = List[List[float]]
@@ -18,7 +17,7 @@ class CircuitUnderstander:
 
     Parameters
     ----------
-    stim_circuit : stim.Circuit
+    circuit : stim.Circuit
         Stim circuit describing our experiment.
     decompose_errors : bool, optional
         Whether or not to decompose the errors into graphlike errors, by default False.
@@ -36,11 +35,9 @@ class CircuitUnderstander:
         The list of probabilities relating to each error mechanism.
     """
 
-    def __init__(
-        self, stim_circuit: stim.Circuit, decompose_errors: bool = False
-    ) -> None:
+    def __init__(self, circuit: stim.Circuit, decompose_errors: bool = False) -> None:
         self._understand_circuit(
-            stim_circuit=stim_circuit.flattened(), decompose_errors=decompose_errors
+            circuit=circuit.flattened(), decompose_errors=decompose_errors
         )
 
     @property
@@ -70,12 +67,10 @@ class CircuitUnderstander:
     def error_probabilities(self, new_probabilities: List[float]):
         self._probs = new_probabilities
 
-    def _understand_circuit(
-        self, stim_circuit: stim.Circuit, decompose_errors: bool = False
-    ):
+    def _understand_circuit(self, circuit: stim.Circuit, decompose_errors: bool = False):
         """Inspect the input circuit and get the parity check, logical check and error
         probabilities."""
-        dem = stim_circuit.detector_error_model(decompose_errors=decompose_errors)
+        dem = circuit.detector_error_model(decompose_errors=decompose_errors)
 
         parity_check = np.zeros((dem.num_detectors, dem.num_errors))
         logical_check = np.zeros((dem.num_observables, dem.num_errors))
