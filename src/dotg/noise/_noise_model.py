@@ -5,9 +5,16 @@ from typing import Tuple, TypeAlias
 
 import stim
 
-from dotg.utilities import (MeasureAndReset, MeasurementGates, OneQubitGates,
-                            OneQubitNoiseChannels, ResetGates, StimDecorators,
-                            TwoQubitGates, TwoQubitNoiseChannels)
+from dotg.utilities import (
+    MeasureAndReset,
+    MeasurementGates,
+    OneQubitGates,
+    OneQubitNoiseChannels,
+    ResetGates,
+    StimDecorators,
+    TwoQubitGates,
+    TwoQubitNoiseChannels,
+)
 
 NoiseParam: TypeAlias = float | Tuple[float]
 

@@ -25,19 +25,19 @@ class Sampler:
         circuit : stim.Circuit
             Circuit to sample from.
         shots : int, optional
-            How many syndromes to generate, by default 1e3
+            How many syndromes to generate, by default 1000.
         exclude_empty : bool, optional
-            Whether to ignore zero-weight syndromes. If True, syndromes will be generated
-            repeatedly until enough have been collected.
+            Whether to ignore zero-weight syndromes, by default False. If True,
+            syndromes will be generated repeatedly until enough have been collected.
 
         Returns
         -------
-        Tuple[NDArray[Any], NDArray[np.bool]]
-            A tuple of numpy arrays:
+        Tuple[NDArray[Any], List[np.bool]]
+            A tuple of iterables:
                 - The first element is an array of syndromes, of dimension
                 (shots * num_detectors). In each row, 1 (0) indicates detector did (not)
                 trigger.
-                - The second element is an array of booleans, of dimension (shots * 1).
+                - The second element is an list of booleans, of dimension (shots * 1).
                 These indicate whether the syndrome in the row triggered the logical
                 observable.
         """

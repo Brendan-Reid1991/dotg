@@ -4,8 +4,7 @@ from __future__ import annotations
 import pytest
 import stim
 
-from dotg.circuits import (color_code, rotated_surface_code,
-                           unrotated_surface_code)
+from dotg.circuits import color_code, rotated_surface_code, unrotated_surface_code
 
 # pylint: disable=no-member,missing-function-docstring
 
