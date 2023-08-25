@@ -12,3 +12,5 @@ class BasicDecoderTests:
     def test_raises_NoNoiseError_for_no_noise(self):
         with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
             self.DECODER_CLASS(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
+        with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
+            self.DECODER_CLASS(BasicCircuits.HypergraphLike.NOISELESS_CIRCUIT)
