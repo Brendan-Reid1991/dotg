@@ -92,7 +92,7 @@ class Sampler:
             observable_batch: List[bool] = []
             while len(syndrome_batch) < num_shots:
                 _syndrome_batch, _observable_batch = detector_sampler.sample(
-                    num_shots=int(num_shots), separate_observables=True
+                    shots=int(num_shots), separate_observables=True
                 )
                 for _syn, _ob in zip(_syndrome_batch, _observable_batch):
                     if any(_syn):
