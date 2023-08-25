@@ -19,6 +19,8 @@ mypy = "^1.4.1"
 autopep8 = "^2.0.2"
 black = "^23.7.0"
 
+[tool.pylint.MASTER]
+ignore-paths = '^tests/dotg/.*$'
 
 [build-system]
 requires = ["poetry-core"]
