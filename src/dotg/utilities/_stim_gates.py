@@ -20,8 +20,8 @@ class OneQubitGates(StimOperations):
 
     I = "I"
     X = "X"
-    Z = "Z"
     Y = "Y"
+    Z = "Z"
     H = "H"
     S = "S"
     S_DAG = "S_DAG"
