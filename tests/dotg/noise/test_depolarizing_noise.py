@@ -9,7 +9,7 @@ class TestDepolarizingNoise:
     def noise_model(self):
         return DepolarizingNoise(physical_error=1e-3)
 
-    @pytest.mark.parametrize("invalid_param", (-1, 0, 1, 2, 4.1))
+    @pytest.mark.parametrize("invalid_param", (-1, 1, 2, 4.1))
     def test_value_error_raised_for_invalid_param(self, invalid_param):
         with pytest.raises(
             ValueError, match="Physical error probability must be between 0 and 1"

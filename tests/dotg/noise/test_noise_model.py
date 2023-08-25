@@ -42,11 +42,11 @@ class TestNoiseModel:
                 [
                     (TwoQubitNoiseChannels.DEPOLARIZE2, 0.1),
                     (OneQubitNoiseChannels.DEPOLARIZE1, 0.1),
-                    (OneQubitNoiseChannels.Y_ERROR, 0.0),
+                    (OneQubitNoiseChannels.Y_ERROR, -0.045),
                     1e-2,
                 ],
                 "Invalid noise parameter passed for channel "
-                "OneQubitNoiseChannels.Y_ERROR: 0.0",
+                "OneQubitNoiseChannels.Y_ERROR: -0.045",
             ],
         ],
     )
