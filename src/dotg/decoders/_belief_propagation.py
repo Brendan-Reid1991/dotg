@@ -9,9 +9,8 @@ import stim
 from ldpc import bp_decoder
 from numpy.typing import NDArray
 
-from dotg.decoders import Sampler
 from dotg.decoders._decoder_base_class import Decoder
-from dotg.utilities import CircuitUnderstander
+from dotg.utilities import CircuitUnderstander, Sampler
 
 
 class MessageUpdates(IntEnum):
@@ -156,7 +155,7 @@ class BeliefPropagation(Decoder):
 
 if __name__ == "__main__":
     from dotg.circuits import color_code, rotated_surface_code
-    from dotg.decoders._syndrome_sampler import Sampler
+    from dotg.utilities._syndrome_sampler import Sampler
     from dotg.noise import DepolarizingNoise
 
     noisy_circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(

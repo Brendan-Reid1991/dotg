@@ -7,7 +7,11 @@ import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities.stim import OneQubitNoiseChannels, TwoQubitNoiseChannels
+from dotg.utilities.stim_assets import (
+    OneQubitNoiseChannels,
+    TwoQubitNoiseChannels,
+    MeasurementGates,
+)
 
 # pylint: disable=no-member
 
@@ -34,6 +38,12 @@ def check_if_noisy_circuit(circuit: stim.Circuit) -> bool:
     if any(
         instr.name in OneQubitNoiseChannels.members() + TwoQubitNoiseChannels.members()
         for instr in circuit
+    ) or any(
+        [
+            any(x > 0 for x in instr.gate_args_copy())
+            for instr in circuit
+            if instr.name in MeasurementGates.members()
+        ]
     ):
         return True
 

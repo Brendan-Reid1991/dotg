@@ -5,7 +5,7 @@ from typing import Tuple, TypeAlias
 
 import stim
 
-from dotg.utilities.stim import (
+from dotg.utilities.stim_assets import (
     MeasureAndReset,
     MeasurementGates,
     OneQubitGates,

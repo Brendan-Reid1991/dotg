@@ -1,4 +1,4 @@
-from dotg.utilities.stim import StimDecorators
+from dotg.utilities.stim_assets import StimDecorators
 
 from .base_test_stim_operations import BaseTestStimOperations
 
