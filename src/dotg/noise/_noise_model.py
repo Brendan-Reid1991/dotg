@@ -1,7 +1,7 @@
 """This module defines a bespoke noise model class."""
 from __future__ import annotations
 
-from typing import Tuple, TypeAlias
+from typing import Tuple, TypeAlias, Optional, Type
 
 import stim
 
@@ -16,13 +16,15 @@ from dotg.utilities.stim_assets import (
     TwoQubitNoiseChannels,
 )
 
-NoiseParam: TypeAlias = float | Tuple[float]
+NoiseParamT: TypeAlias = float | Tuple[float]
+NoiseChannelT: TypeAlias = TwoQubitNoiseChannels | OneQubitNoiseChannels
 
 
 class NoiseModel:
     """Class that takes in specific noise channels and corresponding strengths, to be
     applied to a circuit.
 
+    TODO: Split into smaller components, and add functionality for idle noise.
 
         Parameters
         ----------
@@ -50,18 +52,36 @@ class NoiseModel:
 
     def __init__(
         self,
-        two_qubit_gate_noise: Tuple[TwoQubitNoiseChannels, NoiseParam],
-        one_qubit_gate_noise: Tuple[OneQubitNoiseChannels, NoiseParam],
-        reset_noise: Tuple[OneQubitNoiseChannels, NoiseParam],
-        measurement_noise: float,
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        measurement_noise: float = 0,
     ) -> None:
+        # HouseKeeping
+
+        two_qubit_gate_noise = (
+            (TwoQubitNoiseChannels.DEPOLARIZE2, 0)
+            if two_qubit_gate_noise is None
+            else two_qubit_gate_noise
+        )
+        one_qubit_gate_noise = (
+            (OneQubitNoiseChannels.DEPOLARIZE1, 0.0)
+            if one_qubit_gate_noise is None
+            else one_qubit_gate_noise
+        )
+        reset_noise = (
+            (OneQubitNoiseChannels.DEPOLARIZE1, 0.0)
+            if reset_noise is None
+            else reset_noise
+        )
+
         for _channel, _param in [
             two_qubit_gate_noise,
             one_qubit_gate_noise,
             reset_noise,
         ]:
             if isinstance(_param, float | int):
-                if not 0 < _param < 1:
+                if not 0 <= _param < 1:
                     raise ValueError(
                         f"Invalid noise parameter passed for channel {_channel}: {_param}"
                     )
@@ -75,7 +95,7 @@ class NoiseModel:
                     "respectively."
                 )
 
-        if not 0 < measurement_noise < 1:
+        if not 0 <= measurement_noise < 1:
             raise ValueError(
                 f"Invalid measurement flip value given: {measurement_noise}"
             )
@@ -121,11 +141,12 @@ class NoiseModel:
                 noisy_circuit.append(
                     name=ResetGates.RZ.value, targets=instr.targets_copy()
                 )
-                noisy_circuit.append(
-                    name=self._reset_noise_channel.value,
-                    targets=instr.targets_copy(),
-                    arg=self._reset_noise_parameter,
-                )
+                if self._reset_noise_parameter:
+                    noisy_circuit.append(
+                        name=self._reset_noise_channel.value,
+                        targets=instr.targets_copy(),
+                        arg=self._reset_noise_parameter,
+                    )
                 continue
 
             if instr.name in MeasurementGates.members():
@@ -140,21 +161,27 @@ class NoiseModel:
             if instr.name in StimDecorators.members():
                 continue
 
-            if instr.name in OneQubitGates.members():
+            if (
+                instr.name in OneQubitGates.members()
+                and self._one_qubit_gate_noise_parameter
+            ):
                 noisy_circuit.append(
                     name=self._one_qubit_gate_noise_channel.value,
                     targets=instr.targets_copy(),
                     arg=self._one_qubit_gate_noise_parameter,
                 )
 
-            if instr.name in ResetGates.members():
+            if instr.name in ResetGates.members() and self._reset_noise_parameter:
                 noisy_circuit.append(
                     name=self._reset_noise_channel.value,
                     targets=instr.targets_copy(),
                     arg=self._reset_noise_parameter,
                 )
 
-            if instr.name in TwoQubitGates.members():
+            if (
+                instr.name in TwoQubitGates.members()
+                and self._two_qubit_gate_noise_parameter
+            ):
                 noisy_circuit.append(
                     name=self._two_qubit_gate_noise_channel.value,
                     targets=instr.targets_copy(),
