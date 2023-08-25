@@ -6,7 +6,7 @@ from dotg.utilities._syndrome_sampler import (
     NoNoiseInCircuitError,
 )
 
-from tests.dotg.circuits import (
+from tests.unit.circuits import (
     NOISELESS_CIRCUIT,
     NOISY_CIRCUIT,
     MEASUREMENT_NOISE_ONLY_CIRCUIT,

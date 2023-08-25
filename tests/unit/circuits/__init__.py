@@ -1,4 +1,4 @@
-from tests.dotg.circuits._test_circuit import (
+from tests.unit.circuits._test_circuit import (
     NOISELESS_CIRCUIT,
     NOISY_CIRCUIT,
     MEASUREMENT_NOISE_ONLY_CIRCUIT,

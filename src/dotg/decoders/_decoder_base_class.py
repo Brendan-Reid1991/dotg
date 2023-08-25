@@ -3,6 +3,10 @@
 from abc import ABC, abstractmethod
 
 import stim
+from dotg.utilities._syndrome_sampler import (
+    NoNoiseInCircuitError,
+    check_if_noisy_circuit,
+)
 
 
 class Decoder(ABC):
@@ -10,6 +14,9 @@ class Decoder(ABC):
 
     def __init__(self, circuit: stim.Circuit) -> None:
         self.circuit = circuit
+
+        if not check_if_noisy_circuit(circuit=self.circuit):
+            raise NoNoiseInCircuitError()
 
     @abstractmethod
     def logical_error(self, num_shots: int | float) -> float:

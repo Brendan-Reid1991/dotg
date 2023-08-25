@@ -7,10 +7,6 @@ import stim
 from pymatching import Matching
 
 from dotg.decoders._decoder_base_class import Decoder
-from dotg.utilities._syndrome_sampler import (
-    NoNoiseInCircuitError,
-    check_if_noisy_circuit,
-)
 
 
 class MinimumWeightPerfectMatching(Decoder):
@@ -36,9 +32,6 @@ class MinimumWeightPerfectMatching(Decoder):
     def __init__(self, circuit: stim.Circuit) -> None:
         super().__init__(circuit=circuit)
         self.sampler = circuit.compile_detector_sampler()
-
-        if not check_if_noisy_circuit(circuit=self.circuit):
-            raise NoNoiseInCircuitError()
 
         try:
             self.matching = Matching.from_detector_error_model(
