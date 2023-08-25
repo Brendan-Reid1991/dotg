@@ -90,7 +90,7 @@ class NoiseModel:
                 TwoQubitNoiseChannels.PAULI_CHANNEL_2,
             ] and ((not isinstance(_param, tuple)) or (len(_param) not in [3, 15])):
                 raise ValueError(
-                    "Stim noise channels `PAULI_CHANNEL_1` and `PAULI_CHANNEL_2` "
+                    "stim noise channels `PAULI_CHANNEL_1` and `PAULI_CHANNEL_2` "
                     "must be accompanied with tuple of floats of lengths 3 and 15 "
                     "respectively."
                 )

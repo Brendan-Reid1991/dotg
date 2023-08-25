@@ -70,7 +70,7 @@ class TestNoiseModel:
     ):
         with pytest.raises(
             ValueError,
-            match="Stim noise channels `PAULI_CHANNEL_1` and"
+            match="stim noise channels `PAULI_CHANNEL_1` and"
             " `PAULI_CHANNEL_2` must be accompanied with tuple of floats "
             "of lengths 3 and 15 respectively.",
         ):

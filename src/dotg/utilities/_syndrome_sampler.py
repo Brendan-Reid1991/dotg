@@ -28,7 +28,7 @@ def check_if_noisy_circuit(circuit: stim.Circuit) -> bool:
     Parameters
     ----------
     circuit : stim.Circuit
-        Stim circuit.
+        stim circuit.
 
     Returns
     -------
