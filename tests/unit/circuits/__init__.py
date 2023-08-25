@@ -1,5 +1,1 @@
-from tests.unit.circuits._test_circuit import (
-    NOISELESS_CIRCUIT,
-    NOISY_CIRCUIT,
-    MEASUREMENT_NOISE_ONLY_CIRCUIT,
-)
+from tests.unit.circuits._basic_circuits import BasicCircuits
