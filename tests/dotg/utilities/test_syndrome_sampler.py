@@ -1,31 +1,24 @@
 import pytest
-import stim
 
-from dotg.circuits import rotated_surface_code
-from dotg.noise import DepolarizingNoise, NoiseModel
 from dotg.utilities import Sampler
-from dotg.utilities.stim_assets import MeasurementGates
 from dotg.utilities._syndrome_sampler import (
     check_if_noisy_circuit,
     NoNoiseInCircuitError,
 )
 
-noiseless_circuit = rotated_surface_code(distance=2, rounds=1)
-generic_noise_model = DepolarizingNoise(physical_error=1e-2)
-noisy_circuit = generic_noise_model.permute_circuit(noiseless_circuit)
-
-measurement_noise_only = NoiseModel(measurement_noise=1e-2)
-noisy_circuit_only_measurement_errors = measurement_noise_only.permute_circuit(
-    noiseless_circuit
+from tests.dotg.circuits import (
+    NOISELESS_CIRCUIT,
+    NOISY_CIRCUIT,
+    MEASUREMENT_NOISE_ONLY_CIRCUIT,
 )
 
 
 @pytest.mark.parametrize(
     "circuit, output",
     [
-        [noiseless_circuit, False],
-        [noisy_circuit, True],
-        [noisy_circuit_only_measurement_errors, True],
+        [NOISELESS_CIRCUIT, False],
+        [NOISY_CIRCUIT, True],
+        [MEASUREMENT_NOISE_ONLY_CIRCUIT, True],
     ],
 )
 def test_check_if_noisy_circuit(circuit, output):
@@ -35,12 +28,12 @@ def test_check_if_noisy_circuit(circuit, output):
 class TestSampler:
     @pytest.fixture(scope="class")
     def sampler(self):
-        return Sampler(noisy_circuit)
+        return Sampler(NOISY_CIRCUIT)
 
     def test_error_raised_if_circuit_has_no_noise(self):
-        sampler = Sampler(noiseless_circuit)
+        sampler = Sampler(NOISELESS_CIRCUIT)
         with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
-            sampler(noiseless_circuit)
+            sampler(NOISELESS_CIRCUIT)
 
     @pytest.mark.parametrize("exclude_empty", [True, False])
     @pytest.mark.parametrize("num_shots", [59, 723, 1467])
