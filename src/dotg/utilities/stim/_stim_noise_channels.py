@@ -1,5 +1,5 @@
 """This module provides helpful enums for access to stim noise channels."""
-from dotg.utilities._stim_operations import StimOperations
+from dotg.utilities.stim._stim_operations import StimOperations
 
 
 class OneQubitNoiseChannels(StimOperations):

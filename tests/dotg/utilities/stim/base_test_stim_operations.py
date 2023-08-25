@@ -2,7 +2,7 @@ from typing import List, Type
 
 import pytest
 
-from dotg.utilities._stim_operations import StimOperations
+from dotg.utilities.stim._stim_operations import StimOperations
 
 
 class BaseTestStimOperations:

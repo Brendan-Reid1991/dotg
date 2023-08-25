@@ -2,7 +2,7 @@ import pytest
 import stim
 
 from dotg.noise import NoiseModel
-from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
+from dotg.utilities.stim import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 
 class TestNoiseModel:

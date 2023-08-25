@@ -1,7 +1,10 @@
-from enum import Enum
-
-from dotg.utilities import (MeasureAndReset, MeasurementGates, OneQubitGates,
-                            ResetGates, TwoQubitGates)
+from dotg.utilities.stim import (
+    MeasureAndReset,
+    MeasurementGates,
+    OneQubitGates,
+    ResetGates,
+    TwoQubitGates,
+)
 
 from .base_test_stim_operations import BaseTestStimOperations
 

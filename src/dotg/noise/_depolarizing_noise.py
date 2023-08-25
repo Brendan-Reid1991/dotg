@@ -1,7 +1,7 @@
 """This module defines depolarizing noise models."""
 
 from dotg.noise._noise_model import NoiseModel
-from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
+from dotg.utilities.stim import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 # pylint: disable=super-init-not-called
 

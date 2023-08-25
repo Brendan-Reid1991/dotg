@@ -7,7 +7,7 @@ import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
+from dotg.utilities.stim import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 # pylint: disable=no-member
 
