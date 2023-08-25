@@ -1,9 +1,10 @@
+import numpy as np
 import pytest
 import stim
-import numpy as np
-from dotg.utilities import CircuitUnderstander
+
 from dotg.circuits import rotated_surface_code
 from dotg.noise import DepolarizingNoise
+from dotg.utilities import CircuitUnderstander
 
 toy_circuit = DepolarizingNoise(physical_error=1e-2).permute_circuit(
     rotated_surface_code(distance=2, rounds=1)

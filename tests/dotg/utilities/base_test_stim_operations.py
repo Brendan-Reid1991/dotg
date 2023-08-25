@@ -1,5 +1,7 @@
 from typing import List, Type
+
 import pytest
+
 from dotg.utilities._stim_operations import StimOperations
 
 

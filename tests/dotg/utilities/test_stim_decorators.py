@@ -1,6 +1,6 @@
-from .base_test_stim_operations import BaseTestStimOperations
 from dotg.utilities import StimDecorators
 
+from .base_test_stim_operations import BaseTestStimOperations
 
 CURRENT_DECORATORS = [
     "DETECTOR",

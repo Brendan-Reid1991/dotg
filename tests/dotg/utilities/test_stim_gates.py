@@ -1,14 +1,9 @@
-from .base_test_stim_operations import BaseTestStimOperations
-from dotg.utilities import (
-    OneQubitGates,
-    TwoQubitGates,
-    ResetGates,
-    MeasureAndReset,
-    MeasurementGates,
-)
-
 from enum import Enum
 
+from dotg.utilities import (MeasureAndReset, MeasurementGates, OneQubitGates,
+                            ResetGates, TwoQubitGates)
+
+from .base_test_stim_operations import BaseTestStimOperations
 
 CURRENT_ONE_QUBIT_GATES = [
     "I",

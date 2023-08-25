@@ -7,7 +7,8 @@ import stim
 from pymatching import Matching
 
 from dotg.decoders._decoder_base_class import Decoder
-from dotg.decoders._syndrome_sampler import NoNoiseInCircuitError, check_if_noisy_circuit
+from dotg.decoders._syndrome_sampler import (NoNoiseInCircuitError,
+                                             check_if_noisy_circuit)
 
 
 class MinimumWeightPerfectMatching(Decoder):
@@ -52,7 +53,8 @@ class MinimumWeightPerfectMatching(Decoder):
             raise exc
 
     def logical_error(self, num_shots: int | float) -> float:
-        """Calculate the logical error probability of this decoder on the given circuit, over a number of syndromes.
+        """Calculate the logical error probability of this decoder on the given circuit,
+        over a number of syndromes.
 
         Parameters
         ----------

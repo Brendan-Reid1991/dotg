@@ -1,6 +1,6 @@
-from .base_test_stim_operations import BaseTestStimOperations
-
 from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
+
+from .base_test_stim_operations import BaseTestStimOperations
 
 CURRENT_ONE_QUBIT_NOISE_CHANNELS = [
     "DEPOLARIZE1",

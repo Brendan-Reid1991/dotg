@@ -6,6 +6,7 @@ from typing import Any, List, Tuple
 import numpy as np
 import stim
 from numpy.typing import NDArray
+
 from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 # pylint: disable=no-member
@@ -65,11 +66,11 @@ class Sampler:
         Tuple[NDArray[Any], List[np.bool]]
             A tuple of iterables:
                 - The first element is an array of syndromes, of dimension
-                (num_shots * num_detectors). In each row, 1 (0) indicates detector did (not)
-                trigger.
-                - The second element is an list of booleans, of dimension (num_shots * 1).
-                These indicate whether the syndrome in the row triggered the logical
-                observable.
+                (num_shots * num_detectors). In each row, 1 (0) indicates detector did
+                (not) trigger.
+                - The second element is an list of booleans, of dimension
+                (num_shots * 1). These indicate whether the syndrome in the row triggered
+                the logical observable.
         """
         if not check_if_noisy_circuit(circuit=self.circuit):
             raise NoNoiseInCircuitError()
