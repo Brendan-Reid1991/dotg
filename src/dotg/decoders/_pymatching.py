@@ -4,7 +4,7 @@ import numpy as np
 import stim
 from pymatching import Matching
 
-from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
+from dotg.decoders._syndrome_sampler import check_if_noisy_circuit, NoNoiseInCircuitError
 
 
 class MinimumWeightPerfectMatching:
@@ -31,14 +31,8 @@ class MinimumWeightPerfectMatching:
         self.circuit = circuit
         self.sampler = circuit.compile_detector_sampler()
 
-        if not any(
-            instr.name
-            in OneQubitNoiseChannels.members() + TwoQubitNoiseChannels.members()
-            for instr in circuit
-        ):
-            raise ValueError(
-                "Circuit passed has no noise; decoding will have no effect."
-            )
+        if not check_if_noisy_circuit(circuit=self.circuit):
+            raise NoNoiseInCircuitError()
 
         try:
             self.matching = Matching.from_detector_error_model(

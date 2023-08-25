@@ -6,12 +6,41 @@ from typing import Any, List, Tuple
 import numpy as np
 import stim
 from numpy.typing import NDArray
+from dotg.utilities import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 # pylint: disable=no-member
 
 
+class NoNoiseInCircuitError(ValueError):
+    def __init__(self) -> None:
+        self.message = "Circuit passed has no noise; decoding will have no effect."
+        super().__init__(self.message)
+
+
+def check_if_noisy_circuit(circuit: stim.Circuit) -> bool:
+    """Check if the given stim circuit has noise entries.
+
+    Parameters
+    ----------
+    circuit : stim.Circuit
+        Stim circuit.
+
+    Returns
+    -------
+    bool
+        Whether the circuit has noise entries.
+    """
+    if any(
+        instr.name in OneQubitNoiseChannels.members() + TwoQubitNoiseChannels.members()
+        for instr in circuit
+    ):
+        return True
+
+    return False
+
+
 class Sampler:
-    """_summary_"""
+    """This class allows you to sample syndromes from a given stim circuit."""
 
     def __init__(self, circuit: stim.Circuit) -> None:
         self.circuit = circuit
@@ -42,6 +71,9 @@ class Sampler:
                 These indicate whether the syndrome in the row triggered the logical
                 observable.
         """
+        if not check_if_noisy_circuit(circuit=self.circuit):
+            raise NoNoiseInCircuitError()
+
         detector_sampler = self.circuit.compile_detector_sampler()
         syndrome_batch: List[List[int]] = []
         observable_batch: List[bool] = []
