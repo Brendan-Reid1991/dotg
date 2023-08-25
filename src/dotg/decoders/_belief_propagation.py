@@ -57,7 +57,7 @@ class BeliefPropagation(Decoder):
             input_vector_type=0,
         )
 
-    def decode_syndrome(
+    def decode_syndrome(  # type: ignore
         self, syndrome: List[int] | NDArray
     ) -> Tuple[bool, NDArray, NDArray]:
         """Decode a syndrome using belief propagation. As BP is not guaranteed to decode,
