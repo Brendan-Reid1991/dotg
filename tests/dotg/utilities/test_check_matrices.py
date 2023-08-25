@@ -9,10 +9,6 @@ toy_circuit = DepolarizingNoise(physical_error=1e-2).permute_circuit(
     rotated_surface_code(distance=2, rounds=1)
 )
 
-print(CircuitUnderstander(toy_circuit).parity_check)
-print(CircuitUnderstander(toy_circuit).logical_check)
-print(CircuitUnderstander(toy_circuit).error_probabilities)
-
 
 class TestCircuitUnderstander:
     @pytest.fixture(scope="class")
