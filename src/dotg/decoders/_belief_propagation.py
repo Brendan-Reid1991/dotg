@@ -1,32 +1,21 @@
 """This module provides access to the Belief-Propagation decoder from the LDPC package: 
 https://github.com/quantumgizmos/ldpc"""
 import warnings
-from enum import IntEnum
 from typing import List, Tuple
 
 import numpy as np
 import stim
-from ldpc import bp_decoder
 from numpy.typing import NDArray
 
-from dotg.decoders._decoder_base_class import Decoder
-from dotg.utilities import CircuitUnderstander, Sampler
+from dotg.decoders._belief_propagation_base_class import (
+    LDPC_BeliefPropagationDecoder,
+    MessageUpdates,
+)
+from dotg.utilities import Sampler
 
 
-class MessageUpdates(IntEnum):
-    """An enum for accessing min-sum and prod-sum updates in belief propagation.
-
-    Options:
-        - PROD_SUM = 0
-        - MIN_SUM = 1
-    """
-
-    PROD_SUM: int = 0
-    MIN_SUM: int = 1
-
-
-class BeliefPropagation(Decoder):
-    """."""
+class BeliefPropagation(LDPC_BeliefPropagationDecoder):
+    """This class defines a Belief Propagation decoder (BP) from the LDPC package."""
 
     def __init__(
         self,
@@ -34,27 +23,10 @@ class BeliefPropagation(Decoder):
         max_iterations,
         message_updates: MessageUpdates | int = MessageUpdates.PROD_SUM,
     ) -> None:
-        super().__init__(circuit=circuit)
-        self.max_iterations = max_iterations
-        self.message_updates = message_updates
-        if self.message_updates not in [0, 1]:
-            raise ValueError(
-                "Message update kwarg must be one of 0 (product-sum) or 1 (minimum sum)."
-                f" Received: {self.message_updates}."
-            )
-
-        self._understander = CircuitUnderstander(circuit=circuit)
-
-        self.parity_check = np.asarray(self._understander.parity_check)
-        self.logical_check = np.asarray(self._understander.logical_check)
-        self.error_probabilities = np.asarray(self._understander.error_probabilities)
-
-        self._decoder = bp_decoder(
-            parity_check_matrix=self.parity_check,
-            max_iter=self.max_iterations,
-            bp_method=self.message_updates,
-            channel_probs=self.error_probabilities,
-            input_vector_type=0,
+        super().__init__(
+            circuit=circuit,
+            max_iterations=max_iterations,
+            message_updates=message_updates,
         )
 
     def decode_syndrome(  # type: ignore
@@ -66,8 +38,6 @@ class BeliefPropagation(Decoder):
             - The final error pattern that the algorithm terminated on.
             - The remaining syndrome considering that error pattern. If the algorithm did
               not converge, this value is overwritten to be the input syndrome.
-
-
 
         Parameters
         ----------
@@ -151,15 +121,3 @@ class BeliefPropagation(Decoder):
                 logical_failures += 1
 
         return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
-
-
-if __name__ == "__main__":
-    from dotg.circuits import color_code, rotated_surface_code
-    from dotg.utilities._syndrome_sampler import Sampler
-    from dotg.noise import DepolarizingNoise
-
-    noisy_circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
-        color_code(distance=5)
-    )
-    bp = BeliefPropagation(circuit=noisy_circuit, max_iterations=10)
-    print(bp.logical_error(num_shots=1e3))
