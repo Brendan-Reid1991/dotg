@@ -1,20 +1,14 @@
 """This module defines a bespoke noise model class."""
 from __future__ import annotations
 
-from typing import Tuple, TypeAlias, Optional, Type
+from typing import Optional, Tuple, Type, TypeAlias
 
 import stim
 
-from dotg.utilities.stim_assets import (
-    MeasureAndReset,
-    MeasurementGates,
-    OneQubitGates,
-    OneQubitNoiseChannels,
-    ResetGates,
-    StimDecorators,
-    TwoQubitGates,
-    TwoQubitNoiseChannels,
-)
+from dotg.utilities.stim_assets import (MeasureAndReset, MeasurementGates,
+                                        OneQubitGates, OneQubitNoiseChannels,
+                                        ResetGates, StimDecorators,
+                                        TwoQubitGates, TwoQubitNoiseChannels)
 
 NoiseParamT: TypeAlias = float | Tuple[float]
 NoiseChannelT: TypeAlias = TwoQubitNoiseChannels | OneQubitNoiseChannels

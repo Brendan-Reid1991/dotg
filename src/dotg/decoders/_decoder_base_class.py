@@ -1,13 +1,12 @@
 """This module defines the decoder base class."""
-from typing import List, Tuple
-from numpy.typing import NDArray
 from abc import ABC, abstractmethod
+from typing import List, Tuple
 
 import stim
-from dotg.utilities._syndrome_sampler import (
-    NoNoiseInCircuitError,
-    check_if_noisy_circuit,
-)
+from numpy.typing import NDArray
+
+from dotg.utilities._syndrome_sampler import (NoNoiseInCircuitError,
+                                              check_if_noisy_circuit)
 
 
 class Decoder(ABC):
@@ -34,7 +33,6 @@ class Decoder(ABC):
         NDArray | List[int]
             An error pattern that results in the given syndrome
         """
-        pass
 
     @abstractmethod
     def logical_error(self, num_shots: int | float) -> float:
@@ -54,4 +52,3 @@ class Decoder(ABC):
         float
             The logical error probability.
         """
-        pass

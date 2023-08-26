@@ -1,4 +1,4 @@
-from dotg.circuits import rotated_surface_code, color_code
+from dotg.circuits import color_code, rotated_surface_code
 from dotg.noise import DepolarizingNoise, NoiseModel
 
 
