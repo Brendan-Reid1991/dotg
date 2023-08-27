@@ -4,7 +4,7 @@ import pytest
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.decoders._belief_propagation_base_class import LDPC_BeliefPropagationDecoder
-from dotg.utilities._syndrome_sampler import NoNoiseInCircuitError
+from dotg.utilities._syndrome_sampler import NoNoiseInCircuitError, Sampler
 from tests.unit.circuits import BasicCircuits
 
 
@@ -36,10 +36,22 @@ class BasicBeliefPropagationDecoderTests:
     @pytest.fixture(scope="class")
     def decoder_hypergraph(self):
         return self.DECODER_CLASS(
-            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+            circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
             max_iterations=1,
             message_updates=0,
         )
+
+    @pytest.fixture(scope="class")
+    def graph_syndrome(self):
+        sampler = Sampler(BasicCircuits.GraphLike.NOISY_CIRCUIT)
+        syn, _ = sampler(1, True)
+        return syn[0]
+
+    @pytest.fixture(scope="class")
+    def hypergraph_syndrome(self):
+        sampler = Sampler(BasicCircuits.HypergraphLike.NOISY_CIRCUIT)
+        syn, _ = sampler(1, True)
+        return syn[0]
 
     @pytest.fixture(scope="class")
     def decoder_graph(self):
@@ -93,3 +105,49 @@ class BasicBeliefPropagationDecoderTests:
         self, decoder_graph
     ):
         assert all(x == 0.5 for x in decoder_graph.posterior_probabilities)
+
+    def test_posterior_probabilities_altered_after_decoding_and_most_are_unique_floats(
+        self, decoder_graph, decoder_hypergraph, graph_syndrome, hypergraph_syndrome
+    ):
+        for decoder, syndrome in zip(
+            [decoder_graph, decoder_hypergraph], [graph_syndrome, hypergraph_syndrome]
+        ):
+            decoder.decode_syndrome(syndrome)
+
+            assert all(isinstance(x, float) for x in decoder.posterior_probabilities)
+            assert (
+                len(set(decoder.posterior_probabilities)) / len(decoder.parity_check[0])
+                >= 0.9
+            )
+
+    def test_posterior_probability_odds_altered_after_decoding_and_most_are_unique_floats(
+        self, decoder_graph, decoder_hypergraph, graph_syndrome, hypergraph_syndrome
+    ):
+        for decoder, syndrome in zip(
+            [decoder_graph, decoder_hypergraph], [graph_syndrome, hypergraph_syndrome]
+        ):
+            decoder.decode_syndrome(syndrome)
+
+            assert all(isinstance(x, float) for x in decoder.posterior_probability_odds)
+            assert (
+                len(set(decoder.posterior_probability_odds))
+                / len(decoder.parity_check[0])
+                >= 0.9
+            )
+
+    def test_posterior_log_probability_odds_altered_after_decoding_and_most_are_unique_floats(
+        self, decoder_graph, decoder_hypergraph, graph_syndrome, hypergraph_syndrome
+    ):
+        for decoder, syndrome in zip(
+            [decoder_graph, decoder_hypergraph], [graph_syndrome, hypergraph_syndrome]
+        ):
+            decoder.decode_syndrome(syndrome)
+
+            assert all(
+                isinstance(x, float) for x in decoder.posterior_log_probability_odds
+            )
+            assert (
+                len(set(decoder.posterior_log_probability_odds))
+                / len(decoder.parity_check[0])
+                >= 0.9
+            )
