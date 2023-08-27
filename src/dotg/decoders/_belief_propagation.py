@@ -57,16 +57,41 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
 
         error_pattern: NDArray = self._decoder.decode(np.asarray(syndrome))
 
-        remaining_syndrome: NDArray = np.asarray(
-            [
-                sum(x * y for x, y in zip(parity_row, error_pattern)) % 2
-                for parity_row in self.parity_check
-            ]
+        remaining_syndrome: NDArray = (
+            self.update_syndrome_from_error_pattern(
+                syndrome=syndrome, error_pattern=error_pattern
+            )
             if self._decoder.converge
             else syndrome
         )
 
         return bool(self._decoder.converge), error_pattern, remaining_syndrome
+
+    def update_syndrome_from_error_pattern(
+        self, syndrome: NDArray, error_pattern: NDArray
+    ) -> NDArray:
+        """Update the syndrome given an observed error pattern from the decoding algorithm.
+        This is a mod2 sum of the syndrome and the product of the parity check matrix and the error pattern:
+
+        Parameters
+        ----------
+        syndrome : NDArray
+            The syndrome that was decoded.
+        error_pattern : NDArray
+            Error pattern found at the point of algorithm termination.
+
+        Returns
+        -------
+        NDArray
+            An updated syndrome array.
+        """
+        return np.asarray(
+            [
+                (sum(x * y for x, y in zip(parity_row, error_pattern)) + syndrome[idx])
+                % 2
+                for idx, parity_row in enumerate(self.parity_check)
+            ]
+        )
 
     def logical_error(  # type: ignore
         self, num_shots: int | float, exclude_empty: bool = False
