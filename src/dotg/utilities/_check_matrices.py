@@ -25,13 +25,12 @@ class CircuitUnderstander:
 
     Attributes
     ----------
-    parity_check : NDArray
-        The parity check matrix of the circuit as a numpy.NDArray object. Element
-        H[i, j] = 1 iff detector i anticommutes with error mechanism j, and 0 otherwise.
-    logical_check : NDArray
-        The logical check matrix of the circuit as numpy.NDArray object. Element
-        L[i, j] = 1 iff logical observable i anticommutes with error mechanism j, and
-        0 otherwise.
+    parity_check : ArrayT
+        The parity check matrix of the circuit. Element H[i, j] = 1 iff detector i
+        anticommutes with error mechanism j, and 0 otherwise.
+    logical_check : ArrayT
+        The logical check matrix of the circuit. Element L[i, j] = 1 iff logical
+        observable i anticommutes with error mechanism j, and 0 otherwise.
     error_probabilities : List[float]
         The list of probabilities relating to each error mechanism.
     """
@@ -68,9 +67,7 @@ class CircuitUnderstander:
     def error_probabilities(self, new_probabilities: List[float]):
         self._probs = new_probabilities
 
-    def _understand_circuit(
-        self, circuit: stim.Circuit, decompose_errors: bool = False
-    ):
+    def _understand_circuit(self, circuit: stim.Circuit, decompose_errors: bool = False):
         """Inspect the input circuit and get the parity check, logical check and error
         probabilities."""
         dem = circuit.detector_error_model(decompose_errors=decompose_errors)
