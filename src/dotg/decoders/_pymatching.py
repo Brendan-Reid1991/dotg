@@ -28,8 +28,6 @@ class MinimumWeightPerfectMatching(Decoder):
         If the circuit passed has no noise entries.
     ValueError
         If the circuit passed does not permit a graph-like error model.
-    ValueError
-        If building the pymatching.Matching object fails for any other reason.
     """
 
     def __init__(self, circuit: stim.Circuit) -> None:
