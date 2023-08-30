@@ -1,4 +1,4 @@
-from typing import Type, Tuple
+from typing import Type
 import pytest
 import numpy as np
 
@@ -8,6 +8,9 @@ from tests.unit.decoders._basic_decoder_tests import (
     BasicDecoderTests,
     BasicBeliefPropagationDecoderTests,
 )
+
+
+# TODO: Improve these tests; Coverage is 96% but tests are not very robust.
 
 
 def test_message_updates_int_enum():
