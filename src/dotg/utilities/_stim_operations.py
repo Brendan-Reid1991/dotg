@@ -15,4 +15,4 @@ class StimOperations(Enum):
         List[str]
             The values of the enum returned as a list.
         """
-        return list(map(lambda member: member.value, cls))
+        return [member.value for member in cls]
