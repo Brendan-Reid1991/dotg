@@ -1,19 +1,13 @@
+from typing import Type, Tuple
 import pytest
+import numpy as np
 
 from dotg.decoders import BeliefPropagation
 from dotg.decoders._belief_propagation_base_class import MessageUpdates
-from tests.unit.circuits._basic_circuits import BasicCircuits
 from tests.unit.decoders._basic_decoder_tests import (
     BasicDecoderTests,
     BasicBeliefPropagationDecoderTests,
 )
-from dotg.utilities import Sampler
-
-if __name__ == "__main__":
-    circ = BasicCircuits.GraphLike.NOISY_CIRCUIT
-
-    sampler = Sampler(circ)
-    syndromes, logicals = sampler(1, True)
 
 
 def test_message_updates_int_enum():
@@ -34,7 +28,25 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
         )
 
     def test_return_types_from_decode_syndrome(self, decoder_graph):
-        pass
+        syndrome = [0, 1]
+        converged, error_pattern, remaining_syndrome = decoder_graph.decode_syndrome(
+            syndrome
+        )
+
+        def _error_message(place: str, true_type: Type, received: Type):
+            return f"{place} return type of BeliefPropagatino.decode_syndrome should be {true_type}. Received: {received}"
+
+        assert isinstance(converged, bool), _error_message(
+            "First", bool, type(converged)
+        )
+
+        assert isinstance(error_pattern, np.ndarray), _error_message(
+            "Second", np.ndarray, type(error_pattern)
+        )
+
+        assert isinstance(remaining_syndrome, np.ndarray), _error_message(
+            "Third", np.ndarray, type(remaining_syndrome)
+        )
 
     def test_not_converging_results_in_same_syndrome_being_returned(self, decoder_graph):
         syndrome = [0, 1]
@@ -52,3 +64,31 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
         syndrome = [1, 1]
         decoder_graph.decode_syndrome(syndrome)
         assert decoder_graph.converged
+
+    @pytest.mark.parametrize(
+        "syndrome, error_pattern, expected",
+        [([0, 0], [1, 1], [0, 1]), ([0, 1], [0, 0], [0, 1]), ([1, 1], [0, 0], [1, 1])],
+    )
+    def test_update_syndrome_from_error_pattern(
+        self, decoder_graph, syndrome, error_pattern, expected
+    ):
+        """If this test fails, double check the `expected` entry by calling
+        [
+          (sum(x * y) for x, y in zip(pcm, error_pattern) + syndyome[idx]) % 2
+              for idx, pcm in enumerate(parity_check_matrix)
+        ]
+        where parity_check_matrix = dotg.utilites.CircuitUnderstander(decoder_graph.circuit).parity_check
+        """
+        assert (
+            decoder_graph.update_syndrome_from_error_pattern(syndrome, error_pattern)
+            == expected
+        ).all()
+
+    def test_logical_error_raises_warning(self, decoder_graph, decoder_hypergraph):
+        match = """As Belief Propagation is not guaranteed to converge on quantum codes, it 
+            does not yet permit logical error functionality. This function will only 
+            calculate the logical error on those cases where BP converges."""
+        with pytest.warns(match=match):
+            decoder_graph.logical_error(1)
+        with pytest.warns(match=match):
+            decoder_hypergraph.logical_error(1)
