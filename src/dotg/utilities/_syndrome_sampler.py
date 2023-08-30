@@ -7,9 +7,11 @@ import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities.stim_assets import (MeasurementGates,
-                                        OneQubitNoiseChannels,
-                                        TwoQubitNoiseChannels)
+from dotg.utilities.stim_assets import (
+    MeasurementGates,
+    OneQubitNoiseChannels,
+    TwoQubitNoiseChannels,
+)
 
 # pylint: disable=no-member
 
@@ -79,6 +81,11 @@ class Sampler:
                 - The second element is an list of booleans, of dimension
                 (num_shots * 1). These indicate whether the syndrome in the row triggered
                 the logical observable.
+
+        Raises
+        ------
+        NoNoiseInCircuitError
+            If there are no noisy entries in the stim circuit.
         """
         if not check_if_noisy_circuit(circuit=self.circuit):
             raise NoNoiseInCircuitError()
