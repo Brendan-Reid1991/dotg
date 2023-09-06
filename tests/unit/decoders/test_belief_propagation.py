@@ -2,20 +2,21 @@ from typing import Type
 import pytest
 import numpy as np
 
+import ldpc.bp_decoder as ldpc_bp
+
 from dotg.decoders import BeliefPropagation
-from dotg.decoders._belief_propagation_base_class import MessageUpdates
-from tests.unit.decoders._basic_decoder_tests import (
-    BasicDecoderTests,
+from dotg.decoders._belief_propagation_base_class import (
+    MessageUpdates,
+    LDPC_DecoderOptions,
+)
+from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
+from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
     BasicBeliefPropagationDecoderTests,
+    BasicCircuits,
 )
 
 
 # TODO: Improve these tests; Coverage is 96% but tests are not very robust.
-
-
-def test_message_updates_int_enum():
-    assert [x.name for x in MessageUpdates] == ["PROD_SUM", "MIN_SUM"]
-    assert [x.value for x in MessageUpdates] == [0, 1]
 
 
 MAX_ITERATIONS = 1
@@ -27,8 +28,79 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
 
     def test_raises_NoNoiseError_for_no_noise(self):
         return super().test_raises_NoNoiseError_for_no_noise(
-            max_iterations=1, message_updates=0
+            LDPC_DecoderOptions(
+                max_iterations=MAX_ITERATIONS, message_updates=MESSAGE_UPDATES
+            )
         )
+
+    @pytest.mark.parametrize(
+        "decoder_options, expected_max_iterations, expected_message_updates_str, expected_min_sum_scaling_factor",
+        [
+            [
+                LDPC_DecoderOptions(max_iterations=25, message_updates=0),
+                25,
+                "product_sum",
+                1,
+            ],
+            [
+                LDPC_DecoderOptions(max_iterations=13, message_updates=1),
+                13,
+                "minimum_sum_log",
+                1,
+            ],
+            [
+                LDPC_DecoderOptions(
+                    max_iterations=40, message_updates=1, min_sum_scaling_factor=15
+                ),
+                40,
+                "minimum_sum_log",
+                15,
+            ],
+        ],
+    )
+    def test_return_type_and_settings_from_decoder_property(
+        self,
+        decoder_options,
+        expected_max_iterations,
+        expected_message_updates_str,
+        expected_min_sum_scaling_factor,
+    ):
+        bp_decoder = BeliefPropagation(
+            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+            decoder_options=decoder_options,
+        )
+        decoder = bp_decoder.decoder
+        assert isinstance(
+            decoder, ldpc_bp
+        ), f"Decoder was of type {type(decoder)}; should have been {type(ldpc_bp)}."
+        assert (
+            decoder.max_iter == expected_max_iterations
+        ), f"Decoder max iterations was {decoder.max_iter}; should have been {expected_max_iterations}."
+        assert (
+            decoder.bp_method == expected_message_updates_str
+        ), f"Decoder bp_method was {decoder.bp_method}; should have been {expected_message_updates_str}."
+        assert (
+            decoder.ms_scaling_factor == expected_min_sum_scaling_factor
+        ), f"Min sum scaling factor was {decoder.ms_scaling_factor}; should have been {expected_min_sum_scaling_factor}"
+
+    @pytest.mark.parametrize("osd_method, osd_order", [(0, 10), (1, 11), (2, 3)])
+    def test_setting_osd_options_has_no_effect(self, osd_method, osd_order):
+        bp_decoder = BeliefPropagation(
+            circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
+            decoder_options=LDPC_DecoderOptions(
+                max_iterations=30,
+                message_updates=MessageUpdates.MIN_SUM,
+                osd_method=osd_method,
+                osd_order=osd_order,
+            ),
+        )
+
+        assert (
+            bp_decoder.decoder_options.osd_method is None
+        ), "OSD method parameter of decoder_options was not properly erased."
+        assert (
+            bp_decoder.decoder_options.osd_order is None
+        ), "OSD order parameter of decoder_options was not properly erased."
 
     def test_return_types_from_decode_syndrome(self, decoder_graph):
         syndrome = [0, 1]
@@ -37,7 +109,7 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
         )
 
         def _error_message(place: str, true_type: Type, received: Type):
-            return f"{place} return type of BeliefPropagatino.decode_syndrome should be {true_type}. Received: {received}"
+            return f"{place} return type of BeliefPropagation.decode_syndrome should be {true_type}. Received: {received}"
 
         assert isinstance(converged, bool), _error_message(
             "First", bool, type(converged)
