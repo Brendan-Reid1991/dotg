@@ -16,7 +16,7 @@ from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
 )
 
 
-# TODO: Improve these tests; Coverage is 96% but tests are not very robust.
+# TODO: Improve these tests; Coverage is 98% but tests are not very robust.
 
 
 class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTests):
