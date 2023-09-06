@@ -118,24 +118,19 @@ class LDPC_DecoderOptions:
 
 
 class LDPC_BeliefPropagationDecoder(Decoder, ABC):
-    """A base class for decoders that inherit from the LDPC package, and particularly the
-    belief propagation decoder.
+    """A base class for decoders that inherit from the bp_decoder object in the LDPC
+    package.
 
     Parameters
     ----------
     circuit : stim.Circuit
-        _description_
-    max_iterations : int
-        _description_
-    message_updates : MessageUpdates | int
-        _description_
-
-    Raises
-    ------
-    ValueError
-        _description_
-    ValueError
-        _description_
+        Stim circuit that defines our experiment.
+    decoder_options : LDPC_DecoderOptions, optional
+        Which decoder options to pass, by default:
+            LDPC_DecoderOptions(
+                max_iterations=1,
+                message_updates=MessageUpdates.PROD_SUM
+            )
     """
 
     def __init__(
