@@ -19,17 +19,13 @@ from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
 # TODO: Improve these tests; Coverage is 96% but tests are not very robust.
 
 
-MAX_ITERATIONS = 1
-MESSAGE_UPDATES = MessageUpdates.PROD_SUM
-
-
 class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTests):
     DECODER_CLASS = BeliefPropagation
 
     def test_raises_NoNoiseError_for_no_noise(self):
         return super().test_raises_NoNoiseError_for_no_noise(
             LDPC_DecoderOptions(
-                max_iterations=MAX_ITERATIONS, message_updates=MESSAGE_UPDATES
+                max_iterations=1, message_updates=MessageUpdates.PROD_SUM
             )
         )
 
