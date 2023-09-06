@@ -3,7 +3,9 @@ from typing import Type
 import pytest
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions)
+    LDPC_BeliefPropagationDecoder,
+    LDPC_DecoderOptions,
+)
 from dotg.utilities import Sampler
 from tests.unit.circuits import BasicCircuits
 
@@ -36,13 +38,6 @@ class BasicBeliefPropagationDecoderTests:
         sampler = Sampler(BasicCircuits.HypergraphLike.NOISY_CIRCUIT)
         syn, _ = sampler(1, True)
         return syn[0]
-
-    @pytest.fixture(scope="class")
-    def decoder_graph(self):
-        return self.DECODER_CLASS(
-            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
-            decoder_options=LDPC_DecoderOptions(max_iterations=1, message_updates=0),
-        )
 
     def test_num_iterations_is_0_before_decoding(self, decoder_graph):
         assert decoder_graph.num_iterations == 0
