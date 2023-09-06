@@ -2,10 +2,24 @@
 https://github.com/quantumgizmos/ldpc"""
 
 from ldpc import bposd_decoder
+import stim
+
+from dotg.decoders._belief_propagation_base_class import (
+    LDPC_BeliefPropagationDecoder,
+    MessageUpdates,
+    OSDMethods,
+    LDPC_DecoderOptions,
+)
 
 
-class BPOSD:
-    """ """
+class BPOSD(LDPC_BeliefPropagationDecoder):
+    """Unfinished."""
 
-    def __init__(self) -> None:
-        pass
+    def __init__(
+        self, circuit: stim.Circuit, decoder_options: LDPC_DecoderOptions
+    ) -> None:
+        super().__init__(circuit=circuit, decoder_options=decoder_options)
+        if not decoder_options.osd_method:
+            raise ValueError("You must provide an OSD method to use BPOSD.")
+
+        raise NotImplementedError("Haven't gotten around to this one yet.")
