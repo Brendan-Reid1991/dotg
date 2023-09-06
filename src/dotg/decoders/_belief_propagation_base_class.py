@@ -1,15 +1,17 @@
 """This module provides an abstract base class for Belief Propagation based decoders."""
 from abc import ABC
 from enum import IntEnum
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import stim
-from ldpc import bp_decoder
+from ldpc import bp_decoder, bposd_decoder
 from numpy.typing import NDArray
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
+
+from dataclasses import dataclass
 
 
 class MessageUpdates(IntEnum):
@@ -24,8 +26,74 @@ class MessageUpdates(IntEnum):
     MIN_SUM: int = 1
 
 
-class LDPC_BeliefPropagationDecoder(Decoder, ABC):
+class OSDMethods(IntEnum):
+    """An enum for accessing OSD methods in BPOSD. These inform the OSD order parameter,
+    however it can be overwritten when using the exhaustive method.
+
+    Options:
+        - ZERO = 0
+        - EXHAUSTIVE = 1
+        - COMBINATION_SWEEP = 2
+    """
+
+    ZERO = 0
+    EXHAUSTIVE = 1
+    COMBINATION_SWEEP = 2
+
+
+@dataclass
+class LDPC_DecoderOptions:
     """_summary_
+
+    Raises
+    ------
+    ValueError
+        _description_
+    ValueError
+        _description_
+    ValueError
+        _description_
+    """
+
+    max_iterations: int
+    message_updates: Optional[MessageUpdates] = None
+    min_sum_scaling_factor: Optional[float] = None
+    osd_method: Optional[OSDMethods] = None
+    osd_order: Optional[int] = None
+
+    def __post_init__(self):
+        if not self.max_iterations > 0 or not isinstance(self.max_iterations, int):
+            raise ValueError(
+                "Max iterations needs to be a positive, non-zero integer. "
+                f"Received: {self.max_iterations}"
+                ""
+            )
+        self.message_updates = self.message_updates or MessageUpdates.PROD_SUM
+
+        if self.message_updates not in [0, 1]:
+            raise ValueError("Invalid message updating scheme.")
+
+        if self.message_updates == 1:
+            self.min_sum_scaling_factor = self.min_sum_scaling_factor or 1
+
+        if self.osd_method not in [0, 1, 2, None]:
+            raise ValueError("Invalid OSD method.")
+
+        if self.osd_order and self.osd_method is None:
+            raise ValueError("OSD Method configuration must be given.")
+
+        if self.osd_method == 0:
+            self.osd_order = 0
+
+        if self.osd_method == 1:
+            self.osd_order = self.osd_order or 10
+
+        if self.osd_method == 2:
+            self.osd_order = -1
+
+
+class LDPC_BeliefPropagationDecoder(Decoder, ABC):
+    """A base class for decoders that inherit from the LDPC package, and particularly the belief propagation decoder.
 
     Parameters
     ----------
@@ -47,26 +115,12 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
     def __init__(
         self,
         circuit: stim.Circuit,
-        max_iterations: int,
-        message_updates: MessageUpdates | int,
+        decoder_options: LDPC_DecoderOptions = LDPC_DecoderOptions(
+            max_iterations=1, message_updates=MessageUpdates.PROD_SUM
+        ),
     ):
         super().__init__(circuit=circuit)
-
-        self.max_iterations = max_iterations
-        self.message_updates = message_updates
-
-        if not self.max_iterations > 0 or not isinstance(self.max_iterations, int):
-            raise ValueError(
-                "Max iterations needs to be positive and non-zero. "
-                f"Received: {self.max_iterations}"
-                ""
-            )
-
-        if self.message_updates not in [0, 1]:
-            raise ValueError(
-                "Message update kwarg must be one of 0 (product-sum) or 1 (minimum-sum)."
-                f" Received: {self.message_updates}."
-            )
+        self.decoder_options = decoder_options
 
         self._understander = CircuitUnderstander(circuit=circuit)
 
@@ -74,13 +128,73 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         self.logical_check = np.asarray(self._understander.logical_check)
         self.error_probabilities = np.asarray(self._understander.error_probabilities)
 
-        self._decoder = bp_decoder(
-            parity_check_matrix=self.parity_check,
-            max_iter=self.max_iterations,
-            bp_method=self.message_updates,
-            channel_probs=self.error_probabilities,
-            input_vector_type=0,
-        )
+        self.decoder = self.decoder_options
+
+    @property
+    def decoder(self):
+        return self._decoder
+
+    @decoder.setter
+    def decoder(self, decoder_options: LDPC_DecoderOptions):
+        """_summary_
+
+        Parameters
+        ----------
+        decoder_options : LDPC_DecoderOptions
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+        input_vector_type = 0
+        if decoder_options.osd_method:
+            # BPOSD Branch
+            if decoder_options.message_updates == 0:
+                self._decoder = bposd_decoder(
+                    parity_check_matrix=self.parity_check,
+                    max_iter=decoder_options.max_iterations,
+                    channel_probs=self.error_probabilities,
+                    input_vector_type=input_vector_type,
+                    ###################################
+                    bp_method=decoder_options.message_updates,
+                    osd_method=decoder_options.osd_method,
+                    osd_order=decoder_options.osd_order,
+                )
+            else:
+                self._decoder = bposd_decoder(
+                    parity_check_matrix=self.parity_check,
+                    max_iter=decoder_options.max_iterations,
+                    channel_probs=self.error_probabilities,
+                    input_vector_type=input_vector_type,
+                    ###################################
+                    bp_method=decoder_options.message_updates,
+                    ms_scaling_factor=decoder_options.min_sum_scaling_factor,
+                    osd_method=decoder_options.osd_method,
+                    osd_order=decoder_options.osd_order,
+                )
+        else:
+            # BP Branch
+            if decoder_options.message_updates == 0:
+                self._decoder = bp_decoder(
+                    parity_check_matrix=self.parity_check,
+                    max_iter=decoder_options.max_iterations,
+                    channel_probs=self.error_probabilities,
+                    input_vector_type=input_vector_type,
+                    ###################################
+                    bp_method=decoder_options.message_updates,
+                )
+            else:
+                self._decoder = bp_decoder(
+                    parity_check_matrix=self.parity_check,
+                    max_iter=decoder_options.max_iterations,
+                    channel_probs=self.error_probabilities,
+                    input_vector_type=input_vector_type,
+                    ###################################
+                    bp_method=decoder_options.message_updates,
+                    ms_scaling_factor=decoder_options.min_sum_scaling_factor,
+                )
 
     @property
     def num_iterations(self) -> int:
