@@ -157,22 +157,24 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         self.decoder = self.decoder_options
 
     @property
-    def decoder(self):
+    def decoder(self) -> bp_decoder:
+        """Return the raw decoder object from the LDPC package.
+
+        Returns
+        -------
+        bp_decoder
+            Decoder object from the LDPC package.
+        """
         return self._decoder
 
     @decoder.setter
     def decoder(self, decoder_options: LDPC_DecoderOptions):
-        """_summary_
+        """Setter for the decoder property.
 
         Parameters
         ----------
         decoder_options : LDPC_DecoderOptions
-            _description_
-
-        Returns
-        -------
-        _type_
-            _description_
+            Decoder options. Determins which decoder object is used.
         """
         input_vector_type = 0
         if decoder_options.osd_method:
@@ -272,7 +274,10 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
 
     @property
     def converged(self) -> bool:
+        """Return whether or not the BP algorithm converged.
+
+        Returns
+        -------
+        bool
+        """
         return bool(self._decoder.converge)
-
-
-LDPC_DecoderOptions
