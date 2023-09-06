@@ -5,12 +5,26 @@ from typing import List
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities._syndrome_sampler import (NoNoiseInCircuitError,
-                                              check_if_noisy_circuit)
+from dotg.utilities._syndrome_sampler import (
+    NoNoiseInCircuitError,
+    check_if_noisy_circuit,
+)
 
 
 class Decoder(ABC):
-    """A decoder base class."""
+    """A decoder base class.
+
+
+    Parameters
+    ----------
+    circuit : stim.Circuit
+        Stim circuit defining our experiment.
+
+    Raises
+    ------
+    NoNoiseInCircuitError
+        If the circuit has no noise entries.
+    """
 
     def __init__(self, circuit: stim.Circuit) -> None:
         self.circuit = circuit
