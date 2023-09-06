@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 from dotg.decoders._belief_propagation_base_class import (
     LDPC_BeliefPropagationDecoder,
     MessageUpdates,
+    LDPC_DecoderOptions,
 )
 from dotg.utilities import Sampler
 
@@ -18,16 +19,16 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
     """This class defines a Belief Propagation decoder (BP) from the LDPC package."""
 
     def __init__(
-        self,
-        circuit: stim.Circuit,
-        max_iterations,
-        message_updates: MessageUpdates | int = MessageUpdates.PROD_SUM,
+        self, circuit: stim.Circuit, decoder_options: LDPC_DecoderOptions
     ) -> None:
-        super().__init__(
-            circuit=circuit,
-            max_iterations=max_iterations,
-            message_updates=message_updates,
-        )
+        super().__init__(circuit=circuit, decoder_options=decoder_options)
+
+        if self.decoder_options.osd_method is not None:
+            self.decoder_options = LDPC_DecoderOptions(
+                max_iterations=decoder_options.max_iterations,
+                message_updates=decoder_options.message_updates,
+                min_sum_scaling_factor=decoder_options.min_sum_scaling_factor,
+            )
 
     def decode_syndrome(  # type: ignore
         self, syndrome: List[int] | NDArray
