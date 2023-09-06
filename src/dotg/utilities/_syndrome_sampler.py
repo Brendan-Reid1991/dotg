@@ -7,11 +7,9 @@ import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities.stim_assets import (
-    MeasurementGates,
-    OneQubitNoiseChannels,
-    TwoQubitNoiseChannels,
-)
+from dotg.utilities.stim_assets import (MeasurementGates,
+                                        OneQubitNoiseChannels,
+                                        TwoQubitNoiseChannels)
 
 # pylint: disable=no-member
 

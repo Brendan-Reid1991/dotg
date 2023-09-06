@@ -1,20 +1,16 @@
 from typing import Type
-import pytest
-import numpy as np
 
 import ldpc.bp_decoder as ldpc_bp
+import numpy as np
+import pytest
 
 from dotg.decoders import BeliefPropagation
-from dotg.decoders._belief_propagation_base_class import (
-    MessageUpdates,
-    LDPC_DecoderOptions,
-)
-from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
+from dotg.decoders._belief_propagation_base_class import (LDPC_DecoderOptions,
+                                                          MessageUpdates)
 from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
-    BasicBeliefPropagationDecoderTests,
-    BasicCircuits,
-)
-
+    BasicBeliefPropagationDecoderTests, BasicCircuits)
+from tests.unit.decoders._basic_tests._basic_decoder_tests import \
+    BasicDecoderTests
 
 # TODO: Improve these tests; Coverage is 98% but tests are not very robust.
 
@@ -119,7 +115,9 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
             "Third", np.ndarray, type(remaining_syndrome)
         )
 
-    def test_not_converging_results_in_same_syndrome_being_returned(self, decoder_graph):
+    def test_not_converging_results_in_same_syndrome_being_returned(
+        self, decoder_graph
+    ):
         syndrome = [0, 1]
         converged, _, remaining_syndrome = decoder_graph.decode_syndrome(syndrome)
         assert not converged

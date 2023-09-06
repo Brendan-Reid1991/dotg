@@ -1,5 +1,6 @@
 """This module provides an abstract base class for Belief Propagation based decoders."""
 from abc import ABC
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import List, Optional
 
@@ -10,8 +11,6 @@ from numpy.typing import NDArray
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
-
-from dataclasses import dataclass
 
 
 class MessageUpdates(IntEnum):
@@ -43,16 +42,42 @@ class OSDMethods(IntEnum):
 
 @dataclass
 class LDPC_DecoderOptions:
-    """_summary_
+    """Dataclass that collates all options for belief propagation (BP) and BPOSD
+    decoders. The only required input is the maximum number of iterations.
+
+    Parameters
+    ----------
+    max_iterations : int
+        Maximum number of message passing stages to execute before terminating the BP
+        algorithm.
+    message_updates : MessageUpdates, optional
+        Which message updating schema to use, by default None. If None, will revert to
+        product sum updates.
+    min_sum_scaling_factor : float, optional
+        Sets the scaling factor for min-sum updates. See arXiv:2005.07016 for more
+        details.
+    osd_method : OSDMethods, optional
+        Which OSD method to use, by default None. Must be explicitly set if using BPOSD.
+    osd_order : int, optional
+        Order parameter for OSD, by default None. If osd_method is given, this value can
+        be inferred:
+            osd_method = OSDMethods.ZERO --> osd_order = 0;\n
+            osd_method = OSDMethods.EXHAUSTIVE --> osd_order = 10;\n
+            osd_method = OSDMethods.COMBINATION_SWEEP --> osd_order = -1;\n
+        However, for OSDMethods.EXHAUSTIVE the value can be overwritten, but will raise a
+        warning above 15.
+
 
     Raises
     ------
     ValueError
-        _description_
+        If max_iterations is not positive and non-zero, or it is not an int.
     ValueError
-        _description_
+        If message_updates is not valid.
     ValueError
-        _description_
+        If osd_method is not valid.
+    ValueError
+        If osd_method has not been set but osd_order has.
     """
 
     max_iterations: int
@@ -93,7 +118,8 @@ class LDPC_DecoderOptions:
 
 
 class LDPC_BeliefPropagationDecoder(Decoder, ABC):
-    """A base class for decoders that inherit from the LDPC package, and particularly the belief propagation decoder.
+    """A base class for decoders that inherit from the LDPC package, and particularly the
+    belief propagation decoder.
 
     Parameters
     ----------
@@ -247,3 +273,6 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
     @property
     def converged(self) -> bool:
         return bool(self._decoder.converge)
+
+
+LDPC_DecoderOptions

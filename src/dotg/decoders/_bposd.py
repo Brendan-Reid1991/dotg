@@ -1,15 +1,12 @@
 """This module provides access to the BPOSD decoder from the ldpc package: 
 https://github.com/quantumgizmos/ldpc"""
 
-from ldpc import bposd_decoder
 import stim
+from ldpc import bposd_decoder
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder,
-    MessageUpdates,
-    OSDMethods,
-    LDPC_DecoderOptions,
-)
+    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions, MessageUpdates,
+    OSDMethods)
 
 
 class BPOSD(LDPC_BeliefPropagationDecoder):
