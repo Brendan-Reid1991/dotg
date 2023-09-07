@@ -8,10 +8,7 @@ import stim
 from numpy.typing import NDArray
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder,
-    LDPC_DecoderOptions,
-    MessageUpdates,
-)
+    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions, MessageUpdates)
 from dotg.utilities import Sampler
 
 
@@ -147,5 +144,7 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
                 logical_failures += 1
 
         if convergence_events > 0:
-            return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
+            return logical_failures / convergence_events, 1 / np.sqrt(
+                convergence_events
+            )
         return 0, 0
