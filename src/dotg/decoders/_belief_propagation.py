@@ -150,3 +150,31 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
         if convergence_events > 0:
             return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
         return 0, 0
+
+
+if __name__ == "__main__":
+    from dotg.circuits import rotated_surface_code
+    from dotg.noise import DepolarizingNoise
+
+    SHOTS = 1000
+
+    circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
+        circuit=rotated_surface_code(distance=5)
+    )
+    sampler = Sampler(circuit=circuit)
+    syndromes, logicals = sampler(num_shots=SHOTS, exclude_empty=True)
+
+    bp = BeliefPropagation(
+        circuit=circuit,
+        decoder_options=LDPC_DecoderOptions(
+            max_iterations=30, message_updates=MessageUpdates.PROD_SUM
+        ),
+    )
+
+    convergence_rate: float = 0
+    for syn, log in zip(syndromes, logicals):
+        conv, err_, remaining_ = bp.decode_syndrome(syndrome=syn)
+        if conv:
+            convergence_rate += 1 / SHOTS
+
+    print(convergence_rate)
