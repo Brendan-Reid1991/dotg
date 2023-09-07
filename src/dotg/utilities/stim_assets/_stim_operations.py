@@ -1,9 +1,9 @@
 """Module to define a base class for all stim enums."""
-from enum import Enum
+from enum import StrEnum
 from typing import List
 
 
-class StimOperations(Enum):
+class StimOperations(StrEnum):
     """Top level enum for all stim operations."""
 
     @classmethod
