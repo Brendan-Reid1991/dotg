@@ -2,8 +2,7 @@ import pytest
 import stim
 
 from dotg.noise import NoiseModel
-from dotg.utilities.stim_assets import (OneQubitNoiseChannels,
-                                        TwoQubitNoiseChannels)
+from dotg.utilities.stim_assets import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 
 class TestNoiseModel:
@@ -26,8 +25,7 @@ class TestNoiseModel:
                     (OneQubitNoiseChannels.Y_ERROR, 0.001),
                     1e-2,
                 ],
-                "Invalid noise parameter passed for channel "
-                "TwoQubitNoiseChannels.DEPOLARIZE2: 1",
+                "Invalid noise parameter passed for channel DEPOLARIZE2: 1",
             ],
             [
                 [
@@ -36,8 +34,7 @@ class TestNoiseModel:
                     (OneQubitNoiseChannels.Y_ERROR, 0.001),
                     1e-2,
                 ],
-                "Invalid noise parameter passed for channel "
-                "OneQubitNoiseChannels.DEPOLARIZE1: -0.5",
+                "Invalid noise parameter passed for channel DEPOLARIZE1: -0.5",
             ],
             [
                 [
@@ -46,8 +43,7 @@ class TestNoiseModel:
                     (OneQubitNoiseChannels.Y_ERROR, -0.045),
                     1e-2,
                 ],
-                "Invalid noise parameter passed for channel "
-                "OneQubitNoiseChannels.Y_ERROR: -0.045",
+                "Invalid noise parameter passed for channel Y_ERROR: -0.045",
             ],
         ],
     )
