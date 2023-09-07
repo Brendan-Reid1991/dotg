@@ -33,7 +33,7 @@ class Decoder(ABC):
             raise NoNoiseInCircuitError()
 
     @abstractmethod
-    def decode_syndrome(self, syndrome: List[int] | NDArray) -> NDArray | List[int]:
+    def decode_syndrome(self, syndrome: List[int] | NDArray) -> List[int] | NDArray:
         """Decode a single syndrome and return a corresponding error pattern that gives
         such a syndrome.
 
