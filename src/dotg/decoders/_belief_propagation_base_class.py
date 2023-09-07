@@ -227,31 +227,35 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         -------
         int
         """
-        return self._decoder.iter
+        return self.decoder.iter
 
     @property
-    def posterior_log_probability_odds(self) -> List[float]:
-        """Return the list of posterior log probability odds after the BP algorithm
-        has ran. Returns all 0 if no decoding has taken place.
+    def posterior_log_probability_ratios(self) -> List[float]:
+        """Return the list of posterior log probability ratios after the BP algorithm
+        has ran. Returns all 0 if no decoding has taken place. If the posterior probability
+        for an error  mechanism is p, this property returns a list of values:
+              log[(1 - p) / p]
 
         Returns
         -------
         List[float]
-            Posterior log probability odds.
+            Posterior log probability ratios.
         """
-        return self._decoder.log_prob_ratios
+        return self.decoder.log_prob_ratios
 
     @property
     def posterior_probability_odds(self) -> List[float]:
         """Return the list of posterior probability odds after the BP algorithm
-        has ran. Returns all 1 if no decoding has taken place.
+        has ran. Returns all 1 if no decoding has taken place. If the posterior
+        probability for an error  mechanism is p, this property returns a list of values:
+              p / (1 - p)
 
         Returns
         -------
         List[float]
             Posterior probability odds.
         """
-        return list(1 / np.exp(self.posterior_log_probability_odds))
+        return list(1 / np.exp(self.posterior_log_probability_ratios))
 
     @property
     def posterior_probabilities(self) -> List[float]:
@@ -263,9 +267,8 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         List[float]
             Posterior probabilities.
         """
-        posterior_odds = self.posterior_probability_odds
 
-        return [x / (1 + x) for x in posterior_odds]
+        return [x / (1 + x) for x in self.posterior_probability_odds]
 
     @property
     def converged(self) -> bool:
@@ -275,4 +278,4 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         -------
         bool
         """
-        return bool(self._decoder.converge)
+        return bool(self.decoder.converge)
