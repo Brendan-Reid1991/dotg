@@ -27,7 +27,6 @@ class Partial_BP_MWPM(Decoder):
         self._first_stage_decoder = BeliefPropagation(
             circuit=self.circuit, decoder_options=self.decoder_options
         )
-        self.converged = self._first_stage_decoder.converged
 
         self._second_stage_decoder = MinimumWeightPerfectMatching(circuit=self.circuit)
 
@@ -35,6 +34,14 @@ class Partial_BP_MWPM(Decoder):
 
         if not 0 < self.hard_decision_tolerance <= 1:
             raise ValueError("Tolerance for hard decisions must be in the range (0, 1].")
+
+    @property
+    def converged(self) -> bool:
+        return self._first_stage_decoder.converged
+
+    @converged.setter
+    def converged(self, replacement: bool):
+        self.converged = replacement
 
     def hard_decision(self, syndrome: List[int] | NDArray) -> Tuple[NDArray, NDArray]:
         posterior_probs = self._first_stage_decoder.posterior_probabilities
@@ -44,7 +51,6 @@ class Partial_BP_MWPM(Decoder):
             for idx, x in enumerate(posterior_probs)
             if x >= self.hard_decision_tolerance
         ]
-
         committed_errors = np.zeros(len(posterior_probs))
         committed_errors[_selection] = 1
 
@@ -66,7 +72,11 @@ class Partial_BP_MWPM(Decoder):
             return error_pattern
 
         committed_errors, remaining_syndrome = self.hard_decision(syndrome=syndrome)
-
+        assert (
+            np.asarray(self._first_stage_decoder.parity_check)
+            @ np.asarray(committed_errors)
+            - np.asanyarray(remaining_syndrome)
+        ).all()
         if not any(remaining_syndrome):
             return committed_errors
 
@@ -102,8 +112,15 @@ if __name__ == "__main__":
         decoder_options=LDPC_DecoderOptions(
             max_iterations=30, message_updates=MessageUpdates.PROD_SUM
         ),
-        hard_decision_tolerance=0.5,
+        hard_decision_tolerance=0.9,
     )
+
+    # decoder = BeliefPropagation(
+    #     circuit=circuit,
+    #     decoder_options=LDPC_DecoderOptions(
+    #         max_iterations=30, message_updates=MessageUpdates.PROD_SUM
+    #     ),
+    # )
 
     convergence_rate: float = 0
     for syn, log in zip(syndromes, logicals):
