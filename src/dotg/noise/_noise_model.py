@@ -25,6 +25,9 @@ class NoiseModel:
     """Class that takes in specific noise channels and corresponding strengths, to be
     applied to a circuit.
 
+    NOTE: If your circuit does not have defined qubit coordinates, you will be unable to
+    add idle noise.
+
     Parameters
     ----------
     two_qubit_gate_noise : Tuple[NoiseChannelT, NoiseParamT], optional
@@ -102,17 +105,17 @@ class NoiseModel:
 
     def _is_legal_noise_model(
         self,
-        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
+        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
+        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
         measurement_noise: float = 0,
     ):
         """Run tests on all the inputs to make sure it's a legal noise model."""
 
         # Check quantum gate channels first
-        for _arg_name, _arg in list(locals().items())[1:-1]:
-            if _arg is None:
+        for _arg_name, _arg in locals().items():
+            if (_arg in (None, self)) or _arg_name == "measurement_noise":
                 continue
             _channel, _param = _arg
             if (
@@ -147,6 +150,27 @@ class NoiseModel:
     def _measurement_instruction(
         self, circuit: stim.Circuit, instruction: stim.CircuitInstruction
     ) -> stim.Circuit:
+        """Add a measurement instruction (with noise) to the end of the given circuit.
+        If the `instruction` kwarg is actually a measurement and reset instruction, the
+        relevant method is called instead.
+
+        Parameters
+        ----------
+        circuit : stim.Circuit
+            stim circuit
+        instruction : stim.CircuitInstruction
+            measurement instruction.
+
+        Returns
+        -------
+        stim.Circuit
+            The circuit with the measurement instruction appended.
+        """
+        if instruction.name == "MR":
+            return self._measurement_and_reset_instruction(
+                circuit=circuit, instruction=instruction
+            )
+
         circuit.append(
             name=instruction.name,
             targets=instruction.targets_copy(),
@@ -157,11 +181,27 @@ class NoiseModel:
     def _measurement_and_reset_instruction(
         self, circuit: stim.Circuit, instruction: stim.CircuitInstruction
     ) -> stim.Circuit:
+        """Add a measurement and reset instruction (with noise) to a stim circuit, but
+        in separate steps and with a TICK command in beteween.
+
+        Parameters
+        ----------
+        circuit : stim.Circuit
+            stim circuit
+        instruction : stim.CircuitInstruction
+            measurement and reset stim instruction.
+
+        Returns
+        -------
+        stim.Circuit
+            The circuit with the measurement and reset instruction appended.
+        """
         circuit.append(
             name=MeasurementGates.MZ,
             targets=instruction.targets_copy(),
             arg=self._measurement_noise_parameter,
         )
+        circuit.append(name=StimDecorators.TICK)
         circuit.append(name=ResetGates.RZ, targets=instruction.targets_copy())
         if self._reset_noise_parameter:
             circuit.append(
@@ -174,6 +214,20 @@ class NoiseModel:
     def _gate_instruction(
         self, circuit: stim.Circuit, instruction: stim.CircuitInstruction
     ) -> stim.Circuit:
+        """Add a noise entry to a stim circuit right after a gate instruction.
+
+        Parameters
+        ----------
+        circuit : stim.Circuit
+            stim Circuit.
+        instruction : stim.CircuitInstruction
+            Instruction explaining what gate has been applied and to which qubits.
+
+        Returns
+        -------
+        stim.Circuit
+            The circuit with the gate now applied noisily.
+        """
         if (
             instruction.name in OneQubitGates.members()
             and self._one_qubit_gate_noise_parameter
@@ -209,10 +263,37 @@ class NoiseModel:
             for line in circuit
             if line.name == StimDecorators.QUBIT_COORDS
         )
-        circuit_layers = get_circuit_layers(circuit=circuit)
+        """Add idle noise to a circuit. This method divides the circuit into congruent 
+        layers (equivalently, timeslices) by splitting at each "TICK" instruction. For 
+        each circuit layer the number of qubits acted upon is found, and any qubits that 
+        are not involved in the layer have idle noise applied to them at the end of the 
+        timeslice. 
 
+        Total qubit count is found by looking for qubit definitions - QUBIT_COORDS 
+        entries in the full circuit.
+
+        Returns
+        -------
+        stim.Circuit
+            New stim circuit with idle noise.
+
+        Raises
+        ------
+        ValueError
+            If the circuit does not have qubit coordinate definitions.
+        """
+        if not qubit_indices:
+            raise ValueError(
+                "You must define qubit entries for idle noise to be applied, "
+                "otherwise stim has no way of knowing how many qubits are involved "
+                "in the experiment. Add QUBIT_COORDS commands to the beginning of the"
+                " circuit."
+            )
+        circuit_layers = get_circuit_layers(circuit=circuit)
         final_circuit = stim.Circuit()
         for timeslice in circuit_layers:
+            if len(timeslice) == 0:
+                continue
             active_qubits = set(
                 x.value
                 for instr in timeslice
@@ -262,15 +343,13 @@ class NoiseModel:
                 continue
 
             noisy_circuit.append(instr)
+
             if instr.name in StimDecorators.members():
                 continue
 
             noisy_circuit = self._gate_instruction(
                 circuit=noisy_circuit, instruction=instr
             )
-
+        if self._idle_noise_parameter:
+            return self.add_idle_noise(noisy_circuit)
         return noisy_circuit
-
-
-if __name__ == "__main__":
-    NoiseModel(two_qubit_gate_noise=(OneQubitNoiseChannels.DEPOLARIZE1, 0.01))
