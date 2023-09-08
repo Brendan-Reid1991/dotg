@@ -566,8 +566,8 @@ class TestNoiseModel:
 
         with pytest.raises(
             ValueError,
-            match="You must define qubit coordinates for idle noise to be applied, "
+            match="You must define qubit entries for idle noise to be applied, "
             "otherwise stim has no way of knowing how many qubits are involved "
-            "in the experiment.",
+            "in the experiment. Add QUBIT_COORDS commands to the beginning of the circuit.",
         ):
             noise_model.permute_circuit(circuit)
