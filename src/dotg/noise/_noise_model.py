@@ -25,32 +25,29 @@ class NoiseModel:
     """Class that takes in specific noise channels and corresponding strengths, to be
     applied to a circuit.
 
-    TODO: Split into smaller components, and add functionality for idle noise.
+    Parameters
+    ----------
+    two_qubit_gate_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+        Two qubit gate noise instruction, by default None.
+    one_qubit_gate_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+        One qubit gate noise instruction.
+    reset_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+        Reset noise instruction.
+    idle_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+        Idle noise instruction.
+    measurement_noise : float, optional
+        Measurement noise value.
 
-        Parameters
-        ----------
-        two_qubit_gate_noise : Tuple[TwoQubitNoiseChannels, NoiseParam]
-            Two qubit gate noise instruction.
-        one_qubit_gate_noise : Tuple[OneQubitNoiseChannels, NoiseParam]
-            One qubit gate noise instruction.
-        reset_noise : Tuple[OneQubitNoiseChannels, NoiseParam]
-            Reset noise instruction.
-        idle_noise : Tuple[OneQubitNoiseChannels, NoiseParam]
-            Idle noise instruction.
-        measurement_noise : float
-            Measurement noise value.
-
-        Raises
-        ------
-        ValueError
-            If float parameter passed does not lie in the range (0, 1).
-        ValueError
-            If the noise channel given is OneQubitNoiseChannels.PAULI_CHANNEL_1
-            (equivalently TwoQubitNoiseChannels.PAULI_CHANNEL_2) and the parameter
-            is not a tuple of length 3 (equivalently length 15).
-        ValueError
-            If the measurement flip value does not lie in the range (0, 1).
-
+    Raises
+    ------
+    ValueError
+        If float parameter passed does not lie in the range (0, 1).
+    ValueError
+        If the noise channel given is OneQubitNoiseChannels.PAULI_CHANNEL_1
+        (equivalently TwoQubitNoiseChannels.PAULI_CHANNEL_2) and the parameter
+        is not a tuple of length 3 (equivalently length 15).
+    ValueError
+        If the measurement flip value does not lie in the range (0, 1).
     """
 
     def __init__(
@@ -63,34 +60,70 @@ class NoiseModel:
     ) -> None:
         # HouseKeeping
 
-        two_qubit_gate_noise = (
+        self._is_legal_noise_model(
+            two_qubit_gate_noise,
+            one_qubit_gate_noise,
+            reset_noise,
+            idle_noise,
+            measurement_noise,
+        )
+
+        self._is_legal_noise_model(
+            two_qubit_gate_noise=two_qubit_gate_noise,
+            one_qubit_gate_noise=one_qubit_gate_noise,
+            reset_noise=reset_noise,
+            idle_noise=idle_noise,
+            measurement_noise=measurement_noise,
+        )
+
+        (self._two_qubit_gate_noise_channel, self._two_qubit_gate_noise_parameter) = (
             (TwoQubitNoiseChannels.DEPOLARIZE2, 0)
             if two_qubit_gate_noise is None
             else two_qubit_gate_noise
         )
-        one_qubit_gate_noise = (
+        (self._one_qubit_gate_noise_channel, self._one_qubit_gate_noise_parameter) = (
             (OneQubitNoiseChannels.DEPOLARIZE1, 0.0)
             if one_qubit_gate_noise is None
             else one_qubit_gate_noise
         )
-        reset_noise = (
+        (self._reset_noise_channel, self._reset_noise_parameter) = (
             (OneQubitNoiseChannels.DEPOLARIZE1, 0.0)
             if reset_noise is None
             else reset_noise
         )
 
-        idle_noise = (
+        (self._idle_noise_channel, self._idle_noise_parameter) = (
             (OneQubitNoiseChannels.DEPOLARIZE1, 0.0)
             if idle_noise is None
             else idle_noise
         )
 
-        for _channel, _param in [
-            two_qubit_gate_noise,
-            one_qubit_gate_noise,
-            reset_noise,
-            idle_noise,
-        ]:
+        self._measurement_noise_parameter = measurement_noise
+
+    def _is_legal_noise_model(
+        self,
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        measurement_noise: float = 0,
+    ):
+        """Run tests on all the inputs to make sure it's a legal noise model."""
+
+        # Check quantum gate channels first
+        for _arg_name, _arg in list(locals().items())[1:-1]:
+            if _arg is None:
+                continue
+            _channel, _param = _arg
+            if (
+                _arg_name == "two_qubit_gate_noise"
+                and _channel not in TwoQubitNoiseChannels.members()
+            ) or (
+                _arg_name != "two_qubit_gate_noise"
+                and _channel not in OneQubitNoiseChannels.members()
+            ):
+                raise ValueError(f"Invalid gate/noise pairing: {_arg_name} - {_channel}")
+
             if isinstance(_param, float | int):
                 if not 0 <= _param < 1:
                     raise ValueError(
@@ -110,27 +143,6 @@ class NoiseModel:
             raise ValueError(
                 f"Invalid measurement flip value given: {measurement_noise}"
             )
-        (
-            self._two_qubit_gate_noise_channel,
-            self._two_qubit_gate_noise_parameter,
-        ) = two_qubit_gate_noise
-
-        (
-            self._one_qubit_gate_noise_channel,
-            self._one_qubit_gate_noise_parameter,
-        ) = one_qubit_gate_noise
-
-        (
-            self._reset_noise_channel,
-            self._reset_noise_parameter,
-        ) = reset_noise
-
-        (
-            self._idle_noise_channel,
-            self._idle_noise_parameter,
-        ) = idle_noise
-
-        self._measurement_noise_parameter = measurement_noise
 
     def _measurement_instruction(
         self, circuit: stim.Circuit, instruction: stim.CircuitInstruction
@@ -258,3 +270,7 @@ class NoiseModel:
             )
 
         return noisy_circuit
+
+
+if __name__ == "__main__":
+    NoiseModel(two_qubit_gate_noise=(OneQubitNoiseChannels.DEPOLARIZE1, 0.01))
