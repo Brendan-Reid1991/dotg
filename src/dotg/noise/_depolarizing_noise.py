@@ -1,8 +1,7 @@
 """This module defines depolarizing noise models."""
 
 from dotg.noise._noise_model import NoiseModel
-from dotg.utilities.stim_assets import (OneQubitNoiseChannels,
-                                        TwoQubitNoiseChannels)
+from dotg.utilities.stim_assets import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 # pylint: disable=super-init-not-called
 
@@ -55,5 +54,6 @@ class DepolarizingNoise(NoiseModel):
                 self._physical_error / 10,
             ),
             reset_noise=(OneQubitNoiseChannels.DEPOLARIZE1, self._physical_error / 10),
+            idle_noise=(OneQubitNoiseChannels.DEPOLARIZE1, self._physical_error / 10),
             measurement_noise=self._physical_error,
         )

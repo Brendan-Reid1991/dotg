@@ -38,10 +38,10 @@ class TestCircuitUnderstander:
 
     def test_error_probabilities_are_as_expected(self, error_probabilities):
         expected_error_probabilities = [
-            0.006651565037037021,
-            0.021037052112592554,
-            0.017120199560979963,
-            0.0350030745182814,
-            0.024922133333333308,
+            0.00927749898298139,
+            0.022313435150607193,
+            0.019690412355673134,
+            0.03871067202638849,
+            0.028710110023255343,
         ]
         assert error_probabilities == expected_error_probabilities
