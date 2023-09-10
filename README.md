@@ -21,11 +21,3 @@ dotg/
 ```
 
 The package can be built with [`poetry`](https://python-poetry.org) using `poetry install`. 
-
-Some basic usage examples:
-
-```
-from dotg.circuits import rotated_surface_code
-from dotg.decoders impot MinimumWeightPerfectMatching
-
-```
