@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import stim
 
-from dotg.circuits import rotated_surface_code
+from dotg.circuits.quantum_memory import rotated_surface_code
 from dotg.noise import DepolarizingNoise
 from dotg.utilities import CircuitUnderstander
 

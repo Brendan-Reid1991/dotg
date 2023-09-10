@@ -5,9 +5,8 @@ import pytest
 from numpy.typing import NDArray
 
 from dotg.decoders import MinimumWeightPerfectMatching
-from tests.unit.circuits import BasicCircuits
-from tests.unit.decoders._basic_tests._basic_decoder_tests import \
-    BasicDecoderTests
+from tests.unit.circuits.quantum_memory import BasicCircuits
+from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
 
 
 class TestMinimumWeightPerfectMatching(BasicDecoderTests):

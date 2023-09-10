@@ -3,9 +3,11 @@ from typing import Type
 import pytest
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions)
+    LDPC_BeliefPropagationDecoder,
+    LDPC_DecoderOptions,
+)
 from dotg.utilities import Sampler
-from tests.unit.circuits import BasicCircuits
+from tests.unit.circuits.quantum_memory import BasicCircuits
 
 
 class BasicBeliefPropagationDecoderTests:

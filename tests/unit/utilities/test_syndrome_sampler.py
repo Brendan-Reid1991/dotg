@@ -1,9 +1,11 @@
 import pytest
 
 from dotg.utilities import Sampler
-from dotg.utilities._syndrome_sampler import (NoNoiseInCircuitError,
-                                              check_if_noisy_circuit)
-from tests.unit.circuits import BasicCircuits
+from dotg.utilities._syndrome_sampler import (
+    NoNoiseInCircuitError,
+    check_if_noisy_circuit,
+)
+from tests.unit.circuits.quantum_memory import BasicCircuits
 
 
 @pytest.mark.parametrize(
@@ -28,9 +30,7 @@ class TestSampler:
 
     def test_error_raised_if_circuit_has_no_noise(self):
         sampler = Sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
-        with pytest.raises(
-            NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]
-        ):
+        with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
             sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
 
     @pytest.mark.parametrize("exclude_empty", [True, False])
