@@ -7,6 +7,50 @@ import stim
 # pylint: disable=no-member
 
 
+class SurfaceCode:
+    def __init__(self, *args, **kwargs):
+        if args or kwargs:
+            raise SyntaxError(
+                "Can't make use of the top level surface code class, you must access one of the subclasses: Rotated or Unrotated."
+            )
+
+    class Rotated:
+        def __init__(
+            self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
+        ) -> None:
+            self.distance = distance
+            self.rounds = rounds or distance
+            self.memory_basis = memory_basis.lower()
+            if self.memory_basis not in ["x", "Z"]:
+                raise ValueError("Memory basis must be one of `X` or `Z`.")
+
+        @property
+        def circuit(self) -> stim.Circuit:
+            return stim.Circuit.generated(
+                code_task=f"surface_code:rotated_memory_{self.memory_basis}",
+                distance=self.distance,
+                rounds=self.rounds,
+            ).flattened()
+
+    class Unrotated:
+        def __init__(
+            self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
+        ) -> None:
+            self.distance = distance
+            self.rounds = rounds or distance
+            self.memory_basis = memory_basis.lower()
+            if self.memory_basis not in ["x", "Z"]:
+                raise ValueError("Memory basis must be one of `X` or `Z`.")
+
+        @property
+        def circuit(self) -> stim.Circuit:
+            return stim.Circuit.generated(
+                code_task=f"surface_code:unrotated_memory_{self.memory_basis}",
+                distance=self.distance,
+                rounds=self.rounds,
+            ).flattened()
+
+
 def rotated_surface_code(
     distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
 ) -> stim.Circuit:
