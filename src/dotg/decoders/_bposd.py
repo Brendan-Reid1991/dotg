@@ -5,8 +5,11 @@ import stim
 from ldpc import bposd_decoder
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions, MessageUpdates,
-    OSDMethods)
+    LDPC_BeliefPropagationDecoder,
+    LDPC_DecoderOptions,
+    MessageUpdates,
+    OSDMethods,
+)
 
 
 class BPOSD(LDPC_BeliefPropagationDecoder):

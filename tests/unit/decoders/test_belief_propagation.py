@@ -5,12 +5,15 @@ import numpy as np
 import pytest
 
 from dotg.decoders import BeliefPropagation
-from dotg.decoders._belief_propagation_base_class import (LDPC_DecoderOptions,
-                                                          MessageUpdates)
+from dotg.decoders._belief_propagation_base_class import (
+    LDPC_DecoderOptions,
+    MessageUpdates,
+)
 from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
-    BasicBeliefPropagationDecoderTests, BasicCircuits)
-from tests.unit.decoders._basic_tests._basic_decoder_tests import \
-    BasicDecoderTests
+    BasicBeliefPropagationDecoderTests,
+    BasicCircuits,
+)
+from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
 
 # TODO: Improve these tests; Coverage is 94% but tests are not very robust.
 

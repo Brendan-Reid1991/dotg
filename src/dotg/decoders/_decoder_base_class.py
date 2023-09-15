@@ -5,8 +5,10 @@ from typing import List
 import stim
 from numpy.typing import NDArray
 
-from dotg.utilities._syndrome_sampler import (NoNoiseInCircuitError,
-                                              check_if_noisy_circuit)
+from dotg.utilities._syndrome_sampler import (
+    NoNoiseInCircuitError,
+    check_if_noisy_circuit,
+)
 
 
 class Decoder(ABC):

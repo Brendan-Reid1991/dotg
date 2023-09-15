@@ -30,7 +30,9 @@ class TestSampler:
 
     def test_error_raised_if_circuit_has_no_noise(self):
         sampler = Sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
-        with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
+        with pytest.raises(
+            NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]
+        ):
             sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
 
     @pytest.mark.parametrize("exclude_empty", [True, False])

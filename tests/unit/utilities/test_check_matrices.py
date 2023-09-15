@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-import stim
 
 from dotg.circuits.quantum_memory import SurfaceCode
 from dotg.noise import DepolarizingNoise

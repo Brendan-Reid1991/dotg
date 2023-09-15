@@ -1,5 +1,4 @@
-from dotg.utilities.stim_assets import (OneQubitNoiseChannels,
-                                        TwoQubitNoiseChannels)
+from dotg.utilities.stim_assets import OneQubitNoiseChannels, TwoQubitNoiseChannels
 
 from .base_test_stim_operations import BaseTestStimOperations
 

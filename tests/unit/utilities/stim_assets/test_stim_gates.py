@@ -1,6 +1,10 @@
-from dotg.utilities.stim_assets import (MeasureAndReset, MeasurementGates,
-                                        OneQubitGates, ResetGates,
-                                        TwoQubitGates)
+from dotg.utilities.stim_assets import (
+    MeasureAndReset,
+    MeasurementGates,
+    OneQubitGates,
+    ResetGates,
+    TwoQubitGates,
+)
 
 from .base_test_stim_operations import BaseTestStimOperations
 

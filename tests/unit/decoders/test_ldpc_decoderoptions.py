@@ -1,8 +1,10 @@
 import pytest
 
-from dotg.decoders._belief_propagation_base_class import (LDPC_DecoderOptions,
-                                                          MessageUpdates,
-                                                          OSDMethods)
+from dotg.decoders._belief_propagation_base_class import (
+    LDPC_DecoderOptions,
+    MessageUpdates,
+    OSDMethods,
+)
 
 
 def test_message_updates_int_enum():

@@ -125,7 +125,9 @@ class NoiseModel:
                 _arg_name != "two_qubit_gate_noise"
                 and _channel not in OneQubitNoiseChannels.members()
             ):
-                raise ValueError(f"Invalid gate/noise pairing: {_arg_name} - {_channel}")
+                raise ValueError(
+                    f"Invalid gate/noise pairing: {_arg_name} - {_channel}"
+                )
 
             if isinstance(_param, float | int):
                 if not 0 <= _param < 1:

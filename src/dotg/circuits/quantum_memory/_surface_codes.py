@@ -52,7 +52,9 @@ class SurfaceCode(_CodeFamily):
         def __init__(
             self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
         ) -> None:
-            super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
+            super().__init__(
+                distance=distance, rounds=rounds, memory_basis=memory_basis
+            )
 
         @property
         def circuit(self) -> stim.Circuit:
@@ -90,7 +92,9 @@ class SurfaceCode(_CodeFamily):
         def __init__(
             self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
         ) -> None:
-            super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
+            super().__init__(
+                distance=distance, rounds=rounds, memory_basis=memory_basis
+            )
 
         @property
         def circuit(self) -> stim.Circuit:

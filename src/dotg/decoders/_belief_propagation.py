@@ -8,7 +8,10 @@ import stim
 from numpy.typing import NDArray
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder, LDPC_DecoderOptions, MessageUpdates)
+    LDPC_BeliefPropagationDecoder,
+    LDPC_DecoderOptions,
+    MessageUpdates,
+)
 from dotg.utilities import Sampler
 
 
