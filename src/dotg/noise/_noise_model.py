@@ -105,10 +105,10 @@ class NoiseModel:
 
     def _is_legal_noise_model(
         self,
-        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
-        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
-        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
-        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,  # type: ignore
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
         measurement_noise: float = 0,
     ):
         """Run tests on all the inputs to make sure it's a legal noise model."""
@@ -125,9 +125,7 @@ class NoiseModel:
                 _arg_name != "two_qubit_gate_noise"
                 and _channel not in OneQubitNoiseChannels.members()
             ):
-                raise ValueError(
-                    f"Invalid gate/noise pairing: {_arg_name} - {_channel}"
-                )
+                raise ValueError(f"Invalid gate/noise pairing: {_arg_name} - {_channel}")
 
             if isinstance(_param, float | int):
                 if not 0 <= _param < 1:

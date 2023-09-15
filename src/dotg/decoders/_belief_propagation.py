@@ -71,8 +71,9 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
     def update_syndrome_from_error_pattern(
         self, syndrome: NDArray, error_pattern: NDArray
     ) -> NDArray:
-        """Update the syndrome given an observed error pattern from the decoding algorithm.
-        This is a mod2 sum of the syndrome and the product of the parity check matrix and the error pattern:
+        """Update the syndrome given an observed error pattern from the decoding
+        algorithm. This is a mod2 sum of the syndrome and the product of the parity
+        check matrix and the error pattern:
 
         Parameters
         ----------
@@ -147,7 +148,5 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
                 logical_failures += 1
 
         if convergence_events > 0:
-            return logical_failures / convergence_events, 1 / np.sqrt(
-                convergence_events
-            )
+            return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
         return 0, 0

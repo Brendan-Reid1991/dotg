@@ -1,5 +1,4 @@
 """This module generates noiseless quantum circuits."""
-import warnings
 from typing import Optional
 import stim
 
@@ -29,11 +28,13 @@ class SurfaceCode(_CodeFamily):
     def __init__(self, *args, **kwargs):
         if args or kwargs:
             raise SyntaxError(
-                "Can't make use of the top level surface code class, you must access one of the subclasses: Rotated or Unrotated."
+                "Can't make use of the top level surface code class, you must access one"
+                " of the subclasses: Rotated or Unrotated."
             )
 
     class Rotated(_SurfaceCodeSubClass):
-        """Rotated surface code class. After initialisation, access the circuit representing the code experiment with the `circuit` property.
+        """Rotated surface code class. After initialisation, access the circuit
+        representing the code experiment with the `circuit` property.
 
         Parameters
         ----------
@@ -71,7 +72,8 @@ class SurfaceCode(_CodeFamily):
             ).flattened()
 
     class Unrotated(_SurfaceCodeSubClass):
-        """Unrotated surface code class. After initialisation, access the circuit representing the code experiment with the `circuit` property.
+        """Unrotated surface code class. After initialisation, access the circuit
+        representing the code experiment with the `circuit` property.
 
         Parameters
         ----------
