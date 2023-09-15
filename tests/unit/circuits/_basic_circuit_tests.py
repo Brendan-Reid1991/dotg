@@ -3,11 +3,11 @@ from typing import Type
 
 import stim
 
-from dotg.circuits.quantum_memory._code_base_class import _Code, _CodeFamily
+from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
 
 
 class BasicCodeFamilyTests:
-    CODE_FAMILY = Type[_CodeFamily]
+    CODE_FAMILY = Type[CodeFamily]
 
     def test_passing_arguments_results_in_error(self):
         with pytest.raises(SyntaxError, match="Can't make use of the top level "):
@@ -15,7 +15,7 @@ class BasicCodeFamilyTests:
 
 
 class BasicCircuitTests:
-    CODE: Type[_Code]
+    CODE: Type[Code]
 
     @pytest.mark.parametrize("distance", [3, 5, 7, 9])
     def test_return_type_is_always_stim_circuit(self, distance):

@@ -1,13 +1,13 @@
 from typing import Optional
 import stim
-from dotg.circuits.quantum_memory._code_base_class import _Code, _CodeFamily
+from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
 
 
-class ColorCode(_CodeFamily):
+class ColorCode(CodeFamily):
     """Top level class for generating color code circuits. Current subclass is the
     Triangular color code."""
 
-    class Triangular(_Code):
+    class Triangular(Code):
         """Triangular color code class. After initialisation, access the circuit
         representing the code experiment with the `circuit` property.
 

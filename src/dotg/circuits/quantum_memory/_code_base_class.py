@@ -4,7 +4,7 @@ import stim
 from abc import ABC, abstractproperty
 
 
-class _CodeFamily(ABC):
+class CodeFamily(ABC):
     """Base class for code families."""
 
     def __init__(self, *args, **kwargs):
@@ -15,7 +15,7 @@ class _CodeFamily(ABC):
             )
 
 
-class _Code(ABC):
+class Code(ABC):
     """Base class for subcodes."""
 
     def __init__(self, distance: int, rounds: Optional[int] = None) -> None:

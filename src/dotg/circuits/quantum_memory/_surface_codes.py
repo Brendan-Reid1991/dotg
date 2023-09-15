@@ -2,10 +2,10 @@
 from typing import Optional
 import stim
 
-from dotg.circuits.quantum_memory._code_base_class import _Code, _CodeFamily
+from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
 
 
-class _SurfaceCodeSubClass(_Code):
+class _SurfaceCodeSubClass(Code):
     """A base class for surface codes. Adds an extra check on the memory basis being
     considered."""
 
@@ -18,7 +18,7 @@ class _SurfaceCodeSubClass(_Code):
             raise ValueError("Memory basis must be one of `X` or `Z`.")
 
 
-class SurfaceCode(_CodeFamily):
+class SurfaceCode(CodeFamily):
     """Top level class for generating surface code circuits. Current subclasses are
     Rotated and Unrotated.
 
