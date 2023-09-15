@@ -12,7 +12,7 @@ class ColorCode(_CodeFamily):
         Parameters
         ----------
         distance : int
-            Code distance, must be odd..
+            Code distance, must be odd.
         rounds : int, optional
             Number of rounds to run the code for, by default None. If None, defaults
             to the code distance.
@@ -20,7 +20,7 @@ class ColorCode(_CodeFamily):
 
         def __init__(self, distance: int, rounds: Optional[int] = None) -> None:
             super().__init__(distance, rounds)
-            if distance % 2 != 0:
+            if distance % 2 == 0:
                 raise ValueError("Distance for the triangular color code must be odd.")
 
         @property
