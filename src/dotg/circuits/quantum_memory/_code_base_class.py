@@ -29,4 +29,3 @@ class _Code(ABC):
         -------
         stim.Circuit
         """
-        pass
