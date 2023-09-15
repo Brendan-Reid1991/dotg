@@ -7,7 +7,8 @@ from dotg.circuits.quantum_memory._code_base_class import _Code, _CodeFamily
 
 
 class _SurfaceCodeSubClass(_Code):
-    """A base class for surface codes. Adds an extra check on the memory basis being considered."""
+    """A base class for surface codes. Adds an extra check on the memory basis being
+    considered."""
 
     def __init__(
         self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
@@ -19,7 +20,8 @@ class _SurfaceCodeSubClass(_Code):
 
 
 class SurfaceCode(_CodeFamily):
-    """Top level class for generating surface code circuits. Current subclasses are Rotated and Unrotated.
+    """Top level class for generating surface code circuits. Current subclasses are
+    Rotated and Unrotated.
 
     # TODO Add XZZX and XY Codes.
     """
@@ -52,9 +54,7 @@ class SurfaceCode(_CodeFamily):
         def __init__(
             self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
         ) -> None:
-            super().__init__(
-                distance=distance, rounds=rounds, memory_basis=memory_basis
-            )
+            super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
 
         @property
         def circuit(self) -> stim.Circuit:
@@ -92,9 +92,7 @@ class SurfaceCode(_CodeFamily):
         def __init__(
             self, distance: int, rounds: Optional[int] = None, memory_basis: str = "Z"
         ) -> None:
-            super().__init__(
-                distance=distance, rounds=rounds, memory_basis=memory_basis
-            )
+            super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
 
         @property
         def circuit(self) -> stim.Circuit:

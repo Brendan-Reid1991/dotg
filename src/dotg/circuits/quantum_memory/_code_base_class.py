@@ -10,7 +10,8 @@ class _CodeFamily(ABC):
     def __init__(self, *args, **kwargs):
         if args or kwargs:
             raise SyntaxError(
-                f"Can't make use of the top level {self.__class__.__name__} class, you must access one of the subclasses."
+                f"Can't make use of the top level {self.__class__.__name__} class, you "
+                "must access one of the subclasses."
             )
 
 
