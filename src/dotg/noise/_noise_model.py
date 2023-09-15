@@ -64,14 +64,6 @@ class NoiseModel:
         # HouseKeeping
 
         self._is_legal_noise_model(
-            two_qubit_gate_noise,
-            one_qubit_gate_noise,
-            reset_noise,
-            idle_noise,
-            measurement_noise,
-        )
-
-        self._is_legal_noise_model(
             two_qubit_gate_noise=two_qubit_gate_noise,
             one_qubit_gate_noise=one_qubit_gate_noise,
             reset_noise=reset_noise,
