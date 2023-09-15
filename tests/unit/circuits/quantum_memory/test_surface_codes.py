@@ -2,7 +2,7 @@ import pytest
 from typing import Type
 
 from dotg.circuits.quantum_memory import SurfaceCode
-from dotg.circuits.quantum_memory._surface_codes import _SurfaceCodeSubClass
+from dotg.circuits.quantum_memory._surface_codes import SurfaceCodeSubClass
 from tests.unit.circuits._basic_circuit_tests import (
     BasicCircuitTests,
     BasicCodeFamilyTests,
@@ -10,7 +10,7 @@ from tests.unit.circuits._basic_circuit_tests import (
 
 
 class BasicSurfaceSubCodeTests(BasicCircuitTests):
-    CODE: Type[_SurfaceCodeSubClass]
+    CODE: Type[SurfaceCodeSubClass]
 
     def test_invalid_memory_basis_raises_error(self):
         with pytest.raises(ValueError, match="Memory basis must be one of `X` or `Z`."):

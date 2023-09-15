@@ -5,7 +5,7 @@ import stim
 from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
 
 
-class _SurfaceCodeSubClass(Code):
+class SurfaceCodeSubClass(Code):
     """A base class for surface codes. Adds an extra check on the memory basis being
     considered."""
 
@@ -32,7 +32,7 @@ class SurfaceCode(CodeFamily):
                 " of the subclasses: Rotated or Unrotated."
             )
 
-    class Rotated(_SurfaceCodeSubClass):
+    class Rotated(SurfaceCodeSubClass):
         """Rotated surface code class. After initialisation, access the circuit
         representing the code experiment with the `circuit` property.
 
@@ -71,7 +71,7 @@ class SurfaceCode(CodeFamily):
                 rounds=self.rounds,
             ).flattened()
 
-    class Unrotated(_SurfaceCodeSubClass):
+    class Unrotated(SurfaceCodeSubClass):
         """Unrotated surface code class. After initialisation, access the circuit
         representing the code experiment with the `circuit` property.
 
