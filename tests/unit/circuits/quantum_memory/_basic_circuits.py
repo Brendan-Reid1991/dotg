@@ -1,10 +1,10 @@
-from dotg.circuits.quantum_memory import color_code, rotated_surface_code
+from dotg.circuits.quantum_memory import SurfaceCode, ColorCode
 from dotg.noise import DepolarizingNoise, NoiseModel
 
 
 class BasicCircuits:
     class GraphLike:
-        NOISELESS_CIRCUIT = rotated_surface_code(distance=2, rounds=1)
+        NOISELESS_CIRCUIT = SurfaceCode.Rotated(distance=2, rounds=1).circuit
 
         _noise_model = DepolarizingNoise(physical_error=1e-2)
         NOISY_CIRCUIT = _noise_model.permute_circuit(NOISELESS_CIRCUIT)
@@ -15,7 +15,7 @@ class BasicCircuits:
         )
 
     class HypergraphLike:
-        NOISELESS_CIRCUIT = color_code(distance=5, rounds=3)
+        NOISELESS_CIRCUIT = ColorCode.Triangular(distance=5, rounds=3).circuit
 
         _noise_model = DepolarizingNoise(physical_error=1e-2)
         NOISY_CIRCUIT = _noise_model.permute_circuit(NOISELESS_CIRCUIT)
