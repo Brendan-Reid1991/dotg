@@ -32,16 +32,18 @@ class Partial_BP_MWPM(Decoder):
 
         self.hard_decision_tolerance = hard_decision_tolerance
 
+        self._first_stage_converged: bool = False
+
         if not 0 < self.hard_decision_tolerance <= 1:
             raise ValueError("Tolerance for hard decisions must be in the range (0, 1].")
 
     @property
     def converged(self) -> bool:
-        return self._first_stage_decoder.converged
+        return self._first_stage_converged
 
     @converged.setter
     def converged(self, replacement: bool):
-        self.converged = replacement
+        self._first_stage_converged = replacement
 
     def hard_decision(self, syndrome: List[int] | NDArray) -> Tuple[NDArray, NDArray]:
         posterior_probs = self._first_stage_decoder.posterior_probabilities
@@ -69,13 +71,14 @@ class Partial_BP_MWPM(Decoder):
         ) = self._first_stage_decoder.decode_syndrome(syndrome=syndrome)
 
         if converged:
+            self.converged = True
             return error_pattern
 
         committed_errors, remaining_syndrome = self.hard_decision(syndrome=syndrome)
         assert (
             np.asarray(self._first_stage_decoder.parity_check)
             @ np.asarray(committed_errors)
-            - np.asanyarray(remaining_syndrome)
+            - np.asarray(remaining_syndrome)
         ).all()
         if not any(remaining_syndrome):
             return committed_errors
@@ -87,16 +90,9 @@ class Partial_BP_MWPM(Decoder):
     ) -> float:
         return 0
 
-    #     sampler = Sampler(circuit=self.circuit)
-    #     syndromes, logicals = sampler(num_shots=num_shots, exclude_empty=exclude_empty)
-
-    #     convergence_events: int = 0
-    #     remaining_syndromes: List[NDArray] = []
-    #     logical_failures: int = 0
-
 
 if __name__ == "__main__":
-    from dotg.circuits import rotated_surface_code
+    from dotg.circuits import SurfaceCode
     from dotg.noise import DepolarizingNoise
 
     SHOTS = 1000
