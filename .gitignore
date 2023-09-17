@@ -3,4 +3,3 @@ poetry.lock
 __pycache__/
 *.ini
 *.coverage
-*.pylintrc
