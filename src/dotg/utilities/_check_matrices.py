@@ -67,9 +67,7 @@ class CircuitUnderstander:
     def error_probabilities(self, new_probabilities: List[float]):
         self._probs = new_probabilities
 
-    def _understand_circuit(
-        self, circuit: stim.Circuit, decompose_errors: bool = False
-    ):
+    def _understand_circuit(self, circuit: stim.Circuit, decompose_errors: bool = False):
         """Inspect the input circuit and get the parity check, logical check and error
         probabilities."""
         dem = circuit.detector_error_model(decompose_errors=decompose_errors)

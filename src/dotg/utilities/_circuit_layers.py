@@ -21,9 +21,7 @@ def get_circuit_layers(circuit: stim.Circuit) -> List[stim.Circuit]:
         List of stim circuits, where each element represents one timestep of the circuit.
     """
     layers = [
-        idx + 1
-        for idx, instr in enumerate(circuit)
-        if instr.name == StimDecorators.TICK
+        idx + 1 for idx, instr in enumerate(circuit) if instr.name == StimDecorators.TICK
     ]
     circuit_by_layers = [
         (list(circuit) + [""])[slice(ix, iy)]
