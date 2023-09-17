@@ -20,7 +20,7 @@ jobs:
     - name: Install venv
       run: |
         poetry install
-        poetry shell
+        source $(poetry env info --path)/bin/activate
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
