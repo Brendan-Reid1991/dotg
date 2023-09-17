@@ -1,7 +1,7 @@
 """This module defines a bespoke noise model class."""
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Type, TypeAlias
+from typing import Optional, Tuple, TypeAlias
 
 import stim
 
@@ -17,8 +17,10 @@ from dotg.utilities.stim_assets import (
     TwoQubitNoiseChannels,
 )
 
-NoiseParamT: TypeAlias = float | Tuple[float]
-NoiseChannelT: TypeAlias = TwoQubitNoiseChannels | OneQubitNoiseChannels
+NoiseParam: TypeAlias = float | Tuple[float]
+NoiseChannel: TypeAlias = TwoQubitNoiseChannels | OneQubitNoiseChannels
+
+# pylint: disable=unused-argument, too-many-instance-attributes
 
 
 class NoiseModel:
@@ -30,13 +32,13 @@ class NoiseModel:
 
     Parameters
     ----------
-    two_qubit_gate_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+    two_qubit_gate_noise : Tuple[NoiseChannel, NoiseParam], optional
         Two qubit gate noise instruction, by default None.
-    one_qubit_gate_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+    one_qubit_gate_noise : Tuple[NoiseChannel, NoiseParam], optional
         One qubit gate noise instruction.
-    reset_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+    reset_noise : Tuple[NoiseChannel, NoiseParam], optional
         Reset noise instruction.
-    idle_noise : Tuple[NoiseChannelT, NoiseParamT], optional
+    idle_noise : Tuple[NoiseChannel, NoiseParam], optional
         Idle noise instruction.
     measurement_noise : float, optional
         Measurement noise value.
@@ -55,10 +57,10 @@ class NoiseModel:
 
     def __init__(
         self,
-        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        reset_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        idle_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
         measurement_noise: float = 0,
     ) -> None:
         # HouseKeeping
@@ -97,10 +99,10 @@ class NoiseModel:
 
     def _is_legal_noise_model(
         self,
-        two_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        one_qubit_gate_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        reset_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
-        idle_noise: Optional[Tuple[NoiseChannelT, NoiseParamT]] = None,
+        two_qubit_gate_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        one_qubit_gate_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        reset_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
+        idle_noise: Optional[Tuple[NoiseChannel, NoiseParam]] = None,
         measurement_noise: float = 0,
     ):
         """Run tests on all the inputs to make sure it's a legal noise model."""
@@ -250,18 +252,13 @@ class NoiseModel:
         return circuit
 
     def add_idle_noise(self, circuit: stim.Circuit) -> stim.Circuit:
-        qubit_indices = set(
-            next(x.value for x in line.targets_copy())
-            for line in circuit
-            if line.name == StimDecorators.QUBIT_COORDS
-        )
-        """Add idle noise to a circuit. This method divides the circuit into congruent 
-        layers (equivalently, timeslices) by splitting at each "TICK" instruction. For 
-        each circuit layer the number of qubits acted upon is found, and any qubits that 
-        are not involved in the layer have idle noise applied to them at the end of the 
-        timeslice. 
+        """Add idle noise to a circuit. This method divides the circuit into congruent
+        layers (equivalently, timeslices) by splitting at each "TICK" instruction. For
+        each circuit layer the number of qubits acted upon is found, and any qubits that
+        are not involved in the layer have idle noise applied to them at the end of the
+        timeslice.
 
-        Total qubit count is found by looking for qubit definitions - QUBIT_COORDS 
+        Total qubit count is found by looking for qubit definitions - QUBIT_COORDS
         entries in the full circuit.
 
         Returns
@@ -274,6 +271,11 @@ class NoiseModel:
         ValueError
             If the circuit does not have qubit coordinate definitions.
         """
+        qubit_indices = set(
+            next(x.value for x in line.targets_copy())
+            for line in circuit
+            if line.name == StimDecorators.QUBIT_COORDS
+        )
         if not qubit_indices:
             raise ValueError(
                 "You must define qubit entries for idle noise to be applied, "

@@ -1,11 +1,12 @@
-import pytest
 from typing import Type
+
+import pytest
 
 from dotg.circuits.quantum_memory import ColorCode
 from dotg.circuits.quantum_memory._code_base_class import Code
 from tests.unit.circuits._basic_circuit_tests import (
-    BasicCodeFamilyTests,
     BasicCircuitTests,
+    BasicCodeFamilyTests,
 )
 
 

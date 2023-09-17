@@ -1,4 +1,4 @@
-from dotg.circuits.quantum_memory import SurfaceCode, ColorCode
+from dotg.circuits.quantum_memory import ColorCode, SurfaceCode
 from dotg.noise import DepolarizingNoise, NoiseModel
 
 

@@ -17,6 +17,8 @@ from dotg.utilities.stim_assets import (
 
 
 class NoNoiseInCircuitError(ValueError):
+    """Error to highlight when circuits contain no error messages."""
+
     def __init__(self) -> None:
         self.message = "Circuit passed has no noise; decoding will have no effect."
         super().__init__(self.message)
@@ -39,11 +41,9 @@ def check_if_noisy_circuit(circuit: stim.Circuit) -> bool:
         instr.name in OneQubitNoiseChannels.members() + TwoQubitNoiseChannels.members()
         for instr in circuit
     ) or any(
-        [
-            any(x > 0 for x in instr.gate_args_copy())
-            for instr in circuit
-            if instr.name in MeasurementGates.members()
-        ]
+        any(x > 0 for x in instr.gate_args_copy())
+        for instr in circuit
+        if instr.name in MeasurementGates.members()
     ):
         return True
 

@@ -1,7 +1,8 @@
+"""This module provides base classes for code families and code members."""
+from abc import ABC, abstractmethod
 from typing import Optional
-import stim
 
-from abc import ABC, abstractproperty
+import stim
 
 
 class CodeFamily(ABC):
@@ -22,7 +23,8 @@ class Code(ABC):
         self.distance = distance
         self.rounds = rounds or distance
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def circuit(self) -> stim.Circuit:
         """Stim circuit representing the code experiment without noise.
 

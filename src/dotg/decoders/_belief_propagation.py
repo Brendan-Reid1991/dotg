@@ -148,5 +148,7 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
                 logical_failures += 1
 
         if convergence_events > 0:
-            return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
+            return logical_failures / convergence_events, 1 / np.sqrt(
+                convergence_events
+            )
         return 0, 0

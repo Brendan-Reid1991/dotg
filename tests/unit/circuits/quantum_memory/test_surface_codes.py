@@ -1,5 +1,6 @@
-import pytest
 from typing import Type
+
+import pytest
 
 from dotg.circuits.quantum_memory import SurfaceCode
 from dotg.circuits.quantum_memory._surface_codes import SurfaceCodeSubClass

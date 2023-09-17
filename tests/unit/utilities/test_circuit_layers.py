@@ -1,5 +1,6 @@
 import pytest
 import stim
+
 from dotg.utilities import get_circuit_layers
 
 

@@ -1,3 +1,4 @@
+"""Top level init for dotg.utilities.stim_assets"""
 from dotg.utilities.stim_assets._stim_decorators import StimDecorators
 from dotg.utilities.stim_assets._stim_gates import (
     MeasureAndReset,

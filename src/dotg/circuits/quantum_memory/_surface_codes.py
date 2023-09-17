@@ -1,5 +1,6 @@
-"""This module generates noiseless quantum circuits."""
+"""This module provides a code family class for the surface codes."""
 from typing import Optional
+
 import stim
 
 from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
@@ -26,11 +27,7 @@ class SurfaceCode(CodeFamily):
     """
 
     def __init__(self, *args, **kwargs):
-        if args or kwargs:
-            raise SyntaxError(
-                "Can't make use of the top level surface code class, you must access one"
-                " of the subclasses: Rotated or Unrotated."
-            )
+        super().__init__()
 
     class Rotated(SurfaceCodeSubClass):
         """Rotated surface code class. After initialisation, access the circuit

@@ -1,5 +1,8 @@
+"""This module provides a code family class for the color codes."""
 from typing import Optional
+
 import stim
+
 from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
 
 
