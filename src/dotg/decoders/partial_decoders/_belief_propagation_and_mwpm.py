@@ -64,6 +64,7 @@ class Partial_BP_MWPM(Decoder):
         )
 
     def decode_syndrome(self, syndrome: List[int] | NDArray) -> List[int] | NDArray:
+        self.converged = False
         (
             converged,
             error_pattern,
@@ -75,12 +76,9 @@ class Partial_BP_MWPM(Decoder):
             return error_pattern
 
         committed_errors, remaining_syndrome = self.hard_decision(syndrome=syndrome)
-        assert (
-            np.asarray(self._first_stage_decoder.parity_check)
-            @ np.asarray(committed_errors)
-            - np.asarray(remaining_syndrome)
-        ).all()
+
         if not any(remaining_syndrome):
+            self.converged = True
             return committed_errors
 
         return self._second_stage_decoder.decode_syndrome(syndrome=remaining_syndrome)
@@ -92,13 +90,14 @@ class Partial_BP_MWPM(Decoder):
 
 
 if __name__ == "__main__":
-    from dotg.circuits import SurfaceCode
+    from dotg.circuits.quantum_memory import SurfaceCode
     from dotg.noise import DepolarizingNoise
+    import tqdm
 
     SHOTS = 1000
 
-    circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
-        circuit=rotated_surface_code(distance=5)
+    circuit = DepolarizingNoise(physical_error=1e-2).permute_circuit(
+        circuit=SurfaceCode.Rotated(distance=5).circuit
     )
     sampler = Sampler(circuit=circuit)
     syndromes, logicals = sampler(num_shots=SHOTS, exclude_empty=True)
@@ -111,15 +110,8 @@ if __name__ == "__main__":
         hard_decision_tolerance=0.9,
     )
 
-    # decoder = BeliefPropagation(
-    #     circuit=circuit,
-    #     decoder_options=LDPC_DecoderOptions(
-    #         max_iterations=30, message_updates=MessageUpdates.PROD_SUM
-    #     ),
-    # )
-
     convergence_rate: float = 0
-    for syn, log in zip(syndromes, logicals):
+    for syn, log in tqdm.tqdm(zip(syndromes, logicals)):
         error_pattern = decoder.decode_syndrome(syndrome=syn)
         # print(decoder.converged)
         if decoder.converged:
