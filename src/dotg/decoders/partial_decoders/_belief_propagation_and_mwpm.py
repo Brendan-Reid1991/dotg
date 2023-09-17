@@ -1,3 +1,4 @@
+# pylint: skip-file
 import stim
 
 from dotg.decoders import BeliefPropagation, MinimumWeightPerfectMatching

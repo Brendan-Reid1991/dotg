@@ -10,7 +10,6 @@ from numpy.typing import NDArray
 from dotg.decoders._belief_propagation_base_class import (
     LDPCBeliefPropagationDecoder,
     LDPCDecoderOptions,
-    MessageUpdates,
 )
 from dotg.utilities import Sampler
 
