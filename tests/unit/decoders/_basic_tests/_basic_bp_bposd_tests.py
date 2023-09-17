@@ -3,28 +3,28 @@ from typing import Type
 import pytest
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder,
-    LDPC_DecoderOptions,
+    LDPCBeliefPropagationDecoder,
+    LDPCDecoderOptions,
 )
 from dotg.utilities import Sampler
 from tests.unit.circuits.quantum_memory import BasicCircuits
 
 
 class BasicBeliefPropagationDecoderTests:
-    DECODER_CLASS: Type[LDPC_BeliefPropagationDecoder]
+    DECODER_CLASS: Type[LDPCBeliefPropagationDecoder]
 
     @pytest.fixture(scope="class")
     def decoder_graph(self):
         return self.DECODER_CLASS(
             circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
-            decoder_options=LDPC_DecoderOptions(max_iterations=1, message_updates=0),
+            decoder_options=LDPCDecoderOptions(max_iterations=1, message_updates=0),
         )
 
     @pytest.fixture(scope="class")
     def decoder_hypergraph(self):
         return self.DECODER_CLASS(
             circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
-            decoder_options=LDPC_DecoderOptions(max_iterations=1, message_updates=0),
+            decoder_options=LDPCDecoderOptions(max_iterations=1, message_updates=0),
         )
 
     @pytest.fixture(scope="class")

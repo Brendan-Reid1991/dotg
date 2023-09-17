@@ -2,7 +2,7 @@ import pytest
 
 from dotg.decoders import BPOSD
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_DecoderOptions,
+    LDPCDecoderOptions,
     MessageUpdates,
     OSDMethods,
 )

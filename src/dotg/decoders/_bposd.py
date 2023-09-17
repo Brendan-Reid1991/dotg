@@ -5,18 +5,18 @@ import stim
 from ldpc import bposd_decoder
 
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_BeliefPropagationDecoder,
-    LDPC_DecoderOptions,
+    LDPCBeliefPropagationDecoder,
+    LDPCDecoderOptions,
     MessageUpdates,
     OSDMethods,
 )
 
 
-class BPOSD(LDPC_BeliefPropagationDecoder):
+class BPOSD(LDPCBeliefPropagationDecoder):
     """Unfinished."""
 
     def __init__(
-        self, circuit: stim.Circuit, decoder_options: LDPC_DecoderOptions
+        self, circuit: stim.Circuit, decoder_options: LDPCDecoderOptions
     ) -> None:
         super().__init__(circuit=circuit, decoder_options=decoder_options)
         if not decoder_options.osd_method:

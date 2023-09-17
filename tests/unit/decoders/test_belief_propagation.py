@@ -6,7 +6,7 @@ import pytest
 
 from dotg.decoders import BeliefPropagation
 from dotg.decoders._belief_propagation_base_class import (
-    LDPC_DecoderOptions,
+    LDPCDecoderOptions,
     MessageUpdates,
 )
 from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
@@ -23,28 +23,26 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
 
     def test_raises_NoNoiseError_for_no_noise(self):
         return super().test_raises_NoNoiseError_for_no_noise(
-            LDPC_DecoderOptions(
-                max_iterations=1, message_updates=MessageUpdates.PROD_SUM
-            )
+            LDPCDecoderOptions(max_iterations=1, message_updates=MessageUpdates.PROD_SUM)
         )
 
     @pytest.mark.parametrize(
         "decoder_options, expected_max_iterations, expected_message_updates_str, expected_min_sum_scaling_factor",
         [
             [
-                LDPC_DecoderOptions(max_iterations=25, message_updates=0),
+                LDPCDecoderOptions(max_iterations=25, message_updates=0),
                 25,
                 "product_sum",
                 1,
             ],
             [
-                LDPC_DecoderOptions(max_iterations=13, message_updates=1),
+                LDPCDecoderOptions(max_iterations=13, message_updates=1),
                 13,
                 "minimum_sum_log",
                 1,
             ],
             [
-                LDPC_DecoderOptions(
+                LDPCDecoderOptions(
                     max_iterations=40, message_updates=1, min_sum_scaling_factor=15
                 ),
                 40,
@@ -82,7 +80,7 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
     def test_setting_osd_options_has_no_effect(self, osd_method, osd_order):
         bp_decoder = BeliefPropagation(
             circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
-            decoder_options=LDPC_DecoderOptions(
+            decoder_options=LDPCDecoderOptions(
                 max_iterations=30,
                 message_updates=MessageUpdates.MIN_SUM,
                 osd_method=osd_method,
@@ -118,9 +116,7 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
             "Third", np.ndarray, type(remaining_syndrome)
         )
 
-    def test_not_converging_results_in_same_syndrome_being_returned(
-        self, decoder_graph
-    ):
+    def test_not_converging_results_in_same_syndrome_being_returned(self, decoder_graph):
         syndrome = [0, 1]
         converged, _, remaining_syndrome = decoder_graph.decode_syndrome(syndrome)
         assert not converged

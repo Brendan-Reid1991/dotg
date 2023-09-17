@@ -7,7 +7,6 @@ from typing import List, Optional
 import numpy as np
 import stim
 from ldpc import bp_decoder, bposd_decoder
-from numpy.typing import NDArray
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
@@ -41,7 +40,7 @@ class OSDMethods(IntEnum):
 
 
 @dataclass
-class LDPC_DecoderOptions:
+class LDPCDecoderOptions:
     """Dataclass that collates all options for belief propagation (BP) and BPOSD
     decoders. The only required input is the maximum number of iterations.
 
@@ -87,7 +86,7 @@ class LDPC_DecoderOptions:
     osd_order: Optional[int] = None
 
     def __post_init__(self):
-        if not self.max_iterations > 0 or not isinstance(self.max_iterations, int):
+        if self.max_iterations <= 0 or not isinstance(self.max_iterations, int):
             raise ValueError(
                 "Max iterations needs to be a positive, non-zero integer. "
                 f"Received: {self.max_iterations}"
@@ -117,7 +116,7 @@ class LDPC_DecoderOptions:
             self.osd_order = -1
 
 
-class LDPC_BeliefPropagationDecoder(Decoder, ABC):
+class LDPCBeliefPropagationDecoder(Decoder, ABC):
     """A base class for decoders that inherit from the bp_decoder object in the LDPC
     package.
 
@@ -125,9 +124,9 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
     ----------
     circuit : stim.Circuit
         Stim circuit that defines our experiment.
-    decoder_options : LDPC_DecoderOptions, optional
+    decoder_options : LDPCDecoderOptions, optional
         Which decoder options to pass, by default:
-            LDPC_DecoderOptions(
+            LDPCDecoderOptions(
                 max_iterations=1,
                 message_updates=MessageUpdates.PROD_SUM
             )
@@ -136,7 +135,7 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
     def __init__(
         self,
         circuit: stim.Circuit,
-        decoder_options: LDPC_DecoderOptions = LDPC_DecoderOptions(
+        decoder_options: LDPCDecoderOptions = LDPCDecoderOptions(
             max_iterations=1, message_updates=MessageUpdates.PROD_SUM
         ),
     ):
@@ -163,12 +162,12 @@ class LDPC_BeliefPropagationDecoder(Decoder, ABC):
         return self._decoder
 
     @decoder.setter
-    def decoder(self, decoder_options: LDPC_DecoderOptions):
+    def decoder(self, decoder_options: LDPCDecoderOptions):
         """Setter for the decoder property.
 
         Parameters
         ----------
-        decoder_options : LDPC_DecoderOptions
+        decoder_options : LDPCDecoderOptions
             Decoder options. Determins which decoder object is used.
         """
         input_vector_type = 0
