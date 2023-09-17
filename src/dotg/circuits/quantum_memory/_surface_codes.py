@@ -26,9 +26,6 @@ class SurfaceCode(CodeFamily):
     # TODO Add XZZX and XY Codes.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-
     class Rotated(SurfaceCodeSubClass):
         """Rotated surface code class. After initialisation, access the circuit
         representing the code experiment with the `circuit` property.
