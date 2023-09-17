@@ -112,7 +112,7 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
         Raises
         ------
         warnings.warn
-            As BP is not guaranteed to covnerge on quantum codes, it cannot provide a
+            As BP is not guaranteed to converge on quantum codes, it cannot provide a
             true logical error probability. As such, we report on only those cases where
             the algorithm converges.
 
@@ -153,13 +153,13 @@ class BeliefPropagation(LDPC_BeliefPropagationDecoder):
 
 
 if __name__ == "__main__":
-    from dotg.circuits import rotated_surface_code
+    from dotg.circuits.quantum_memory import SurfaceCode
     from dotg.noise import DepolarizingNoise
 
     SHOTS = 1000
 
     circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(
-        circuit=rotated_surface_code(distance=5)
+        circuit=SurfaceCode.Rotated(distance=5).circuit
     )
     sampler = Sampler(circuit=circuit)
     syndromes, logicals = sampler(num_shots=SHOTS, exclude_empty=True)
