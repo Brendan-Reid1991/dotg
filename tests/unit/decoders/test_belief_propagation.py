@@ -21,7 +21,7 @@ from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTe
 class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTests):
     DECODER_CLASS = BeliefPropagation
 
-    def test_raises_NoNoiseError_for_no_noise(self):
+    def test_raises_NoNoiseError_for_no_noise(self, *args, **kwargs):
         return super().test_raises_NoNoiseError_for_no_noise(
             LDPCDecoderOptions(max_iterations=1, message_updates=MessageUpdates.PROD_SUM)
         )

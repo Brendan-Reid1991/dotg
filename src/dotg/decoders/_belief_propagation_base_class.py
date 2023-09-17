@@ -7,6 +7,7 @@ from typing import List, Optional
 import numpy as np
 import stim
 from ldpc import bp_decoder, bposd_decoder
+from numpy.typing import NDArray
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
@@ -217,6 +218,34 @@ class LDPCBeliefPropagationDecoder(Decoder, ABC):
                     bp_method=decoder_options.message_updates,
                     ms_scaling_factor=decoder_options.min_sum_scaling_factor,
                 )
+
+    def is_logical_failure(
+        self, error_pattern: List[int] | NDArray, logical: bool
+    ) -> bool:
+        """Given a specific logical that relates to a physical error event, check if the
+        error pattern triggers the same logical pattern. This method is used to check for
+        logical failures in decoding, i.e. if the input logical is 1 but the error
+        pattern returns a logical pattern 0, a logical observable has been flipped and
+        we have not detected it.
+
+        Parameters
+        ----------
+        error_pattern : List[int]
+            An error pattern to check.
+        logical : List[int]
+            Logical error pattern to compare to.
+
+        Returns
+        -------
+        bool
+            Whether or not the input error pattern results in the same logical pattern as logical.
+        """
+        if [
+            sum(x * y for x, y in zip(log, error_pattern)) % 2
+            for log in self.logical_check
+        ] != logical:
+            return True
+        return False
 
     @property
     def num_iterations(self) -> int:

@@ -73,7 +73,7 @@ class Sampler:
 
         Returns
         -------
-        Tuple[NDArray[Any], List[np.bool]]
+        Tuple[NDArray[Any], List[np.bool_]]
             A tuple of iterables:
                 - The first element is an array of syndromes, of dimension
                 (num_shots * num_detectors). In each row, 1 (0) indicates detector did
