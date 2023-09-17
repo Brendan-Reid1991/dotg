@@ -15,7 +15,20 @@ from dotg.utilities import Sampler
 
 
 class BeliefPropagation(LDPCBeliefPropagationDecoder):
-    """This class defines a Belief Propagation decoder (BP) from the LDPC package."""
+    """This class defines a Belief Propagation decoder (BP) from the LDPC package.
+
+
+    Parameters
+    ----------
+    circuit : stim.Circuit
+        Stim circuit that defines our experiment.
+    decoder_options : LDPCDecoderOptions, optional
+        Which decoder options to pass. The following options are available:
+            - max_iterations: int
+            - message_updats: MessageUpdates, optional
+            - min_sum_scaling_factor: float, optional
+        The options `osd_method` and `osd_order` have no affect on this class.
+    """
 
     def __init__(
         self, circuit: stim.Circuit, decoder_options: LDPCDecoderOptions
@@ -52,6 +65,7 @@ class BeliefPropagation(LDPCBeliefPropagationDecoder):
                 - The final error pattern that the algorithm terminated on.
                 - The remaining syndrome considering that error pattern. If the algorithm
                   did not converge, this value is overwritten to be the input syndrome.
+            For more information see the docstring of decoders.LDPCDecoderOptions.
         """
         syndrome = np.asarray(syndrome)
 
@@ -138,13 +152,7 @@ class BeliefPropagation(LDPCBeliefPropagationDecoder):
                 continue
 
             convergence_events += 1
-            _logical_flip_observed = [
-                sum(x * y for x, y in zip(log, error_pattern)) % 2
-                for log in self.logical_check
-            ]
-
-            if _logical_flip_observed != logical:
-                logical_failures += 1
+            logical_failures += self.is_logical_failure(error_pattern, logical)
 
         if convergence_events > 0:
             return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
