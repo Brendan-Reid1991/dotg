@@ -11,7 +11,7 @@ from dotg.decoders._belief_propagation_base_class import (
 )
 from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
     BasicBeliefPropagationDecoderTests,
-    BasicCircuits,
+    BasicMemoryCircuits,
 )
 from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
 
@@ -59,7 +59,7 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
         expected_min_sum_scaling_factor,
     ):
         bp_decoder = BeliefPropagation(
-            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT,
             decoder_options=decoder_options,
         )
         decoder = bp_decoder.decoder
@@ -79,7 +79,7 @@ class TestBeliefPropagation(BasicBeliefPropagationDecoderTests, BasicDecoderTest
     @pytest.mark.parametrize("osd_method, osd_order", [(0, 10), (1, 11), (2, 3)])
     def test_setting_osd_options_has_no_effect(self, osd_method, osd_order):
         bp_decoder = BeliefPropagation(
-            circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT,
             decoder_options=LDPCDecoderOptions(
                 max_iterations=30,
                 message_updates=MessageUpdates.MIN_SUM,

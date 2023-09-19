@@ -3,7 +3,7 @@ from typing import Optional
 
 import stim
 
-from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
+from dotg.circuits._code_base_class import Code, CodeFamily
 
 
 class ColorCode(CodeFamily):
@@ -11,8 +11,8 @@ class ColorCode(CodeFamily):
     Triangular color code."""
 
     class Triangular(Code):
-        """Triangular color code class. After initialisation, access the circuit
-        representing the code experiment with the `circuit` property.
+        """Triangular color code class. After initialisation, access circuits for quantum
+        memory and stability experiments with the `memory` and `stability` properties.
 
         Parameters
         ----------
@@ -29,7 +29,7 @@ class ColorCode(CodeFamily):
                 raise ValueError("Distance for the triangular color code must be odd.")
 
         @property
-        def circuit(self) -> stim.Circuit:
+        def memory(self) -> stim.Circuit:
             return stim.Circuit.generated(
                 code_task="color_code:memory_xyz",
                 distance=self.distance,

@@ -5,7 +5,7 @@ import pytest
 from numpy.typing import NDArray
 
 from dotg.decoders import MinimumWeightPerfectMatching
-from tests.unit.circuits.quantum_memory import BasicCircuits
+from tests.unit.circuits import BasicMemoryCircuits
 from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
 
 
@@ -14,14 +14,16 @@ class TestMinimumWeightPerfectMatching(BasicDecoderTests):
 
     @pytest.fixture(scope="class")
     def mwpm(self):
-        return MinimumWeightPerfectMatching(BasicCircuits.GraphLike.NOISY_CIRCUIT)
+        return MinimumWeightPerfectMatching(BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT)
 
     def test_non_graph_like_circuit_raises_error(self):
         with pytest.raises(
             ValueError,
             match="Circuit passed does not permit a graph-like error model, ",
         ):
-            MinimumWeightPerfectMatching(BasicCircuits.HypergraphLike.NOISY_CIRCUIT)
+            MinimumWeightPerfectMatching(
+                BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT
+            )
 
     def test_decode_syndrome(self, mwpm):
         syndrome = mwpm.sampler.sample(shots=1)

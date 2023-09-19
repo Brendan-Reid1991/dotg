@@ -25,10 +25,22 @@ class Code(ABC):
 
     @property
     @abstractmethod
-    def circuit(self) -> stim.Circuit:
-        """Stim circuit representing the code experiment without noise.
+    def memory(self) -> stim.Circuit:
+        """Stim circuit representing a quantum memory experiment on this code without
+        noise.
 
         Returns
         -------
         stim.Circuit
         """
+
+    @property
+    def stability(self) -> stim.Circuit:
+        """Stim circuit representing a quantum stability experiment on this code without
+        noise.
+
+        Returns
+        -------
+        stim.Circuit
+        """
+        raise NotImplementedError("Stability experiments not yet implemented.")

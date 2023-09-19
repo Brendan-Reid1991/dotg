@@ -8,7 +8,7 @@ from dotg.decoders._belief_propagation_base_class import (
 )
 from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
     BasicBeliefPropagationDecoderTests,
-    BasicCircuits,
+    BasicMemoryCircuits,
 )
 from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
 
@@ -21,7 +21,7 @@ class TestBPOSD(BasicBeliefPropagationDecoderTests, BasicDecoderTests):
             ValueError, match="You must provide an OSD method to use BPOSD."
         ):
             BPOSD(
-                circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+                circuit=BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT,
                 decoder_options=LDPCDecoderOptions(max_iterations=20),
             )
 
@@ -34,14 +34,14 @@ class TestBPOSD(BasicBeliefPropagationDecoderTests, BasicDecoderTests):
     @pytest.fixture(scope="class")
     def decoder_graph(self, options):
         return self.DECODER_CLASS(
-            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT,
             decoder_options=options,
         )
 
     @pytest.fixture(scope="class")
     def decoder_hypergraph(self, options):
         return self.DECODER_CLASS(
-            circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT,
             decoder_options=options,
         )
 

@@ -7,7 +7,7 @@ from dotg.decoders._belief_propagation_base_class import (
     LDPCDecoderOptions,
 )
 from dotg.utilities import Sampler
-from tests.unit.circuits.quantum_memory import BasicCircuits
+from tests.unit.circuits._basic_circuits import BasicMemoryCircuits
 
 
 class BasicBeliefPropagationDecoderTests:
@@ -16,26 +16,26 @@ class BasicBeliefPropagationDecoderTests:
     @pytest.fixture(scope="class")
     def decoder_graph(self):
         return self.DECODER_CLASS(
-            circuit=BasicCircuits.GraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT,
             decoder_options=LDPCDecoderOptions(max_iterations=1, message_updates=0),
         )
 
     @pytest.fixture(scope="class")
     def decoder_hypergraph(self):
         return self.DECODER_CLASS(
-            circuit=BasicCircuits.HypergraphLike.NOISY_CIRCUIT,
+            circuit=BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT,
             decoder_options=LDPCDecoderOptions(max_iterations=1, message_updates=0),
         )
 
     @pytest.fixture(scope="class")
     def graph_syndrome(self):
-        sampler = Sampler(BasicCircuits.GraphLike.NOISY_CIRCUIT)
+        sampler = Sampler(BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT)
         syn, _ = sampler(1, True)
         return syn[0]
 
     @pytest.fixture(scope="class")
     def hypergraph_syndrome(self):
-        sampler = Sampler(BasicCircuits.HypergraphLike.NOISY_CIRCUIT)
+        sampler = Sampler(BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT)
         syn, _ = sampler(1, True)
         return syn[0]
 

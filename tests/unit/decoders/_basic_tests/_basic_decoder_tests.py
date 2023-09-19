@@ -4,7 +4,7 @@ import pytest
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities._syndrome_sampler import NoNoiseInCircuitError
-from tests.unit.circuits.quantum_memory import BasicCircuits
+from tests.unit.circuits import BasicMemoryCircuits
 
 
 class BasicDecoderTests:
@@ -13,9 +13,9 @@ class BasicDecoderTests:
     def test_raises_NoNoiseError_for_no_noise(self, *args, **kwargs):
         with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
             self.DECODER_CLASS(
-                BasicCircuits.GraphLike.NOISELESS_CIRCUIT, *args, **kwargs
+                BasicMemoryCircuits.GraphLike.NOISELESS_CIRCUIT, *args, **kwargs
             )
         with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
             self.DECODER_CLASS(
-                BasicCircuits.HypergraphLike.NOISELESS_CIRCUIT, *args, **kwargs
+                BasicMemoryCircuits.HypergraphLike.NOISELESS_CIRCUIT, *args, **kwargs
             )
