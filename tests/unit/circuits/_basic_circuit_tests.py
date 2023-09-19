@@ -27,6 +27,12 @@ class BasicCircuitTests:
             for instruction in self.CODE(distance=5).memory
         )
 
+    def test_stability_raises_not_implemented_error(self):
+        with pytest.raises(
+            NotImplementedError, match="Stability experiments not yet implemented."
+        ):
+            self.CODE(distance=5).stability
+
     def test_increasing_rounds_increases_length_of_circuit(self):
         code_5rounds = self.CODE(distance=3, rounds=5)
         code_3rounds = self.CODE(distance=3, rounds=3)
