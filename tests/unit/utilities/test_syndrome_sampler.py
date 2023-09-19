@@ -5,18 +5,18 @@ from dotg.utilities._syndrome_sampler import (
     NoNoiseInCircuitError,
     check_if_noisy_circuit,
 )
-from tests.unit.circuits.quantum_memory import BasicCircuits
+from tests.unit.circuits import BasicMemoryCircuits
 
 
 @pytest.mark.parametrize(
     "circuit, output",
     [
-        [BasicCircuits.GraphLike.NOISELESS_CIRCUIT, False],
-        [BasicCircuits.GraphLike.NOISY_CIRCUIT, True],
-        [BasicCircuits.GraphLike.MEASUREMENT_NOISE_ONLY_CIRCUIT, True],
-        [BasicCircuits.HypergraphLike.NOISELESS_CIRCUIT, False],
-        [BasicCircuits.HypergraphLike.NOISY_CIRCUIT, True],
-        [BasicCircuits.HypergraphLike.MEASUREMENT_NOISE_ONLY_CIRCUIT, True],
+        [BasicMemoryCircuits.GraphLike.NOISELESS_CIRCUIT, False],
+        [BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT, True],
+        [BasicMemoryCircuits.GraphLike.MEASUREMENT_NOISE_ONLY_CIRCUIT, True],
+        [BasicMemoryCircuits.HypergraphLike.NOISELESS_CIRCUIT, False],
+        [BasicMemoryCircuits.HypergraphLike.NOISY_CIRCUIT, True],
+        [BasicMemoryCircuits.HypergraphLike.MEASUREMENT_NOISE_ONLY_CIRCUIT, True],
     ],
 )
 def test_check_if_noisy_circuit(circuit, output):
@@ -26,12 +26,12 @@ def test_check_if_noisy_circuit(circuit, output):
 class TestSampler:
     @pytest.fixture(scope="class")
     def sampler(self):
-        return Sampler(BasicCircuits.GraphLike.NOISY_CIRCUIT)
+        return Sampler(BasicMemoryCircuits.GraphLike.NOISY_CIRCUIT)
 
     def test_error_raised_if_circuit_has_no_noise(self):
-        sampler = Sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
+        sampler = Sampler(BasicMemoryCircuits.GraphLike.NOISELESS_CIRCUIT)
         with pytest.raises(NoNoiseInCircuitError, match=NoNoiseInCircuitError().args[0]):
-            sampler(BasicCircuits.GraphLike.NOISELESS_CIRCUIT)
+            sampler(BasicMemoryCircuits.GraphLike.NOISELESS_CIRCUIT)
 
     @pytest.mark.parametrize("exclude_empty", [True, False])
     @pytest.mark.parametrize("num_shots", [59, 723, 1467])

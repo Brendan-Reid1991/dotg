@@ -2,8 +2,8 @@ from typing import Type
 
 import pytest
 
-from dotg.circuits.quantum_memory import SurfaceCode
-from dotg.circuits.quantum_memory._surface_codes import SurfaceCodeSubClass
+from dotg.circuits import SurfaceCode
+from dotg.circuits._surface_codes import SurfaceCodeSubClass
 from tests.unit.circuits._basic_circuit_tests import (
     BasicCircuitTests,
     BasicCodeFamilyTests,

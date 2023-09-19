@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 
-from dotg.circuits.quantum_memory import SurfaceCode
+from dotg.circuits import SurfaceCode
 from dotg.noise import DepolarizingNoise
 from dotg.utilities import CircuitUnderstander
 
 toy_circuit = DepolarizingNoise(physical_error=1e-2).permute_circuit(
-    SurfaceCode.Rotated(distance=2, rounds=1).circuit
+    SurfaceCode.Rotated(distance=2, rounds=1).memory
 )
 
 

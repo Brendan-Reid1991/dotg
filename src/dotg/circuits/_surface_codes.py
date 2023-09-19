@@ -3,7 +3,7 @@ from typing import Optional
 
 import stim
 
-from dotg.circuits.quantum_memory._code_base_class import Code, CodeFamily
+from dotg.circuits._code_base_class import Code, CodeFamily
 
 
 class SurfaceCodeSubClass(Code):
@@ -27,9 +27,8 @@ class SurfaceCode(CodeFamily):
     """
 
     class Rotated(SurfaceCodeSubClass):
-        """Rotated surface code class. After initialisation, access the circuit
-        representing the code experiment with the `circuit` property.
-
+        """Rotated surface code class. After initialisation, access circuits for quantum
+        memory and stability experiments with the `memory` and `stability` properties.
         Parameters
         ----------
         distance : int
@@ -52,13 +51,7 @@ class SurfaceCode(CodeFamily):
             super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
 
         @property
-        def circuit(self) -> stim.Circuit:
-            """Stim circuit representing a rotated surface code instance
-
-            Returns
-            -------
-            stim.Circuit
-            """
+        def memory(self) -> stim.Circuit:
             return stim.Circuit.generated(
                 code_task=f"surface_code:rotated_memory_{self.memory_basis}",
                 distance=self.distance,
@@ -66,8 +59,8 @@ class SurfaceCode(CodeFamily):
             ).flattened()
 
     class Unrotated(SurfaceCodeSubClass):
-        """Unrotated surface code class. After initialisation, access the circuit
-        representing the code experiment with the `circuit` property.
+        """Unrotated surface code class. After initialisation, access circuits for quantum
+        memory and stability experiments with the `memory` and `stability` properties.
 
         Parameters
         ----------
@@ -91,7 +84,7 @@ class SurfaceCode(CodeFamily):
             super().__init__(distance=distance, rounds=rounds, memory_basis=memory_basis)
 
         @property
-        def circuit(self) -> stim.Circuit:
+        def memory(self) -> stim.Circuit:
             return stim.Circuit.generated(
                 code_task=f"surface_code:unrotated_memory_{self.memory_basis}",
                 distance=self.distance,
