@@ -36,6 +36,12 @@ class ThresholdHeuristic:
     ):
         self.physical_errors = physical_errors
         self.logical_errors_by_distance = logical_errors_by_distance
+        if len(self.logical_errors_by_distance) < 4:
+            raise ValueError(
+                """While it is possible to distill a threshold on a small number of 
+                logical curves, it is also not satisfying. Provide four or more curves 
+                for high confidence in the approximation."""
+            )
         self.log_scale = log_scale
         self._num_points = int(1e4)
 
