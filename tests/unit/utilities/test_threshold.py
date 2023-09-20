@@ -1,6 +1,8 @@
-import pytest
-import numpy as np
 from ast import literal_eval
+
+import numpy as np
+import pytest
+
 from dotg.utilities import ThresholdHeuristic
 
 
@@ -41,6 +43,23 @@ class TestThreshold:
                 physical_errors=self.PHYSICAL_ERRORS,
                 logical_errors_by_distance=self.X_MEMORY_LOGICAL,
                 log_scale=False,
+            )
+
+    @pytest.mark.parametrize("distances", ([3], [3, 5], [3, 5, 7]))
+    def test_error_raised_if_not_enough_logical_curves(self, distances):
+        with pytest.raises(
+            ValueError,
+            match="""While it is possible to distill a threshold on a small number of 
+                logical curves, it is also not satisfying. Provide four or more curves 
+                for high confidence in the approximation.""",
+        ):
+            logical_errors_by_distance_reduced = {
+                dist: self.X_MEMORY_LOGICAL[dist] for dist in distances
+            }
+            ThresholdHeuristic(
+                physical_errors=self.PHYSICAL_ERRORS,
+                logical_errors_by_distance=logical_errors_by_distance_reduced,
+                log_scale=True,
             )
 
     @pytest.mark.parametrize("thresholder", ["ThresholdX", "ThresholdZ"])
