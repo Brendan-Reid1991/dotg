@@ -1,24 +1,9 @@
-from typing import Callable, Optional
+from __future__ import annotations
+from typing import Optional
 import multiprocessing as mp
-from functools import partial
-
-
-def parallelize(function: Callable):
-    def decorator(instance, **kwargs):
-        with mp.Pool(processes=instance.cores) as pool:
-            outcome = pool.map(partial(function, **kwargs), range(instance.cores))
-        return outcome
-
-    return decorator
-
-
-class Decoder:
-    def __init__(self) -> None:
-        pass
-
-    def toy(self, num_shots):
-        print(num_shots)
-        return num_shots
+import numpy as np
+from dotg.decoders._decoder_base_class import Decoder
+from dotg.decoders._belief_propagation_base_class import LDPCBeliefPropagationDecoder
 
 
 class DecoderManager:
@@ -26,12 +11,15 @@ class DecoderManager:
         self.decoder = decoder
         self.cores = cores or mp.cpu_count()
 
-    @parallelize
-    def toy(self, kwargs):
-        return self.decoder.toy(**kwargs)
+    def _get_logical_error(self, num_shots: int | float):
+        return self.decoder.logical_error(num_shots=num_shots)
 
+    def run(self, num_shots: int | float):
+        shots_per_core = num_shots // self.cores
 
-if __name__ == "__main__":
-    manager = DecoderManager(decoder=Decoder())
-    outcome = manager.toy(num_shots=1000)
-    print(outcome)
+        if isinstance(self.decoder, LDPCBeliefPropagationDecoder):
+            raise ValueError("These must be parallelised manually.")
+
+        with mp.Pool(processes=self.cores) as pool:
+            results = pool.map(self._get_logical_error, [shots_per_core] * self.cores)
+        return np.mean(results), np.std(results)
