@@ -29,6 +29,7 @@ The package can be built with [`poetry`](https://python-poetry.org) using `poetr
   - Add stability experiments
   - Add XY and XZZX codes to surface code family.
 - In `decoders`:
+  - Manager class to allow for safe parallelisation
   - Finish partial decoders
   - Write implementation of Union Find (will be separate repository).
 - In `noise`:

@@ -61,6 +61,8 @@ class Sampler:
     ) -> Tuple[NDArray[Any], List[bool]]:
         """Given a stim circuit, sample from the detectors and generate some syndromes.
 
+        TODO modify this from a __call__ functionality, as I've really gone off it.
+
         Parameters
         ----------
         circuit : stim.Circuit
