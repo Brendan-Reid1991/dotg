@@ -11,3 +11,10 @@ from dotg.utilities.stim_assets._stim_noise_channels import (
     OneQubitNoiseChannels,
     TwoQubitNoiseChannels,
 )
+from typing import Union
+
+StimGate = Union[
+    OneQubitGates, TwoQubitGates, MeasurementGates, ResetGates, MeasureAndReset
+]
+
+StimNoise = Union[OneQubitNoiseChannels, TwoQubitNoiseChannels]
