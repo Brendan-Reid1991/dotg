@@ -1,3 +1,5 @@
+"""The DecoderManager class allows for parallelisation of decoding jobs."""
+
 from __future__ import annotations
 from typing import Optional, Type, Tuple
 
@@ -12,8 +14,8 @@ from dotg.decoders._decoder_base_classes._decoder_base_class import Decoder
 class DecoderManager:
     """The Decoder Manager for parallelising decoding jobs.
 
-    Takes as input the Decoder class, number of cores to parallelise over (optionally)
-    and any other decoder options.
+    Takes as input the Decoder class, number of cores to
+    parallelise over (optionally) and any other decoder options.
 
     Parameters
     ----------
@@ -21,7 +23,7 @@ class DecoderManager:
         Decoder class.
     cores: Optional[int]
         Optional input for the number of cores to parallelise over.
-        Defaults to the maximum number of cores on the machine.
+        Defaults to the half the maximum number of cores on the machine.
 
     Methods
     -------
@@ -34,7 +36,7 @@ class DecoderManager:
         self, decoder: Type[Decoder], cores: Optional[int] = None, **kwargs
     ) -> None:
         self.decoder = decoder
-        self.cores = cores or mp.cpu_count()
+        self.cores = cores or mp.cpu_count() // 2
         self._kwargs = kwargs
 
     def _logical_error(
