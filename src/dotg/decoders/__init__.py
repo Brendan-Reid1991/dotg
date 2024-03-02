@@ -1,6 +1,8 @@
 """This package provides wrappers around common decoders."""
+
 from dotg.decoders._belief_propagation import BeliefPropagation
-from dotg.decoders._belief_propagation_base_class import (
+from dotg.decoders._decoder_base_classes import (
+    Decoder,
     LDPCDecoderOptions,
     MessageUpdates,
     OSDMethods,

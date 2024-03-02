@@ -1,4 +1,5 @@
 """This module provides an abstract base class for Belief Propagation based decoders."""
+
 from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum
@@ -9,7 +10,7 @@ import stim
 from ldpc import bp_decoder, bposd_decoder
 from numpy.typing import NDArray
 
-from dotg.decoders._decoder_base_class import Decoder
+from dotg.decoders._decoder_base_classes._decoder_base_class import Decoder
 from dotg.utilities import CircuitUnderstander
 
 

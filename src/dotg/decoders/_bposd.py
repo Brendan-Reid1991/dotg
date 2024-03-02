@@ -1,12 +1,13 @@
 """This module provides access to the BPOSD decoder from the ldpc package: 
 https://github.com/quantumgizmos/ldpc"""
+
 from typing import List
 
 import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.decoders._belief_propagation_base_class import (
+from dotg.decoders._decoder_base_classes import (
     LDPCBeliefPropagationDecoder,
     LDPCDecoderOptions,
 )

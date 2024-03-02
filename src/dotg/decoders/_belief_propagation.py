@@ -1,5 +1,6 @@
 """This module provides access to the Belief-Propagation decoder from the LDPC package: 
 https://github.com/quantumgizmos/ldpc"""
+
 import warnings
 from typing import List, Tuple
 
@@ -7,7 +8,7 @@ import numpy as np
 import stim
 from numpy.typing import NDArray
 
-from dotg.decoders._belief_propagation_base_class import (
+from dotg.decoders._decoder_base_classes import (
     LDPCBeliefPropagationDecoder,
     LDPCDecoderOptions,
 )
@@ -155,5 +156,7 @@ class BeliefPropagation(LDPCBeliefPropagationDecoder):
             logical_failures += self.is_logical_failure(error_pattern, logical)
 
         if convergence_events > 0:
-            return logical_failures / convergence_events, 1 / np.sqrt(convergence_events)
+            return logical_failures / convergence_events, 1 / np.sqrt(
+                convergence_events
+            )
         return 0, 0

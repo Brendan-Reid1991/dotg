@@ -1,5 +1,6 @@
 """This module provides access to the Minimum Weight Perfect Matching (MWPM) decoder via 
 the pymatching package: https://github.com/oscarhiggott/PyMatching"""
+
 from __future__ import annotations
 
 from typing import List
@@ -9,7 +10,7 @@ import stim
 from numpy.typing import NDArray
 from pymatching import Matching
 
-from dotg.decoders._decoder_base_class import Decoder
+from dotg.decoders._decoder_base_classes import Decoder
 
 
 class MinimumWeightPerfectMatching(Decoder):
