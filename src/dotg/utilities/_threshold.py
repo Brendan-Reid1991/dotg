@@ -1,4 +1,5 @@
 """This module provides a class for detecting the threshold of an experiment."""
+
 from typing import Callable, Dict, List, Tuple
 from warnings import warn
 
@@ -72,7 +73,17 @@ class ThresholdHeuristic:
         Callable
             Callable function for interpolation.
         """
-        return interp1d(self.physical_errors, logical_errors)
+
+        return interp1d(
+            *zip(
+                *[
+                    (physical, logical)
+                    for physical, logical in zip(self.physical_errors, logical_errors)
+                    if logical > 0
+                ]
+            ),
+            fill_value="extrapolate"
+        )
 
     def logical_errors_interpolated(self) -> Dict[int, NDArray]:
         """Get the interpolated version of the input logical error dictionary.
@@ -84,8 +95,13 @@ class ThresholdHeuristic:
             distances.
         """
         return {
-            distance: self.get_fitting_function(logical_error)(
-                self.fine_grained_physical_errors
+            distance: np.array(
+                [
+                    max(x, 0)
+                    for x in self.get_fitting_function(logical_error)(
+                        self.fine_grained_physical_errors
+                    )
+                ]
             )
             for distance, logical_error in self.logical_errors_by_distance.items()
         }
@@ -109,10 +125,11 @@ class ThresholdHeuristic:
         float
             Approximate x-axis value (physical error rate) where the curves are equal.
         """
-        starting_point = 0.75 * self.fine_grained_physical_errors[-1]
+        starting_point = self.fine_grained_physical_errors[-1]
         interpolated_difference = interp1d(
             self.fine_grained_physical_errors,
             interpolated_curve_2 - interpolated_curve_1,
+            fill_value="extrapolate",
         )
         return newton(interpolated_difference, starting_point)
 
@@ -131,7 +148,6 @@ class ThresholdHeuristic:
             self._approximate_crossover(
                 logical_error_interpolated[_d2], logical_error_interpolated[_d1]
             )
-            for _d1, _d2 in zip(distances[1:-1], distances[2:])
+            for _d1, _d2 in zip(distances[0:-1], distances[1:])
         ]
-
-        return np.median(threshold_guess), np.std(threshold_guess)  # type: ignore
+        return float(np.nanmedian(threshold_guess)), float(np.nanstd(threshold_guess))
