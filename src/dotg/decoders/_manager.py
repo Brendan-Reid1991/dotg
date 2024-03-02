@@ -1,47 +1,88 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Type, Tuple
+
 import multiprocessing as mp
+from functools import partial
+import stim
+
 import numpy as np
-from dotg.decoders import (
-    BPOSD,
-    LDPCDecoderOptions,
-    OSDMethods,
-    MinimumWeightPerfectMatching,
-)
-from dotg.decoders._decoder_base_class import Decoder
-from dotg.decoders._belief_propagation_base_class import LDPCBeliefPropagationDecoder
-
-from dotg.circuits import SurfaceCode
-from dotg.noise import DepolarizingNoise
-
-code = SurfaceCode.Rotated(distance=5)
-circuit = DepolarizingNoise(physical_error=1e-3).permute_circuit(code.memory)
+from dotg.decoders._decoder_base_classes._decoder_base_class import Decoder
 
 
 class DecoderManager:
-    def __init__(self, decoder: Decoder, cores: Optional[int] = None) -> None:
+    """The Decoder Manager for parallelising decoding jobs.
+
+    Takes as input the Decoder class, number of cores to parallelise over (optionally)
+    and any other decoder options.
+
+    Parameters
+    ----------
+    decoder: Type[Decoder]
+        Decoder class.
+    cores: Optional[int]
+        Optional input for the number of cores to parallelise over.
+        Defaults to the maximum number of cores on the machine.
+
+    Methods
+    -------
+    run
+        Run the parallelisation process by providing a noisy stim circuit,
+        and the number of shots to sample.
+    """
+
+    def __init__(
+        self, decoder: Type[Decoder], cores: Optional[int] = None, **kwargs
+    ) -> None:
         self.decoder = decoder
         self.cores = cores or mp.cpu_count()
+        self._kwargs = kwargs
 
-    def run(self, num_shots: int | float):
+    def _logical_error(
+        self, circuit: stim.Circuit, num_shots: int | float, **kwargs
+    ) -> float:
+        """A top level function for retrieving the logical error rate.
+        Necessary in order to sidestep pickling issues.
+
+        Parameters
+        ----------
+        circuit : stim.Circuit
+            Noisy stim circuit.
+        num_shots : int | float
+            Number of shots to sample.
+
+        Returns
+        -------
+        float
+            Logical error probability.
+        """
+        return self.decoder(circuit=circuit, **kwargs).logical_error(
+            num_shots=num_shots
+        )
+
+    def run(self, circuit: stim.Circuit, num_shots: int | float) -> Tuple[float, float]:
+        """Parallelise the decoder on the given circuit and for the specified number of shots.
+
+        Parameters
+        ----------
+        circuit : stim.Circuit
+            Noisy stim circuit.
+        num_shots : int | float
+            Number of shots to sample.
+
+        Returns
+        -------
+        Tuple[float, float]
+            The mean and standard deviation of the logical error.
+        """
         shots_per_core = num_shots // self.cores
 
-        # if isinstance(self.decoder, LDPCBeliefPropagationDecoder):
-        #     with mp.Pool(self.cores) as pool:
-        #         results = pool.map(
-        #             self.decoder.logical_error,
-        #             [shots_per_core] * self.cores,
-        #         )
-        #     return np.mean(results), np.std(results)
-        mp.set_start_method("fork")
         with mp.Pool(self.cores) as pool:
             results = pool.map(
-                self.decoder.logical_error, [shots_per_core] * self.cores
+                partial(
+                    self._logical_error,
+                    circuit,
+                    **self._kwargs,
+                ),
+                [shots_per_core] * self.cores,
             )
-        return np.mean(results), np.std(results)
-
-
-if __name__ == "__main__":
-    decoder = MinimumWeightPerfectMatching(circuit=circuit)
-    manager = DecoderManager(decoder)
-    manager.run(1e4)
+        return float(np.mean(results)), float(np.std(results))
