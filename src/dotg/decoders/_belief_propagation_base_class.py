@@ -1,4 +1,5 @@
 """This module provides an abstract base class for Belief Propagation based decoders."""
+
 from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum
@@ -222,10 +223,11 @@ class LDPCBeliefPropagationDecoder(Decoder, ABC):
     def is_logical_failure(
         self, error_pattern: List[int] | NDArray, logical: bool
     ) -> bool:
-        """Given a specific logical that relates to a physical error event, check if the
-        error pattern triggers the same logical pattern. This method is used to check for
-        logical failures in decoding, i.e. if the input logical is 1 but the error
-        pattern returns a logical pattern 0, a logical observable has been flipped and
+        """Given a specific logical that relates to a physical error event,
+        check if the error pattern triggers the same logical pattern.
+        This method is used to check for logical failures in decoding,
+        i.e. if the input logical is 1 but the error pattern returns a
+        logical pattern 0, a logical observable has been flipped and
         we have not detected it.
 
         Parameters
@@ -238,7 +240,8 @@ class LDPCBeliefPropagationDecoder(Decoder, ABC):
         Returns
         -------
         bool
-            Whether or not the input error pattern results in the same logical pattern as logical.
+            Whether or not the input error pattern results
+            in the same logical pattern as logical.
         """
         if [
             sum(x * y for x, y in zip(log, error_pattern)) % 2

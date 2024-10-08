@@ -1,4 +1,5 @@
 """This module provides a code family class for the surface codes."""
+
 from typing import Optional
 
 import stim
@@ -59,8 +60,9 @@ class SurfaceCode(CodeFamily):
             ).flattened()
 
     class Unrotated(SurfaceCodeSubClass):
-        """Unrotated surface code class. After initialisation, access circuits for quantum
-        memory and stability experiments with the `memory` and `stability` properties.
+        """Unrotated surface code class. After initialisation,
+        access circuits for quantum memory and stability experiments
+        with the `memory` and `stability` properties.
 
         Parameters
         ----------
