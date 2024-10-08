@@ -1,4 +1,5 @@
 """This module provides helpful enums for access to stim gates."""
+
 from dotg.utilities.stim_assets._stim_operations import StimOperations
 
 
@@ -42,7 +43,8 @@ class TwoQubitGates(StimOperations):
         CNOT - Alterantive to CX\n
         CY - Controlled-Y gate\n
         CZ - Controlled-Z gate\n
-        SQRT_XX - Two qubit XX rotation. More commonly known as Molmer -orensen interaction.
+        SQRT_XX - Two qubit XX rotation.
+            More commonly known as Molmer-Sorensen interaction.
     """
 
     CX = "CX"
