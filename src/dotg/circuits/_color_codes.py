@@ -1,4 +1,5 @@
 """This module provides a code family class for the color codes."""
+
 from typing import Optional
 
 import stim

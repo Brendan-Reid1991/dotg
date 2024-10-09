@@ -1,4 +1,5 @@
 """This module provides helpful enums for access to stim decorators."""
+
 from dotg.utilities.stim_assets._stim_operations import StimOperations
 
 

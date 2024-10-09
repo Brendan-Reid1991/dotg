@@ -1,4 +1,5 @@
 """This module provides base classes for code families and code members."""
+
 from abc import ABC, abstractmethod
 from typing import Optional
 

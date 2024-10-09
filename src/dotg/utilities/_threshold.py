@@ -1,4 +1,5 @@
 """This module provides a class for detecting the threshold of an experiment."""
+
 from typing import Callable, Dict, List, Tuple
 from warnings import warn
 

@@ -1,4 +1,5 @@
 """This module defines the decoder base class."""
+
 from abc import ABC, abstractmethod
 from typing import List
 

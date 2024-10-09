@@ -1,4 +1,5 @@
 """Module to define a base class for all stim enums."""
+
 from enum import StrEnum
 from typing import List
 
