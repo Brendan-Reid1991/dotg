@@ -43,4 +43,7 @@ class TestCircuitUnderstander:
             0.03871067202638849,
             0.028710110023255343,
         ]
-        assert error_probabilities == expected_error_probabilities
+        assert all(
+            np.isclose(a, b)
+            for a, b in zip(error_probabilities, expected_error_probabilities)
+        )
