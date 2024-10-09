@@ -1,5 +1,6 @@
 """This module provides access to the Belief-Propagation decoder from the LDPC package: 
 https://github.com/quantumgizmos/ldpc"""
+
 import warnings
 from typing import List, Tuple
 

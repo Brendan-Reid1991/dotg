@@ -1,5 +1,6 @@
 """This module provides access to the BPOSD decoder from the ldpc package: 
 https://github.com/quantumgizmos/ldpc"""
+
 from typing import List
 
 import numpy as np

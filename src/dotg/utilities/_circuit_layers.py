@@ -1,4 +1,5 @@
 """This module provides a function to divide a stim circuit into timelike layers."""
+
 from typing import List
 
 import stim

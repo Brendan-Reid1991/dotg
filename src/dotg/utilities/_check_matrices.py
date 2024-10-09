@@ -1,6 +1,7 @@
 """This module provides a class function to convert a circuit into a parity check matrix,
 logical check matrix, and a vector of individual probabilities for each error 
 mechanism."""
+
 from typing import List, TypeAlias
 
 import numpy as np
