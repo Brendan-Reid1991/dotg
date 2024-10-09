@@ -9,4 +9,5 @@ jobs:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
         with:
-          options: "--check --diff -l 89 src/"
+          options: "--check --diff -l 89"
+          src: src/
