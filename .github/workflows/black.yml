@@ -1,11 +1,13 @@
-name: Black
-on: [pull_request]
+
+on: [pull_request, workflow_dispatch]
+
 jobs:
-  linter_name:
-    name: runner / black formatter
+  lint:
+    name: Black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: rickstaa/action-black@v1
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
         with:
-          black_args: "--check --diff -l 89"
+          options: "--check --diff -l 89"
+          src: src/

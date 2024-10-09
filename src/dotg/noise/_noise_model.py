@@ -1,4 +1,5 @@
 """This module defines a bespoke noise model class."""
+
 from __future__ import annotations
 
 from typing import Optional, Tuple, TypeAlias
@@ -124,7 +125,8 @@ class NoiseModel:
             if isinstance(_param, float | int):
                 if not 0 <= _param < 1:
                     raise ValueError(
-                        f"Invalid noise parameter passed for channel {_channel}: {_param}"
+                        """Invalid noise parameter passed for channel"""
+                        f""" {_channel}: {_param}"""
                     )
             if _channel in [
                 OneQubitNoiseChannels.PAULI_CHANNEL_1,
