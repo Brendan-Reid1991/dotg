@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 
-from stimple.utilities import QubitCoordinate, QubitGrid
-from stimple.utilities._pauliproduct import PauliProduct
+from builder.utilities import QubitCoordinate
+from builder.patches.grids._square_grid import SquareGrid
+from builder.utilities._pauliproduct import PauliProduct
 
 
 class Patch:
@@ -72,10 +73,7 @@ class Patch:
         ]
 
         # Sanity Checks
-        if (
-            not len(self.data_qubits) - len(self.z_stabilizers + self.x_stabilizers)
-            == 1
-        ):
+        if not len(self.data_qubits) - len(self.z_stabilizers + self.x_stabilizers) == 1:
             raise ValueError("Are your dimensions correct? This is not a valid qubit.")
 
         if not self.x_distance * self.z_distance == len(self.data_qubits):
@@ -121,9 +119,7 @@ class Patch:
     @property
     def right_boundary_stabilizers(self) -> List[QubitCoordinate]:
         return [
-            dq
-            for dq in self.z_stabilizers
-            if dq.x > self.anchor.x + self.z_distance - 1
+            dq for dq in self.z_stabilizers if dq.x > self.anchor.x + self.z_distance - 1
         ]
 
     @property
@@ -143,9 +139,7 @@ class Patch:
     @property
     def top_boundary_stabilizers(self) -> List[QubitCoordinate]:
         return [
-            dq
-            for dq in self.x_stabilizers
-            if dq.y > self.anchor.y + self.x_distance - 1
+            dq for dq in self.x_stabilizers if dq.y > self.anchor.y + self.x_distance - 1
         ]
 
     @property
@@ -231,9 +225,7 @@ class Patch:
                 if self.anchor.y < stabilizer.y < self.x_distance + self.anchor.y - 1
                 else 0.5
             )
-            return plt.Rectangle(
-                anchor, width, height, color="red", alpha=0.4, zorder=2
-            )
+            return plt.Rectangle(anchor, width, height, color="red", alpha=0.4, zorder=2)
 
         def draw_z_stabilizer(stabilizer: QubitCoordinate) -> matplotlib.patches.Patch:
             """Draw a Z stabilizer plaquette, coloured blue.
