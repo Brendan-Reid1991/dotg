@@ -55,6 +55,13 @@ class HexagonalGrid:
         self._x_lim = x_lim
         self._y_lim = y_lim
 
+        if not (self._x_lim - 1) % 3 == 0 and (self._y_lim - 1) % 3 == 0:
+            raise ValueError(
+                f"""Invalid dimensions for the hexagonal grid.
+                Received {(self._x_lim, self._y_lim)} but dimensions 
+                must satisfy the conditon (x - 1)mod3 = 0."""
+            )
+
         (
             self.data_qubits,
             self.red_qubits,
@@ -85,7 +92,7 @@ class HexagonalGrid:
         """
         return sorted(
             self._add_bulk_stabilizers(
-                [QubitCoordinate(x, 0) for x in np.arange(1, self._x_lim + 1, 3)]
+                [QubitCoordinate(x, 0) for x in np.arange(1, self._x_lim, 3)]
             ),
             key=lambda x: x[1],
         )
@@ -99,7 +106,7 @@ class HexagonalGrid:
         """
         return sorted(
             self._add_bulk_stabilizers(
-                [QubitCoordinate(x, 1) for x in np.arange(2.5, self._x_lim + 1, 3)]
+                [QubitCoordinate(x, 1) for x in np.arange(2.5, self._x_lim, 3)]
             ),
             key=lambda x: x[1],
         )
@@ -113,7 +120,7 @@ class HexagonalGrid:
         """
         return sorted(
             self._add_bulk_stabilizers(
-                [QubitCoordinate(x, 2) for x in np.arange(1, self._x_lim + 1, 3)]
+                [QubitCoordinate(x, 2) for x in np.arange(1, self._x_lim, 3)]
             ),
             key=lambda x: x[1],
         )
@@ -134,16 +141,31 @@ class HexagonalGrid:
         list[QubitCoordinate]
             A list of more stabilizers of the same color.
         """
-        additions = []
-        for q in colored_stabilizers:
-            while True:
-                q = q + (1.5, 3)
-                if q.x <= self._x_lim and q.y <= self._y_lim:
-                    additions.append(q)
-                    continue
-                break
-        colored_stabilizers += additions
-        return colored_stabilizers
+
+        _valid = lambda q: (0 <= q.x < self._x_lim and 0 <= q.y < self._y_lim)
+
+        def _search_grid(
+            qubit: QubitCoordinate, valid_grab_bag: list[QubitCoordinate]
+        ) -> list[QubitCoordinate]:
+            look_left: float = -1.5
+            q = qubit + (look_left, 3)
+            if _valid(q):
+                valid_grab_bag.append(q)
+                valid_grab_bag = _search_grid(qubit=q, valid_grab_bag=valid_grab_bag)
+
+            look_right: float = 1.5
+            q = qubit + (look_right, 3)
+            if _valid(q):
+                valid_grab_bag.append(q)
+                valid_grab_bag = _search_grid(qubit=q, valid_grab_bag=valid_grab_bag)
+
+            return valid_grab_bag
+
+        additions: list[QubitCoordinate] = []
+        for qubit in colored_stabilizers:
+            additions += _search_grid(qubit=qubit, valid_grab_bag=additions)
+
+        return list(set(colored_stabilizers + additions))
 
     def _get_neighbour(
         self, qubit: QubitCoordinate, displacer: Displacer
@@ -217,14 +239,26 @@ class HexagonalGrid:
             - List of GREEN stabilizers
             - Qubit coordinate to qubit index dictionary.
         """
-        data_qubits = self._get_data_qubits()
         red_qubits = self._get_red_stabilizer_qubits()
         blue_qubits = self._get_blue_stabilizer_qubits()
         green_qubits = self._get_green_stabilizer_qubits()
+        data_qubits = [
+            q
+            for y in range(0, self._y_lim)
+            for x in np.arange(0 if y % 2 == 0 else 0.5, self._x_lim)
+            if (q := QubitCoordinate(x, y))
+            not in red_qubits + blue_qubits + green_qubits
+        ]
         coordinate_mapping: dict[QubitCoordinate, int] = {}
         for idx, qubit in enumerate(
             data_qubits + red_qubits + blue_qubits + green_qubits
         ):
+            qubit.idx = idx
             coordinate_mapping[qubit] = idx
 
         return data_qubits, red_qubits, blue_qubits, green_qubits, coordinate_mapping
+
+
+if __name__ == "__main__":
+    grid = HexagonalGrid(x_lim=4, y_lim=7)
+    print(grid.red_qubits)
