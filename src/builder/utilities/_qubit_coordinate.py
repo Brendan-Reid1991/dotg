@@ -1,5 +1,7 @@
 """This module defines a class for qubit objects."""
 
+from typing import ClassVar
+
 
 class QubitCoordinate(tuple):
     """QubitCoordinate class.
@@ -21,6 +23,9 @@ class QubitCoordinate(tuple):
     idx: int
         The index given to this qubit, by default None.
     """
+
+    x: ClassVar[float]
+    y: ClassVar[float]
 
     def __new__(cls, x, y):
         instance = super().__new__(cls, (x, y))
