@@ -25,8 +25,8 @@ class Patch:
     ----------
     code_distance: Tuple[int, int]
         Code distances as a (d_X, d_Z) tuple.
-    qubit_grid: QubitGrid
-        QubitGrid class that has data qubits and stabilizers pre-defined.
+    qubit_grid: SquareGrid
+        SquareGrid class that has data qubits and stabilizers pre-defined.
     anchor: QubitCoordinate
         The anchor qubit, defines the data qubit in the lower left hand corner
         of the patch.
@@ -44,7 +44,7 @@ class Patch:
     def __init__(
         self,
         code_distance: Tuple[int, int],
-        qubit_grid: QubitGrid,
+        qubit_grid: SquareGrid,
         anchor: QubitCoordinate,
     ) -> None:
         self.qubit_grid = qubit_grid
@@ -218,7 +218,7 @@ class Patch:
             anchor = (
                 stabilizer + (-0.5, 0)
                 if stabilizer.y < self.anchor.y
-                else stabilizer + QubitGrid.Displacer.BOTTOM_LEFT.value
+                else stabilizer + SquareGrid.Displacer.BOTTOM_LEFT.value
             )
             height = (
                 1
@@ -249,7 +249,7 @@ class Patch:
             anchor = (
                 stabilizer + (0, -0.5)
                 if stabilizer.x < self.anchor.x
-                else stabilizer + QubitGrid.Displacer.BOTTOM_LEFT.value
+                else stabilizer + SquareGrid.Displacer.BOTTOM_LEFT.value
             )
             return plt.Rectangle(
                 anchor, width, height, color="blue", alpha=0.4, zorder=2
