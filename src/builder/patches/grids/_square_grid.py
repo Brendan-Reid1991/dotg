@@ -6,7 +6,9 @@ from builder.utilities._qubit_coordinate import QubitCoordinate
 
 
 class SquareGrid:
-    """Define a grid of qubits.
+    """Define a square grid of qubits.
+
+    At present, this class is used to build the rotated surface code only.
 
     Data qubits are placed on integer nodes, so (1, 1), (2, 3) etc.
     (1, 1) is always the first data qubit and always has index 0.
