@@ -43,6 +43,7 @@ class Visualiser:
         show_indices: bool = True,
     ):
         self.grid = grid
+        plt.style.use("fast")
         self.figure, self.ax = plt.subplots(1, 1, figsize=figsize)
         self.ax.set_aspect("equal")
         self.ax.tick_params(which="both", width=2)

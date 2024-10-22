@@ -3,3 +3,4 @@ for building quantum circuits."""
 
 from builder.utilities._pauliproduct import PauliProduct
 from builder.utilities._qubit_coordinate import QubitCoordinate
+from builder.utilities._visualiser import Visualiser
