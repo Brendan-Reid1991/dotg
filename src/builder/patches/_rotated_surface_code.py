@@ -4,7 +4,7 @@ from builder.patches.grids import SquareGrid
 from builder.utilities import PauliProduct, Visualiser
 
 
-class SurfaceCode:
+class RotatedSurfaceCode:
     """A patch class for defining a logical qubit on the rotated surface code.
 
     Provide the code distance as an (d_X, d_Z) tuple, the qubit grid to define the qubit
@@ -74,44 +74,13 @@ class SurfaceCode:
 
         if not self.x_distance * self.z_distance == len(self.data_qubits):
             raise ValueError(
-                "Invalid number of data qubits in this patch. Have you placed the anchor too close to the edge of the grid?"
+                """Invalid number of data qubits in this patch. Have you placed the 
+                anchor too close to the edge of the grid?"""
             )
 
     def __str__(self):
-        return f"Patch({self.x_distance}, {self.z_distance}) @ {self.anchor} on {self.qubit_grid.__class__.__name__}({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"
-
-    @property
-    def to_stabilizer_formalism(self) -> tuple[list[PauliProduct], list[PauliProduct]]:
-        """Return the stabilizers of the patch as a list of Pauli strings.
-
-        Returns
-        -------
-        tuple[list[PauliProduct], list[PauliProduct]]
-            The (X, Z) stabilizers of the patch.
-        """
-        return [
-            PauliProduct(
-                ".".join(
-                    [
-                        f"X{q.idx}"
-                        for q in self.qubit_grid.stabilizer_data_qubit_groups(stab)
-                        if q in self.data_qubits
-                    ]
-                )
-            )
-            for stab in self.x_stabilizers
-        ], [
-            PauliProduct(
-                ".".join(
-                    [
-                        f"Z{q.idx}"
-                        for q in self.qubit_grid.stabilizer_data_qubit_groups(stab)
-                        if q in self.data_qubits
-                    ]
-                )
-            )
-            for stab in self.z_stabilizers
-        ]
+        return f"""Patch({self.x_distance}, {self.z_distance}) @ {self.anchor} on 
+        {self.qubit_grid.__class__.__name__}({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
 
     @property
     def right_boundary_data(self) -> list[QubitCoordinate]:
