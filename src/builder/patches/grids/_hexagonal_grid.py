@@ -257,8 +257,3 @@ class HexagonalGrid:
             coordinate_mapping[qubit] = idx
 
         return data_qubits, red_qubits, blue_qubits, green_qubits, coordinate_mapping
-
-
-if __name__ == "__main__":
-    grid = HexagonalGrid(x_lim=4, y_lim=7)
-    print(grid.red_qubits)
