@@ -1,4 +1,5 @@
-"""The SquareGrid class: helpful for tracking qubit coordinates and indices."""
+"""The SquareGrid class: helpful for tracking qubit coordinates and indices
+on square grid architectures."""
 
 from enum import Enum
 

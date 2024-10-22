@@ -1,49 +1,60 @@
-from typing import Optional
+"""The HexagonalGrid class: helpful for tracking qubit coordinates and indices
+on hexagonal architectures."""
+
 import numpy as np
 from enum import Enum
-import ast
-import matplotlib
-import matplotlib.pyplot as plt
 
 from builder.utilities import QubitCoordinate
 
 
 class HexagonalGrid:
-    """A hexagonal grid structure, used to define the triangular
-    color code.
+    """A hexagonal grid structure, where qubits exist on a weight-3 connectivity
+    graph.
+
+    Qubit at coordinate (1,1) is always a data qubit, and always has index 0.
+    In order, data qubits are indexed first. Then red plaquette qubits, then blue, then green.
 
     Parameters
     ----------
-    x_lim: int
-        The max x-coordinate on the grid.
-    y_lim: int
-        The max y-coordinate on the grid.
+    x_lim : int
+        The max x-coordinate on the grid. Must satisfy the condition that
+        (x_lim-1)mod3 == 0
+    y_lim : int
+        The max y-coordinate on the grid. Must satisfy the condition that
+        (y_lim-1)mod3 == 0
 
     Attributes
     ----------
     data_qubits: list[QubitCoordinate]
-        A list of data qubits defined on the grid.
-    z_stabilizers: list[QubitCoordinate]
-        A list of Z stabilizers defined on the grid.
-    x_stabilizers: list[QubitCoordinate]
-        A list of X stabilizers defined on the grid.
+        A list of data qubit coordinates on the grid.
+    red_qubits: list[QubitCoordinate]
+        A list of qubits on red-colored plaquettes.
+    blue_qubits: list[QubitCoordinate]
+        A list of qubits on blue-colored plaquettes.
+    green_qubits: list[QubitCoordinate]
+        A list of qubits on green-colored plaquettes.
+    schedules: dict[str, list[HexagonalGrid.Displacer]]
+        A dictionary of schedules for red, blue and green plaquettes.
+        At present, they each have the same schedule which is clockwise
+        starting at the SW qubit.
     coordinate_mapping: dict[QubitCoordinate, int]
-        A dictionary that maps a qubit coordinate to its index.
-    schedules: dict[str, list[SquareGrid.Displacer]]
-        Default schedules for X and Z syndrome extraction circuits,
-        accessed by schedules['x'] and schedules['z'] respectively.
-        Values of these keys are the time-step indexed interaction
-        order, i.e.
-        >>> schedules['x'] = [SquareGrid.Displacer.TOP_LEFT,
-                            SquareGrid.Displacer.TOP_RIGHT,
-                            SquareGrid.Displacer.BOTTOM_LEFT,
-                            SquareGrid.Displacer.BOTTOM_RIGHT]
-        The elements of this list can be added to an X stabilizer
-        qubit to determine which data qubit it should interact with
-        in that timestep.
+        A map from the qubit coordinate and its corresponding index.
+
+
+    Raises
+    ------
+    ValueError
+        If the given x_lim, y_lim args do not satisfy the condition that
+        (h-1)mod3 == 0 for h=x_lim and h=y_lim.
+
     """
 
     class Displacer(Enum):
+        """The displacer for the hexagonal grid.
+
+        Indicates the steps taken from any given qubit to search it's neighbourhood.
+        """
+
         NE: tuple[float, float] = (0.5, 1)
         E: tuple[float, float] = (1, 0)
         SE: tuple[float, float] = (0.5, -1)
@@ -52,6 +63,7 @@ class HexagonalGrid:
         NW: tuple[float, float] = (-0.5, 1)
 
     def __init__(self, x_lim: int, y_lim: int) -> None:
+
         self._x_lim = x_lim
         self._y_lim = y_lim
 
@@ -69,6 +81,33 @@ class HexagonalGrid:
             self.green_qubits,
             self.coordinate_mapping,
         ) = self._initialize()
+
+        self.schedules: dict[str, list[HexagonalGrid.Displacer]] = {
+            "red": [
+                HexagonalGrid.Displacer.SW,
+                HexagonalGrid.Displacer.W,
+                HexagonalGrid.Displacer.NW,
+                HexagonalGrid.Displacer.NE,
+                HexagonalGrid.Displacer.E,
+                HexagonalGrid.Displacer.SE,
+            ],
+            "blue": [
+                HexagonalGrid.Displacer.SW,
+                HexagonalGrid.Displacer.W,
+                HexagonalGrid.Displacer.NW,
+                HexagonalGrid.Displacer.NE,
+                HexagonalGrid.Displacer.E,
+                HexagonalGrid.Displacer.SE,
+            ],
+            "green": [
+                HexagonalGrid.Displacer.SW,
+                HexagonalGrid.Displacer.W,
+                HexagonalGrid.Displacer.NW,
+                HexagonalGrid.Displacer.NE,
+                HexagonalGrid.Displacer.E,
+                HexagonalGrid.Displacer.SE,
+            ],
+        }
 
     def _get_red_stabilizer_qubits(self) -> list[QubitCoordinate]:
         """Get the red stabilizer qubits.

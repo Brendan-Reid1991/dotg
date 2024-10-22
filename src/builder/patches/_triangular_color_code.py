@@ -25,6 +25,45 @@ def _num_data_qubits_in_triangular_color_code(distance: int) -> int:
 
 
 class TriangularColorCode:
+    """A patch class for defining a logical qubit on the triangular color code.
+
+    Provide a single value as the code distance, the qubit grid to define the logical
+    qubit on and the anchor qubit, which designates the bottom left hand corner data
+    qubit.
+
+    Only odd code distances are permitted.
+
+    Parameters
+    ----------
+    code_distance: int
+        The logical distance of the code.
+    qubit_grid: HexagonalGrid
+        The grid the logical qubit is placed on.
+    anchor: QubitCoordinate
+        The coordinate of the bottom left hand corner data qubit in the patch.
+
+    Attributes
+    ----------
+    data_qubits: list[QubitCoordinate]
+        A list of all the data qubits in the code.
+    red_qubits: list[QubitCoordinate]
+        A list of all red-colored plaquette qubits.
+    blue_qubits: list[QubitCoordinate]
+        A list of all blue-colored plaquette qubits.
+    green_qubits: list[QubitCoordinate]
+        A list of all green-colored plaquette qubits.
+
+    Raises
+    ------
+    ValueError
+        If the code distance is not odd.
+    ValueError
+        If the anchor qubit is not a data qubit on the provided grid.
+    ValueError
+        If the number of data qubits in the code is not correct for the code distance,
+        indicating that the patch does not fit onto the grid.
+    """
+
     def __init__(
         self,
         code_distance: int,
@@ -49,10 +88,28 @@ class TriangularColorCode:
             )
 
         def in_code(qubit: QubitCoordinate) -> bool:
+            """Determine if the given qubit coordinate exists within the confines
+            of the code on the grid.
+
+            This is done by first displacing the qubit by it's anchor, effectively
+            re-originating it. Then, we check if its (x, y) coordinate satisfy
+            the condition that, as we increase the row of the data qubit within
+            the triangular color code, the permissable columns become restricted.
+
+            Parameters
+            ----------
+            qubit : QubitCoordinate
+                Qubit coordinate to check
+
+            Returns
+            -------
+            bool
+                Whether or not the qubit is in the code.
+            """
             displaced: QubitCoordinate = QubitCoordinate(
                 qubit.x - self.anchor.x, qubit.y - self.anchor.y
             )
-            not_in_negative_space: bool = displaced.x >= 0 and displaced.y >= 0
+            # not_in_negative_space: bool = displaced.x >= 0 and displaced.y >= 0
             within_the_outer_boundaries: bool = (
                 max(0, displaced.y / 2)
                 <= displaced.x
@@ -93,7 +150,8 @@ class TriangularColorCode:
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
     ) -> matplotlib.figure.Figure:
-        """Draw the patch on the grid, colouring in the stabilizers and optionally adding the indices.
+        """Draw the patch on the grid, colouring in the stabilizers and optionally
+        adding the indices.
 
         Parameters
         ----------
