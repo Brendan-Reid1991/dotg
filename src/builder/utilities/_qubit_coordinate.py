@@ -2,6 +2,8 @@
 
 from typing import ClassVar
 
+# pylint: disable=invalid-name
+
 
 class QubitCoordinate(tuple):
     """QubitCoordinate class.
@@ -29,13 +31,19 @@ class QubitCoordinate(tuple):
 
     def __new__(cls, x, y):
         instance = super().__new__(cls, (x, y))
-        instance._idx = None
+        instance._idx = -1
         instance.x = x
         instance.y = y
         return instance
 
     @property
     def idx(self) -> int:
+        """The qubit index.
+
+        Returns
+        -------
+        int
+        """
         return self._idx
 
     @idx.setter
