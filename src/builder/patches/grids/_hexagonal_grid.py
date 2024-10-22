@@ -55,11 +55,11 @@ class HexagonalGrid:
         self._x_lim = x_lim
         self._y_lim = y_lim
 
-        if not (self._x_lim - 1) % 3 == 0 and (self._y_lim - 1) % 3 == 0:
+        if not (self._x_lim - 1) % 3 == 0 or not (self._y_lim - 1) % 3 == 0:
             raise ValueError(
                 f"""Invalid dimensions for the hexagonal grid.
                 Received {(self._x_lim, self._y_lim)} but dimensions 
-                must satisfy the conditon (x - 1)mod3 = 0."""
+                must satisfy the conditon (h - 1)mod3 = 0."""
             )
 
         (
@@ -69,19 +69,6 @@ class HexagonalGrid:
             self.green_qubits,
             self.coordinate_mapping,
         ) = self._initialize()
-
-    def _get_data_qubits(self) -> list[QubitCoordinate]:
-        """Get the data qubits on the grid.
-
-        Returns
-        -------
-        list[QubitCoordinate]
-        """
-        return [
-            QubitCoordinate(x, y)
-            for x in range(0, self._x_lim + 1)
-            for y in range(0, self._y_lim + 1)
-        ]
 
     def _get_red_stabilizer_qubits(self) -> list[QubitCoordinate]:
         """Get the red stabilizer qubits.
