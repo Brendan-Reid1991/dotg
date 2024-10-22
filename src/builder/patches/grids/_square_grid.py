@@ -161,11 +161,14 @@ class SquareGrid:
         -------
         list[QubitCoordinate]
         """
-        return [
-            QubitCoordinate(x, y)
-            for x in range(1, self._x_lim + 1)
-            for y in range(1, self._y_lim + 1)
-        ]
+        return sorted(
+            [
+                QubitCoordinate(x, y)
+                for x in range(1, self._x_lim)
+                for y in range(1, self._y_lim)
+            ],
+            key=lambda x: (x[0], x[1]),
+        )
 
     def _get_x_stabilizers(self) -> list[QubitCoordinate]:
         """Get a list of all the X stabilizers in the grid.
@@ -177,11 +180,21 @@ class SquareGrid:
         -------
         list[QubitCoordinate]
         """
-        return [
-            QubitCoordinate(i + 0.5, j + 0.5)
-            for i in range(1, self._x_lim)
-            for j in range(1 if i % 2 == 0 else 0, self._y_lim + 1, 2)
-        ]
+        return sorted(
+            [
+                QubitCoordinate(i + 0.5, j + 0.5)
+                for j in range(0, self._y_lim)
+                for i in range(1 if j % 2 == 0 else 0, self._x_lim, 2)
+                if (i, j)
+                not in [
+                    (0, 0),
+                    (0, self._y_lim - 1),
+                    (self._x_lim - 1, 0),
+                    (self._x_lim - 1, self._y_lim - 1),
+                ]
+            ],
+            key=lambda x: (x[0], x[1]),
+        )
 
     def _get_z_stabilizers(self) -> list[QubitCoordinate]:
         """Get a list of all the Z stabilizers in the grid.
@@ -193,8 +206,15 @@ class SquareGrid:
         return sorted(
             [
                 QubitCoordinate(i + 0.5, j + 0.5)
-                for j in range(1, self._y_lim)
-                for i in range(0 if j % 2 == 0 else 1, self._x_lim + 1, 2)
+                for j in range(0, self._y_lim)
+                for i in range(0 if j % 2 == 0 else 1, self._x_lim, 2)
+                if (i, j)
+                not in [
+                    (0, 0),
+                    (0, self._y_lim - 1),
+                    (self._x_lim - 1, 0),
+                    (self._x_lim - 1, self._y_lim - 1),
+                ]
             ],
             key=lambda x: (x[0], x[1]),
         )
@@ -232,3 +252,9 @@ class SquareGrid:
             coord.idx = idx
 
         return data_qubits, x_stabilizers, z_stabilizers, coordinate_mapping
+
+
+if __name__ == "__main__":
+    grid = SquareGrid(4, 4)
+    print(grid.data_qubits)
+    print(grid.x_stabilizers)
