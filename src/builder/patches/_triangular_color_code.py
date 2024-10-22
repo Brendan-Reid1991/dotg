@@ -81,10 +81,11 @@ class TriangularColorCode:
         )
         if self.anchor not in self.qubit_grid.data_qubits:
             raise ValueError(
-                f"""Invalid anchor: {self.anchor}. 
-                The anchor designates the bottom left hand corner data qubit; 
-                chosen anchor is not a data qubit. 
-                All data qubit coordinates can be accessed through the {self.qubit_grid.__class__.__name__} method 'data_qubits'."""
+                f"""Invalid anchor: {self.anchor}.\n"""
+                """The anchor designates the bottom left hand corner data qubit; """
+                """chosen anchor is not a data qubit."""
+                """\nAll data qubit coordinates can be accessed through the """
+                f"""{self.qubit_grid.__class__.__name__} method 'data_qubits'."""
             )
 
         def in_code(qubit: QubitCoordinate) -> bool:
@@ -123,11 +124,12 @@ class TriangularColorCode:
         if len(self.data_qubits) != _num_data_qubits_in_triangular_color_code(
             distance=self.code_distance
         ):
+            min_dim = self.code_distance + self.code_distance // 2
             raise ValueError(
                 f"""Invalid number of data qubits! 
                 It's possible that your grid size is too small.
                 For code distance {self.code_distance} you require a grid of dimension
-                {(self.code_distance+self.code_distance // 2, self.code_distance+self.code_distance // 2)} at least. Your anchor qubit could also
+                {(min_dim, min_dim)} at least. Your anchor qubit could also
                 be placing the logical qubit too close to the grid edges. 
                 """
             )
@@ -142,8 +144,11 @@ class TriangularColorCode:
         )
 
     def __str__(self):
-        return f"""TriangularColorCode(d={self.code_distance}) @ {self.anchor} on 
-        {self.qubit_grid.__class__.__name__}({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+        return (
+            f"""TriangularColorCode(d={self.code_distance}) @ {self.anchor} on """
+            f"""{self.qubit_grid.__class__.__name__}"""
+            f"""({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+        )
 
     def draw(
         self,
@@ -177,7 +182,7 @@ class TriangularColorCode:
                     color=color,
                     data_qubit_member_check=self.data_qubits,
                 )
-        for dq in self.data_qubits:
-            vis.draw_qubit(qubit=dq)
+        for data_q in self.data_qubits:
+            vis.draw_qubit(qubit=data_q)
 
         return vis.figure
