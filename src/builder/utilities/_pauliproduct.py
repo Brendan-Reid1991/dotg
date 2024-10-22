@@ -7,6 +7,8 @@ from collections import defaultdict
 
 import stim
 
+# pylint: disable=invalid-name
+
 
 class PauliProduct(str):
     """A special string class for Pauli products.
@@ -119,7 +121,7 @@ class PauliProduct(str):
         pauli_terms: list[str]
         for qubit_index, pauli_terms in paulis_on_index.items():
             odd_parity_paulis: tuple[str, ...] = tuple(
-                [p for p in pauli_terms if pauli_terms.count(p) % 2 != 0]
+                p for p in pauli_terms if pauli_terms.count(p) % 2 != 0
             )
             if len(odd_parity_paulis) == 1:
                 condensed.append(f"{odd_parity_paulis[0]}{qubit_index}")
