@@ -1,10 +1,13 @@
 """The HexagonalGrid class: helpful for tracking qubit coordinates and indices
 on hexagonal architectures."""
 
-import numpy as np
 from enum import Enum
+import numpy as np
 
 from builder.utilities import QubitCoordinate
+
+
+# pylint: disable=protected-access
 
 
 class HexagonalGrid:
@@ -12,7 +15,8 @@ class HexagonalGrid:
     graph.
 
     Qubit at coordinate (1,1) is always a data qubit, and always has index 0.
-    In order, data qubits are indexed first. Then red plaquette qubits, then blue, then green.
+    In order, data qubits are indexed first. Then red plaquette qubits,
+    then blue, then green.
 
     Parameters
     ----------
@@ -63,7 +67,6 @@ class HexagonalGrid:
         NW: tuple[float, float] = (-0.5, 1)
 
     def __init__(self, x_lim: int, y_lim: int) -> None:
-
         self._x_lim = x_lim
         self._y_lim = y_lim
 
@@ -168,22 +171,63 @@ class HexagonalGrid:
             A list of more stabilizers of the same color.
         """
 
-        _valid = lambda q: (0 <= q.x < self._x_lim and 0 <= q.y < self._y_lim)
+        def _valid(qubit: QubitCoordinate) -> bool:
+            """Determine if a given qubit coordinate is valid, in that it is within
+            the confines of the grid.
+
+            Parameters
+            ----------
+            qubit : QubitCoordinate
+                Qubit coordinate.
+
+            Returns
+            -------
+            bool
+                True if it is valid, False otherwise.
+            """
+            return 0 <= qubit.x < self._x_lim and 0 <= qubit.y < self._y_lim
 
         def _search_grid(
             qubit: QubitCoordinate, valid_grab_bag: list[QubitCoordinate]
         ) -> list[QubitCoordinate]:
+            """Search the grid recursively, adding valid additional qubits
+            as we go.
+
+            This function takes in a qubit coordinate, which should either a red,
+            blue or green stabilizer. It then "looks left" and "looks right" by
+            moving 1.5 cells to the left or right, and 3 cells up. This should be another
+            stabilizer of the same color.
+
+            If it is a valid stabilizer, this function is called recursively from this
+            new qubit.
+
+            Parameters
+            ----------
+            qubit : QubitCoordinate
+                Qubit coordinate to start from.
+            valid_grab_bag : list[QubitCoordinate]
+                List of valid additional qubits.
+
+            Returns
+            -------
+            list[QubitCoordinate]
+                The valid_grab_bag variable, possibly with new entries.
+            """
             look_left: float = -1.5
-            q = qubit + (look_left, 3)
-            if _valid(q):
-                valid_grab_bag.append(q)
-                valid_grab_bag = _search_grid(qubit=q, valid_grab_bag=valid_grab_bag)
+            new_qubit = qubit + (look_left, 3)
+            if _valid(new_qubit):
+                valid_grab_bag.append(new_qubit)
+                valid_grab_bag = _search_grid(
+                    qubit=new_qubit, valid_grab_bag=valid_grab_bag
+                )
 
             look_right: float = 1.5
-            q = qubit + (look_right, 3)
-            if _valid(q):
-                valid_grab_bag.append(q)
-                valid_grab_bag = _search_grid(qubit=q, valid_grab_bag=valid_grab_bag)
+            new_qubit = qubit + (look_right, 3)
+            if _valid(new_qubit):
+                valid_grab_bag.append(new_qubit)
+                valid_grab_bag = _search_grid(
+                    qubit=new_qubit, valid_grab_bag=valid_grab_bag
+                )
 
             return valid_grab_bag
 
@@ -235,9 +279,9 @@ class HexagonalGrid:
             List of data qubits incident on the stabilizer.
         """
         return [
-            q
+            qubit
             for displacement in HexagonalGrid.Displacer._value2member_map_
-            if (q := self._get_neighbour(stabilizer, displacement))
+            if (qubit := self._get_neighbour(stabilizer, displacement))
         ]
 
     def _initialize(
@@ -269,10 +313,10 @@ class HexagonalGrid:
         blue_qubits = self._get_blue_stabilizer_qubits()
         green_qubits = self._get_green_stabilizer_qubits()
         data_qubits = [
-            q
+            qubit
             for y in range(0, self._y_lim)
             for x in np.arange(0 if y % 2 == 0 else 0.5, self._x_lim)
-            if (q := QubitCoordinate(x, y))
+            if (qubit := QubitCoordinate(x, y))
             not in red_qubits + blue_qubits + green_qubits
         ]
         coordinate_mapping: dict[QubitCoordinate, int] = {}
