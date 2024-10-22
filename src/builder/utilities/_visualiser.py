@@ -88,6 +88,7 @@ class Visualiser:
     def _stabilizer(
         self,
         coordinate: QubitCoordinate,
+        data_qubit_member_check: list[QubitCoordinate],
         color: Colors | str,
         opacity: float = STABILIZER_OPACITY,
     ) -> matplotlib.patches.Patch:
@@ -104,6 +105,8 @@ class Visualiser:
         ----------
         coordinate : QubitCoordinate
             Coordinate of the stabilizer qubit.
+        data_qubit_member_check: list[QubitCoordinate]
+            pass
         color : Colors | str
             The color of the stabilizer plaquette.
         opacity : float, optional
@@ -114,7 +117,11 @@ class Visualiser:
         matplotlib.patches.Patch
             A Polygon Patch object which can be added to an axes.
         """
-        vertices = self.grid.stabilizer_data_qubit_groups(stabilizer=coordinate)
+        vertices = [
+            vertex
+            for vertex in self.grid.stabilizer_data_qubit_groups(stabilizer=coordinate)
+            if vertex in data_qubit_member_check
+        ]
 
         BoundaryT: TypeAlias = Literal["top", "bottom", "left", "right"]
 
@@ -146,13 +153,13 @@ class Visualiser:
                 case "right":
                     vertices += [vert + (+0.5, 0) for vert in vertices]
 
-        sort_qubits = lambda qubits: sorted(qubits, key=lambda x: x[1])
+        sort_qubits = lambda qubits: sorted(qubits, key=lambda x: (x[1], x[0]))
         rectangle = (
             lambda vertex_list: sort_qubits(vertex_list)[0 : len(vertex_list) // 2]
             + sort_qubits(vertex_list)[len(vertex_list) // 2 :][::-1]
         )
         return matplotlib.patches.Polygon(
-            xy=rectangle(vertices) if len(vertices) == 4 else vertices,  # type: ignore
+            xy=rectangle(vertices) if isinstance(self.grid, SquareGrid) else vertices,  # type: ignore
             color=color,
             alpha=opacity,
             zorder=1,
@@ -236,6 +243,7 @@ class Visualiser:
         self,
         stabilizer: QubitCoordinate,
         color: Colors | str,
+        data_qubit_member_check: list[QubitCoordinate],
         fade_index: bool = False,
         opacity: float = 0.4,
     ):
@@ -247,6 +255,8 @@ class Visualiser:
             Stabilizer coordinate.
         color : Colors | str
             What color to fill the stabilizer.
+        data_qubit_member_check: list[QubitCoordinate]
+            pass
         fade_index : bool, optional
             Whether or not to fade the index, by default False. If true, sets
             the index to 50% opacity.
@@ -256,6 +266,7 @@ class Visualiser:
         self.ax.add_patch(
             self._stabilizer(
                 coordinate=stabilizer,
+                data_qubit_member_check=data_qubit_member_check,
                 color=color,
                 opacity=opacity,
             )
