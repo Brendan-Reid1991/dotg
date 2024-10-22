@@ -1,7 +1,9 @@
+"""Define physical qubits on the rotated surface code."""
+
 import matplotlib
 from builder.utilities import QubitCoordinate
 from builder.patches.grids import SquareGrid
-from builder.utilities import PauliProduct, Visualiser
+from builder.utilities import Visualiser
 
 
 class RotatedSurfaceCode:
@@ -79,7 +81,7 @@ class RotatedSurfaceCode:
             )
 
     def __str__(self):
-        return f"""Patch({self.x_distance}, {self.z_distance}) @ {self.anchor} on 
+        return f"""RotatedSurfaceCode({self.x_distance}, {self.z_distance}) @ {self.anchor} on 
         {self.qubit_grid.__class__.__name__}({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
 
     @property
@@ -203,7 +205,11 @@ class RotatedSurfaceCode:
             "blue": self.z_stabilizers,
         }.items():
             for qubit in qubits:
-                vis.draw_stabilizer(stabilizer=qubit, color=color)
+                vis.draw_stabilizer(
+                    stabilizer=qubit,
+                    color=color,
+                    data_qubit_member_check=self.data_qubits,
+                )
         for dq in self.data_qubits:
             vis.draw_qubit(qubit=dq)
 
