@@ -81,8 +81,12 @@ class RotatedSurfaceCode:
             )
 
     def __str__(self):
-        return f"""RotatedSurfaceCode({self.x_distance}, {self.z_distance}) @ {self.anchor} on 
-        {self.qubit_grid.__class__.__name__}({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+        return (
+            f"""RotatedSurfaceCode({self.x_distance}, {self.z_distance})"""
+            f""" @ {self.anchor} on """
+            f"""{self.qubit_grid.__class__.__name__}"""
+            f"""({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+        )
 
     @property
     def right_boundary_data(self) -> list[QubitCoordinate]:
@@ -185,7 +189,8 @@ class RotatedSurfaceCode:
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
     ) -> matplotlib.figure.Figure:
-        """Draw the patch on the grid, colouring in the stabilizers and optionally adding the indices.
+        """Draw the patch on the grid, colouring in the stabilizers
+        and optionally adding the indices.
 
         Parameters
         ----------
@@ -210,7 +215,7 @@ class RotatedSurfaceCode:
                     color=color,
                     data_qubit_member_check=self.data_qubits,
                 )
-        for dq in self.data_qubits:
-            vis.draw_qubit(qubit=dq)
+        for data_q in self.data_qubits:
+            vis.draw_qubit(qubit=data_q)
 
         return vis.figure
