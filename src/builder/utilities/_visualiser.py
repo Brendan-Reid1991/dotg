@@ -1,9 +1,8 @@
 """The Visualiser class can be used to draw logical patches."""
 
-from typing import Tuple, Optional, Union, TypeAlias, Literal, get_args
+from typing import Union, TypeAlias, Literal
 from enum import Enum
 import matplotlib
-import matplotlib.colors as mpc
 import matplotlib.patches
 import matplotlib.pyplot as plt
 
@@ -11,6 +10,8 @@ from builder.utilities._qubit_coordinate import QubitCoordinate
 from builder.patches.grids import SquareGrid, HexagonalGrid
 
 Grid: TypeAlias = Union[SquareGrid, HexagonalGrid]
+
+# pylint: disable=protected-access,invalid-name
 
 
 class Visualiser:
@@ -20,6 +21,8 @@ class Visualiser:
     CIRCLE_RADII: float = 0.25
 
     class Colors(str, Enum):
+        """A collection of colors for ease of access."""
+
         RED = "red"
         DARKRED = "darkred"
         BLUE = "blue"
@@ -32,6 +35,8 @@ class Visualiser:
         GREY = "grey"
 
     class FontStyle(str, Enum):
+        """A collection of fonts for ease of access."""
+
         OBLIQUE = "oblique"
         NORMAL = "normal"
         ITALIC = "italic"
@@ -39,7 +44,7 @@ class Visualiser:
     def __init__(
         self,
         grid: Grid,
-        figsize: Tuple[int, int] = (10, 8),
+        figsize: tuple[int, int] = (10, 8),
         show_indices: bool = True,
     ):
         self.grid = grid
@@ -94,10 +99,14 @@ class Visualiser:
     ) -> matplotlib.patches.Patch:
         """Draw a stabilizer patch centered on a given coordinate.
 
-        The method returns a Polygon. In the case of a square grid where we require
-        weight-2 stabilizers along the boundaries, here we amend the vertex list
-        in order to return a rectangle. Rather than using the matplotlib.patches.Rectangle
-        class however, we instead simply return a Polygon. This means we must manipulate
+        The method returns a Polygon.
+
+        In the case of a square grid where we require weight-2 stabilizers
+        along the boundaries, here we amend the vertex list in order to return a
+        rectangle.
+
+        Rather than using the matplotlib.patches.Rectangle class however,
+        we instead simply return a Polygon. This means we must manipulate
         the list to ensure the entire shape is filled.
 
 
@@ -153,13 +162,32 @@ class Visualiser:
                 case "right":
                     vertices += [vert + (+0.5, 0) for vert in vertices]
 
-        sort_qubits = lambda qubits: sorted(qubits, key=lambda x: (x[1], x[0]))
-        rectangle = (
-            lambda vertex_list: sort_qubits(vertex_list)[0 : len(vertex_list) // 2]
-            + sort_qubits(vertex_list)[len(vertex_list) // 2 :][::-1]
-        )
+        def make_rectangle(vertices: list[QubitCoordinate]) -> list[QubitCoordinate]:
+            """Sort the indices in a clockwise fashion for easy plotting.
+
+            Intended for use on vertex lists that have been amended to create a boundary
+            stabilizer.
+
+            Parameters
+            ----------
+            vertices : list[QubitCoordinate]
+                List of vertices that define the rectangle.
+
+            Returns
+            -------
+            list[QubitCoordinate]
+                Amended list.
+            """
+            sorted_vertices = sorted(vertices, key=lambda x: (x[1], x[0]))
+            half_length = len(sorted_vertices) // 2
+            return sorted_vertices[0:half_length] + sorted_vertices[half_length:][::-1]
+
         return matplotlib.patches.Polygon(
-            xy=rectangle(vertices) if isinstance(self.grid, SquareGrid) else vertices,  # type: ignore
+            xy=(
+                make_rectangle(vertices)  # type: ignore
+                if isinstance(self.grid, SquareGrid)
+                else vertices
+            ),
             color=color,
             alpha=opacity,
             zorder=1,
