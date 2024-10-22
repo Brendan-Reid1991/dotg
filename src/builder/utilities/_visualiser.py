@@ -1,6 +1,6 @@
 """The Visualiser class can be used to draw logical patches."""
 
-from typing import Tuple, Optional, Union, TypeAlias
+from typing import Tuple, Optional, Union, TypeAlias, Literal, get_args
 from enum import Enum
 import matplotlib
 import matplotlib.colors as mpc
@@ -86,51 +86,53 @@ class Visualiser:
     def _stabilizer(
         self,
         coordinate: QubitCoordinate,
-        color: Colors,
+        color: Colors | str,
         opacity: float = STABILIZER_OPACITY,
     ) -> matplotlib.patches.Patch:
+        vertices = self.grid.stabilizer_data_qubit_groups(stabilizer=coordinate)
+
+        BoundaryT: TypeAlias = Literal["top", "bottom", "left", "right"]
+
+        def _which_boundary(vertex) -> dict[BoundaryT, bool]:
+            x, y = vertex
+            return {
+                "top": abs(y - self.grid._y_lim) <= 1,
+                "bottom": abs(y - 0) <= 1,
+                "left": abs(x - 0) <= 1,
+                "right": abs(x - self.grid._x_lim) <= 1,
+            }
+
+        if len(vertices) == 2:
+            placement = [
+                boundary
+                for vertex in vertices
+                for boundary, _here in _which_boundary(vertex=vertex).items()
+                if _here
+            ]
+
+            boundary = next(x for x in placement if placement.count(x) == 2)
+            match boundary:
+                case "bottom":
+                    vertices += [vert + (0, -0.5) for vert in vertices]
+                case "top":
+                    vertices += [vert + (0, +0.5) for vert in vertices]
+                case "left":
+                    vertices += [vert + (-0.5, 0) for vert in vertices]
+                case "right":
+                    vertices += [vert + (+0.5, 0) for vert in vertices]
+
+        sort_qubits = lambda qubits: sorted(qubits, key=lambda x: x[1])
+        rectangle = (
+            lambda vertex_list: sort_qubits(vertex_list)[0 : len(vertex_list) // 2]
+            + sort_qubits(vertex_list)[len(vertex_list) // 2 :][::-1]
+        )
         return matplotlib.patches.Polygon(
-            xy=self.grid.stabilizer_data_qubit_groups(stabilizer=coordinate),  # type: ignore
+            xy=rectangle(vertices) if len(vertices) == 4 else vertices,  # type: ignore
             color=color,
             alpha=opacity,
             zorder=1,
-            snap=True,
             label=coordinate,
         )
-
-    def _stabilizer_patch(
-        self,
-        coordinate: QubitCoordinate,
-        color: Colors,
-        which_boundary: Optional[str] = None,
-        opacity: float = STABILIZER_OPACITY,
-    ) -> matplotlib.patches.Patch:
-        if which_boundary and which_boundary.lower() not in [
-            "top",
-            "bottom",
-            "left",
-            "right",
-        ]:
-            raise ValueError(
-                f"Invalid option for boundary specification: {which_boundary}. Must be one of 'top', 'bottom', 'left', 'right'."
-            )
-        if which_boundary:
-            width = 1 if which_boundary in ["top", "bottom"] else 0.5
-            height = 1 if which_boundary in ["left", "right"] else 0.5
-            anchor = (
-                coordinate + (-0.5, -0.5)
-                if which_boundary in ["top", "right"]
-                else (
-                    coordinate + (-0.5, 0)
-                    if which_boundary == "bottom"
-                    else coordinate + (0, -0.5)
-                )
-            )
-        else:
-            width = 1
-            height = 1
-            anchor = coordinate + (-0.5, -0.5)
-        return plt.Rectangle(anchor, width, height, color=color, alpha=opacity, zorder=1)
 
     def _qubit_patch(
         self,
@@ -173,8 +175,7 @@ class Visualiser:
     def draw_stabilizer(
         self,
         stabilizer: QubitCoordinate,
-        color: Colors,
-        which_boundary: Optional[str] = None,
+        color: Colors | str,
         fade_index: bool = False,
         opacity: float = 0.4,
     ):
@@ -182,7 +183,6 @@ class Visualiser:
             self._stabilizer(
                 coordinate=stabilizer,
                 color=color,
-                # which_boundary=which_boundary,
                 opacity=opacity,
             )
         )
@@ -223,9 +223,9 @@ if __name__ == "__main__":
     for qub in grid.data_qubits:
         vis.draw_qubit(qubit=qub)
     for qub in grid.red_qubits:
-        vis.draw_stabilizer(stabilizer=qub, color=vis.Colors.RED)
+        vis.draw_stabilizer(qub, color="red")
     for qub in grid.blue_qubits:
-        vis.draw_stabilizer(stabilizer=qub, color=vis.Colors.BLUE)
+        vis.draw_stabilizer(qub, color="blue")
     for qub in grid.green_qubits:
-        vis.draw_stabilizer(stabilizer=qub, color=vis.Colors.GREEN)
+        vis.draw_stabilizer(qub, color="green")
     vis.figure.savefig("test.png")
