@@ -130,10 +130,10 @@ class PauliProduct(str):
     def __add__(self, other: str | PauliProduct) -> PauliProduct:
         return PauliProduct(".".join(self.split(".") + other.split(".")))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self
 
     @property
