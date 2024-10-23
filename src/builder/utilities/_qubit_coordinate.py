@@ -1,6 +1,7 @@
 """This module defines a class for qubit objects."""
 
-from typing import ClassVar
+from __future__ import annotations
+from typing import ClassVar, Any
 
 # pylint: disable=invalid-name
 
@@ -50,7 +51,7 @@ class QubitCoordinate(tuple):
     def idx(self, value):
         self._idx = value
 
-    def __add__(self, alt):
+    def __add__(self, alt: QubitCoordinate | tuple[Any, ...]) -> QubitCoordinate:
         if len(alt) > 2:
             raise ValueError(f"Coordinates should all be of size 2. Received {alt}")
         return QubitCoordinate(self[0] + alt[0], self[1] + alt[1])
