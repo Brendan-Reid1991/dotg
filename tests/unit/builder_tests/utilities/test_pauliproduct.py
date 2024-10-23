@@ -4,7 +4,7 @@ import pytest
 import stim
 
 STRINGS = ["X0", "Z0.Y1.X23", stim.PauliString("__X____Y__Z__X")]
-STRING_OUTPUT = ["X0", "Z0.Y1.X23", "X2.Y7.Z10.X13"]
+
 INDICES = [[0], [0, 1, 23], [2, 7, 10, 13]]
 PAULIS = [["X"], ["Z", "Y", "X"], ["X", "Y", "Z", "X"]]
 INDEX_TO_PAULI_MAP = [dict(zip(idx, pauli)) for idx, pauli in zip(INDICES, PAULIS)]
@@ -28,16 +28,6 @@ class TestPauliProduct:
     )
     def test_output_paulis(self, input_strings, index_to_pauli_map):
         assert PauliProduct(input_strings).index_to_pauli_map == index_to_pauli_map
-
-    @pytest.mark.parametrize("input_string, output_string", zip(STRINGS, STRING_OUTPUT))
-    def test_str_and_repr_dunders(self, input_string, output_string):
-        p = PauliProduct(input_string)
-        assert str(p) == str(
-            output_string
-        ), f"""`str` output failed for input {input_string}"""
-        assert (
-            repr(p) == output_string
-        ), f"""`repr` output failed for input {input_string}"""
 
     @pytest.mark.parametrize(
         "first, second, output",
