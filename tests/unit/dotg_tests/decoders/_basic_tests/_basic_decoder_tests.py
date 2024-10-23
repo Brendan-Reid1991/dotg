@@ -4,7 +4,7 @@ import pytest
 
 from dotg.decoders._decoder_base_class import Decoder
 from dotg.utilities._syndrome_sampler import NoNoiseInCircuitError
-from tests.unit.circuits import BasicMemoryCircuits
+from tests.unit.dotg_tests.circuits import BasicMemoryCircuits
 
 
 class BasicDecoderTests:

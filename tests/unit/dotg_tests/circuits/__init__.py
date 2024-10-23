@@ -1,1 +1,1 @@
-from tests.unit.circuits._basic_circuits import BasicMemoryCircuits
+from tests.unit.dotg_tests.circuits._basic_circuits import BasicMemoryCircuits
