@@ -79,8 +79,7 @@ class PauliProduct(str):
             for conjugation in individual_pauli_products
         ):
             raise ValueError(
-                f"""Some entries do not follow the correct pattern for a Pauli 
-                product.\n    {individual_pauli_products}"""
+                f"""Some entries do not follow the correct pattern for a Pauli product.\n    {individual_pauli_products}"""
             )
 
     def _condense(self) -> str:
@@ -115,13 +114,12 @@ class PauliProduct(str):
             pauli_term = "".join([p for p in entry if p.isalpha()])
             index = literal_eval("".join([i for i in entry if i.isnumeric()]))
             paulis_on_index[index].append(pauli_term)
-
         condensed = []
         qubit_index: int
         pauli_terms: list[str]
         for qubit_index, pauli_terms in paulis_on_index.items():
             odd_parity_paulis: tuple[str, ...] = tuple(
-                p for p in pauli_terms if pauli_terms.count(p) % 2 != 0
+                set(p for p in pauli_terms if pauli_terms.count(p) % 2 != 0)
             )
             if len(odd_parity_paulis) == 1:
                 condensed.append(f"{odd_parity_paulis[0]}{qubit_index}")
@@ -133,10 +131,10 @@ class PauliProduct(str):
         return PauliProduct(".".join(self.split(".") + other.split(".")))
 
     def __repr__(self):
-        return self.sign + self
+        return self
 
     def __str__(self):
-        return self.sign + self
+        return self
 
     @property
     def indices(self) -> list[int]:
