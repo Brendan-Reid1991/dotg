@@ -74,8 +74,24 @@ class TestVisualiser:
             color=color,
             opacity=opacity,
         )
-        print(patch.__dir__())
         assert patch.get_facecolor() == mpc.to_rgba(color, opacity)
         assert patch.get_zorder() == 1
         assert (patch.get_verts() == np.asarray([[2, 1], [2, 2], [1, 2], [2, 1]])).all()
-        # assert False
+
+    @pytest.mark.parametrize(
+        "grid", [SquareGrid(3, 3), SquareGrid(5, 5), SquareGrid(9, 11), SquareGrid(6, 4)]
+    )
+    def test_visualiser_smoke(self, grid: SquareGrid):
+        vis = Visualiser(grid)
+        for stabilizer in grid.x_stabilizers:
+            vis.draw_stabilizer(
+                stabilizer=stabilizer,
+                color=Visualiser.Colors.DARKGREEN,
+                data_qubit_member_check=grid.data_qubits,
+                fade_index=True,
+                opacity=0.555,
+            )
+        for qubit in grid.data_qubits:
+            vis.draw_qubit(qubit=qubit, patch_opacity=0.5, text_opacity=0.2)
+            vis.highlight_qubit(qubit=qubit, color="red")
+        assert vis.figure
