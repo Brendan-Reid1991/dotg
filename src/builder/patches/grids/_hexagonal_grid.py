@@ -256,7 +256,7 @@ class HexagonalGrid:
             A qubit coordinate or None, if no qubit exists at
             that displacement.
         """
-        neighbour = qubit + displacer
+        neighbour = qubit + displacer  # type: ignore
         try:
             return next(q for q in self.data_qubits if q == neighbour)
         except StopIteration:
