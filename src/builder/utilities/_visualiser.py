@@ -26,7 +26,7 @@ class Visualiser:
         RED = "red"
         DARKRED = "darkred"
         BLUE = "blue"
-        DARKBLUE = "blue"
+        DARKBLUE = "darkblue"
         PURPLE = "purple"
         DARKGREEN = "darkgreen"
         GREEN = "green"
@@ -346,3 +346,18 @@ class Visualiser:
             zorder=3,
         )
         self.ax.add_patch(circle)
+
+
+if __name__ == "__main__":
+    grid = SquareGrid(3, 3)
+    vis = Visualiser(grid)
+    vis.draw_stabilizer(
+        stabilizer=QubitCoordinate(1.5, 1.5),
+        color="red",
+        data_qubit_member_check=[
+            QubitCoordinate(1, 2),
+            QubitCoordinate(2, 1),
+            QubitCoordinate(2, 2),
+        ],
+    )
+    vis.figure.savefig("test.png")
