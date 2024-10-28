@@ -11,10 +11,12 @@ class StimAnnotations(StimOperations):
         DETECTOR - Dectector annotation\n
         OBSERVABLE_INCLUDE - Logical observable annotation\n
         QUBIT_COORDS - Qubit coordinates annotation\n
-        TICK - Circuit layer annotation
+        TICK - Circuit layer annotation\n
+        SHIFT_COORDS - Instruction on how to change DETECTOR labels.
     """
 
     DETECTOR = "DETECTOR"
     OBSERVABLE_INCLUDE = "OBSERVABLE_INCLUDE"
     QUBIT_COORDS = "QUBIT_COORDS"
     TICK = "TICK"
+    SHIFT_COORDS = "SHIFT_COORDS"
