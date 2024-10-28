@@ -1,4 +1,4 @@
-from dotg.utilities.stim_assets import StimDecorators
+from dotg.utilities.stim_assets import StimAnnotations
 
 from .base_test_stim_operations import BaseTestStimOperations
 
@@ -11,5 +11,5 @@ CURRENT_DECORATORS = [
 
 
 class TestStimDecorators(BaseTestStimOperations):
-    ENUM = StimDecorators
+    ENUM = StimAnnotations
     CURRENT_MEMBERS = CURRENT_DECORATORS

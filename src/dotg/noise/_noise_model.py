@@ -13,7 +13,7 @@ from dotg.utilities.stim_assets import (
     OneQubitGates,
     OneQubitNoiseChannels,
     ResetGates,
-    StimDecorators,
+    StimAnnotations,
     TwoQubitGates,
     TwoQubitNoiseChannels,
 )
@@ -197,7 +197,7 @@ class NoiseModel:
             targets=instruction.targets_copy(),
             arg=self._measurement_noise_parameter,
         )
-        circuit.append(name=StimDecorators.TICK)
+        circuit.append(name=StimAnnotations.TICK)
         circuit.append(name=ResetGates.RZ, targets=instruction.targets_copy())
         if self._reset_noise_parameter:
             circuit.append(
@@ -276,7 +276,7 @@ class NoiseModel:
         qubit_indices = set(
             next(x.value for x in line.targets_copy())
             for line in circuit
-            if line.name == StimDecorators.QUBIT_COORDS
+            if line.name == StimAnnotations.QUBIT_COORDS
         )
         if not qubit_indices:
             raise ValueError(
@@ -340,7 +340,7 @@ class NoiseModel:
 
             noisy_circuit.append(instr)
 
-            if instr.name in StimDecorators.members():
+            if instr.name in StimAnnotations.members():
                 continue
 
             noisy_circuit = self._gate_instruction(
