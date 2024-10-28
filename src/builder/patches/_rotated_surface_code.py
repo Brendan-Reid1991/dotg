@@ -1,9 +1,8 @@
 """Define physical qubits on the rotated surface code."""
 
 import matplotlib
-from builder.utilities import QubitCoordinate
-from builder.patches.grids import SquareGrid
-from builder.utilities import Visualiser
+from builder.utilities import QubitCoordinate, Visualiser
+from builder.utilities.grids import SquareGrid
 
 
 class RotatedSurfaceCode:
