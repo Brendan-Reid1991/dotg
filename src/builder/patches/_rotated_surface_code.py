@@ -1,11 +1,13 @@
 """Define physical qubits on the rotated surface code."""
 
+from typing import Optional
 import matplotlib
-from builder.utilities import QubitCoordinate, Visualiser
+from builder.patches._patch import Patch
+from builder.utilities import QubitCoordinate
 from builder.utilities.grids import SquareGrid
 
 
-class RotatedSurfaceCode:
+class RotatedSurfaceCode(Patch):
     """A patch class for defining a logical qubit on the rotated surface code.
 
     Provide the code distance as an (d_X, d_Z) tuple, the qubit grid to define the qubit
@@ -44,9 +46,10 @@ class RotatedSurfaceCode:
         qubit_grid: SquareGrid,
         anchor: QubitCoordinate,
     ) -> None:
-        self.qubit_grid = qubit_grid
+        super().__init__(
+            code_distance=code_distance, qubit_grid=qubit_grid, anchor=anchor
+        )
         self.x_distance, self.z_distance = code_distance
-        self.anchor = QubitCoordinate(*anchor) if isinstance(anchor, tuple) else anchor
 
         self.data_qubits: list[QubitCoordinate] = [
             coord
@@ -69,10 +72,6 @@ class RotatedSurfaceCode:
             and 0 <= coord.y - self.anchor.y < self.x_distance - 1
         ]
 
-        # Sanity Checks
-        if not len(self.data_qubits) - len(self.z_stabilizers + self.x_stabilizers) == 1:
-            raise ValueError("Are your dimensions correct? This is not a valid qubit.")
-
         if not self.x_distance * self.z_distance == len(self.data_qubits):
             raise ValueError(
                 """Invalid number of data qubits in this patch. Have you placed the 
@@ -81,10 +80,10 @@ class RotatedSurfaceCode:
 
     def __str__(self):
         return (
-            f"""RotatedSurfaceCode({self.x_distance}, {self.z_distance})"""
-            f""" @ {self.anchor} on """
-            f"""{self.qubit_grid.__class__.__name__}"""
-            f"""({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+            f"RotatedSurfaceCode({self.x_distance}, {self.z_distance})"
+            f" @ {self.anchor} on "
+            f"{self.qubit_grid.__class__.__name__}"
+            f"({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"
         )
 
     @property
@@ -96,6 +95,7 @@ class RotatedSurfaceCode:
         -------
         list[QubitCoordinate]
         """
+
         return [
             dq for dq in self.data_qubits if dq.x == self.anchor.x + self.z_distance - 1
         ]
@@ -185,6 +185,7 @@ class RotatedSurfaceCode:
 
     def draw(
         self,
+        stabilizer_color_map: Optional[dict[str, list[QubitCoordinate]]] = None,
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
     ) -> matplotlib.figure.Figure:
@@ -203,18 +204,9 @@ class RotatedSurfaceCode:
         matplotlib.figure.Figure
             A matplotlib Figure object.
         """
-        vis = Visualiser(grid=self.qubit_grid, figsize=figsize, show_indices=indices)
-        for color, qubits in {
-            "red": self.x_stabilizers,
-            "blue": self.z_stabilizers,
-        }.items():
-            for qubit in qubits:
-                vis.draw_stabilizer(
-                    stabilizer=qubit,
-                    color=color,
-                    data_qubit_member_check=self.data_qubits,
-                )
-        for data_q in self.data_qubits:
-            vis.draw_qubit(qubit=data_q)
-
-        return vis.figure
+        return super().draw(
+            stabilizer_color_map=stabilizer_color_map
+            or {"red": self.x_stabilizers, "blue": self.z_stabilizers},
+            figsize=figsize,
+            indices=indices,
+        )

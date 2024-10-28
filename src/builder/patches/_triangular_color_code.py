@@ -1,9 +1,14 @@
 """Defines physical qubits on the triangular color code."""
 
+from __future__ import annotations
+from typing import Optional
 import matplotlib
 
-from builder.utilities import QubitCoordinate, Visualiser
+from builder.patches._patch import Patch
+from builder.utilities import QubitCoordinate
 from builder.utilities.grids import HexagonalGrid
+
+# mypy: disable-error-code=arg-type
 
 
 def _num_data_qubits_in_triangular_color_code(distance: int) -> int:
@@ -23,7 +28,7 @@ def _num_data_qubits_in_triangular_color_code(distance: int) -> int:
     return sum(sorted(list(range(1, distance + 1)) + list(range(1, distance, 2))))
 
 
-class TriangularColorCode:
+class TriangularColorCode(Patch):
     """A patch class for defining a logical qubit on the triangular color code.
 
     Provide a single value as the code distance, the qubit grid to define the logical
@@ -34,7 +39,7 @@ class TriangularColorCode:
 
     Parameters
     ----------
-    code_distance: int
+    distance: int
         The logical distance of the code.
     qubit_grid: HexagonalGrid
         The grid the logical qubit is placed on.
@@ -65,26 +70,15 @@ class TriangularColorCode:
 
     def __init__(
         self,
-        code_distance: int,
+        distance: int,
         qubit_grid: HexagonalGrid,
         anchor: QubitCoordinate,
     ) -> None:
-        self.code_distance = code_distance
-        if self.code_distance % 2 == 0:
+        super().__init__(code_distance=distance, qubit_grid=qubit_grid, anchor=anchor)
+        self.distance = distance
+        if self.distance % 2 == 0:
             raise ValueError(
-                "Code distance must be an odd integer, received d=", self.code_distance
-            )
-        self.qubit_grid = qubit_grid
-        self.anchor = (
-            anchor if isinstance(anchor, QubitCoordinate) else QubitCoordinate(*anchor)
-        )
-        if self.anchor not in self.qubit_grid.data_qubits:
-            raise ValueError(
-                f"""Invalid anchor: {self.anchor}.\n"""
-                """The anchor designates the bottom left hand corner data qubit; """
-                """chosen anchor is not a data qubit."""
-                """\nAll data qubit coordinates can be accessed through the """
-                f"""{self.qubit_grid.__class__.__name__} method 'data_qubits'."""
+                "Code distance must be an odd integer, received d=", self.distance
             )
 
         def in_code(qubit: QubitCoordinate) -> bool:
@@ -109,11 +103,10 @@ class TriangularColorCode:
             displaced: QubitCoordinate = QubitCoordinate(
                 qubit.x - self.anchor.x, qubit.y - self.anchor.y
             )
-            # not_in_negative_space: bool = displaced.x >= 0 and displaced.y >= 0
             within_the_outer_boundaries: bool = (
                 max(0, displaced.y / 2)
                 <= displaced.x
-                < ((self.code_distance + self.code_distance // 2) - (displaced.y / 2))
+                < ((self.distance + self.distance // 2) - (displaced.y / 2))
             )
             return within_the_outer_boundaries
 
@@ -121,13 +114,13 @@ class TriangularColorCode:
             filter(in_code, self.qubit_grid.data_qubits)
         )
         if len(self.data_qubits) != _num_data_qubits_in_triangular_color_code(
-            distance=self.code_distance
+            distance=self.distance
         ):
-            min_dim = self.code_distance + self.code_distance // 2
+            min_dim = self.distance + self.distance // 2
             raise ValueError(
                 f"""Invalid number of data qubits! 
                 It's possible that your grid size is too small.
-                For code distance {self.code_distance} you require a grid of dimension
+                For code distance {self.distance} you require a grid of dimension
                 {(min_dim, min_dim)} at least. Your anchor qubit could also
                 be placing the logical qubit too close to the grid edges. 
                 """
@@ -144,44 +137,25 @@ class TriangularColorCode:
 
     def __str__(self):
         return (
-            f"""TriangularColorCode(d={self.code_distance}) @ {self.anchor} on """
-            f"""{self.qubit_grid.__class__.__name__}"""
-            f"""({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"""
+            f"TriangularColorCode(d={self.distance}) @ {self.anchor} on "
+            f"{self.qubit_grid.__class__.__name__}"
+            f"({self.qubit_grid._x_lim, self.qubit_grid._y_lim})"
         )
 
     def draw(
         self,
+        stabilizer_color_map: Optional[dict[str, list[QubitCoordinate]]] = None,
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
     ) -> matplotlib.figure.Figure:
-        """Draw the patch on the grid, colouring in the stabilizers and optionally
-        adding the indices.
-
-        Parameters
-        ----------
-        figsize: tuple[int, int], optional
-            The figure size, by default (10, 8).
-        indices : bool, optional
-            Add index labels to the qubits, by default True
-
-        Returns
-        -------
-        matplotlib.figure.Figure
-            A matplotlib Figure object.
-        """
-        vis = Visualiser(grid=self.qubit_grid, figsize=figsize, show_indices=indices)
-        for color, qubits in {
+        stabilizer_color_map = stabilizer_color_map or {
             "red": self.red_qubits,
             "blue": self.blue_qubits,
             "green": self.green_qubits,
-        }.items():
-            for qubit in qubits:
-                vis.draw_stabilizer(
-                    stabilizer=qubit,
-                    color=color,
-                    data_qubit_member_check=self.data_qubits,
-                )
-        for data_q in self.data_qubits:
-            vis.draw_qubit(qubit=data_q)
-
-        return vis.figure
+        }
+        __doc__ = super().draw.__doc__
+        return super().draw(
+            stabilizer_color_map=stabilizer_color_map,
+            figsize=figsize,
+            indices=indices,
+        )
