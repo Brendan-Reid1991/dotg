@@ -103,12 +103,16 @@ class TriangularColorCode(Patch):
             displaced: QubitCoordinate = QubitCoordinate(
                 qubit.x - self.anchor.x, qubit.y - self.anchor.y
             )
-            within_the_outer_boundaries: bool = (
+
+            within_relevant_rows: bool = (
+                0 <= displaced.y <= (self.distance + self.distance // 2)
+            )
+            within_relevant_columns: bool = (
                 max(0, displaced.y / 2)
                 <= displaced.x
-                < ((self.distance + self.distance // 2) - (displaced.y / 2))
+                < ((self.distance + self.distance // 2) - (max(0, displaced.y / 2)))
             )
-            return within_the_outer_boundaries
+            return within_relevant_rows and within_relevant_columns
 
         self.data_qubits: list[QubitCoordinate] = list(
             filter(in_code, self.qubit_grid.data_qubits)
