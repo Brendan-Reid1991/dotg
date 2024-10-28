@@ -1,6 +1,6 @@
 """The Visualiser class can be used to draw logical patches."""
 
-from typing import Union, TypeAlias, Literal
+from typing import Optional, TypeAlias, Literal
 from enum import Enum
 import matplotlib
 import matplotlib.patches
@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 
 from builder.utilities._qubit_coordinate import QubitCoordinate
 from builder.utilities.grids._grid import QubitGrid
-
-# Grid: TypeAlias = Union[SquareGrid, HexagonalGrid]
 
 # pylint: disable=protected-access,invalid-name
 
@@ -19,6 +17,7 @@ class Visualiser:
 
     STABILIZER_OPACITY: float = 0.4
     CIRCLE_RADII: float = 0.25
+    BoundaryT: TypeAlias = Literal["top", "bottom", "left", "right"]
 
     class Colors(str, Enum):
         """A collection of colors for ease of access."""
@@ -132,35 +131,22 @@ class Visualiser:
             if vertex in data_qubit_member_check
         ]
 
-        BoundaryT: TypeAlias = Literal["top", "bottom", "left", "right"]
-
-        def _which_boundary(vertex) -> dict[BoundaryT, bool]:
-            x, y = vertex
-            return {
-                "top": abs(y - self.grid._y_lim) <= 1,
-                "bottom": abs(y - 0) <= 1,
-                "left": abs(x - 0) <= 1,
-                "right": abs(x - self.grid._x_lim) <= 1,
-            }
-
         if len(vertices) == 2:
-            placement = [
-                boundary
-                for vertex in vertices
-                for boundary, _here in _which_boundary(vertex=vertex).items()
-                if _here
-            ]
-
-            boundary = next(x for x in placement if placement.count(x) == 2)
-            match boundary:
-                case "bottom":
-                    vertices += [vert + (0, -0.5) for vert in vertices]
-                case "top":
-                    vertices += [vert + (0, +0.5) for vert in vertices]
-                case "left":
-                    vertices += [vert + (-0.5, 0) for vert in vertices]
-                case "right":
-                    vertices += [vert + (+0.5, 0) for vert in vertices]
+            if all(coordinate.y > vert.y for vert in vertices):
+                vertices += [vert + (0, +0.5) for vert in vertices]
+            elif all(coordinate.y < vert.y for vert in vertices):
+                vertices += [vert + (0, -0.5) for vert in vertices]
+            elif all(coordinate.x > vert.x for vert in vertices):
+                vertices += [vert + (+0.5, 0) for vert in vertices]
+            elif all(coordinate.x < vert.x for vert in vertices):
+                vertices += [vert + (-0.5, 0) for vert in vertices]
+            else:
+                raise ValueError(
+                    """Weight-2 stabilizer detected but could not reason
+                                 out the boundary type."""
+                    f"""\nStabilizer Q: {coordinate}\n"""
+                    f"""    Neighbouring vertices: {vertices}"""
+                )
 
         def make_rectangle(vertices: list[QubitCoordinate]) -> list[QubitCoordinate]:
             """Sort the indices in a clockwise fashion for easy plotting.
@@ -290,6 +276,7 @@ class Visualiser:
             the index to 50% opacity.
         opacity : float, optional
             Overall opacity of the stabilizer plaquette, by default 0.4.
+
         """
         self.ax.add_patch(
             self._stabilizer(
