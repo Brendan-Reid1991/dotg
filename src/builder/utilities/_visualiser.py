@@ -7,9 +7,9 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 
 from builder.utilities._qubit_coordinate import QubitCoordinate
-from builder.patches.grids import SquareGrid, HexagonalGrid
+from builder.utilities.grids._grid import QubitGrid
 
-Grid: TypeAlias = Union[SquareGrid, HexagonalGrid]
+# Grid: TypeAlias = Union[SquareGrid, HexagonalGrid]
 
 # pylint: disable=protected-access,invalid-name
 
@@ -43,7 +43,7 @@ class Visualiser:
 
     def __init__(
         self,
-        grid: Grid,
+        grid: QubitGrid,
         figsize: tuple[int, int] = (10, 8),
         show_indices: bool = True,
     ):
@@ -185,7 +185,7 @@ class Visualiser:
         return matplotlib.patches.Polygon(
             xy=(
                 make_rectangle(vertices)  # type: ignore
-                if isinstance(self.grid, SquareGrid)
+                if self.grid.__class__.__name__ == "SquareGrid"
                 else vertices
             ),
             color=color,
@@ -348,16 +348,16 @@ class Visualiser:
         self.ax.add_patch(circle)
 
 
-if __name__ == "__main__":
-    grid = SquareGrid(3, 3)
-    vis = Visualiser(grid)
-    vis.draw_stabilizer(
-        stabilizer=QubitCoordinate(1.5, 1.5),
-        color="red",
-        data_qubit_member_check=[
-            QubitCoordinate(1, 2),
-            QubitCoordinate(2, 1),
-            QubitCoordinate(2, 2),
-        ],
-    )
-    vis.figure.savefig("test.png")
+# if __name__ == "__main__":
+#     grid = SquareGrid(3, 3)
+#     vis = Visualiser(grid)
+#     vis.draw_stabilizer(
+#         stabilizer=QubitCoordinate(1.5, 1.5),
+#         color="red",
+#         data_qubit_member_check=[
+#             QubitCoordinate(1, 2),
+#             QubitCoordinate(2, 1),
+#             QubitCoordinate(2, 2),
+#         ],
+#     )
+#     vis.figure.savefig("test.png")

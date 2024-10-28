@@ -3,10 +3,11 @@ on square grid architectures."""
 
 from enum import Enum
 
+from builder.utilities.grids._grid import QubitGrid
 from builder.utilities._qubit_coordinate import QubitCoordinate
 
 
-class SquareGrid:
+class SquareGrid(QubitGrid):
     """Define a square grid of qubits.
 
     At present, this class is used to build the rotated surface code only.
@@ -64,10 +65,10 @@ class SquareGrid:
         Defined only to avoid user error.
         """
 
-        TOP_RIGHT = (0.5, 0.5)
-        TOP_LEFT = (-0.5, 0.5)
-        BOTTOM_RIGHT = (0.5, -0.5)
-        BOTTOM_LEFT = (-0.5, -0.5)
+        TOP_RIGHT: tuple[float, float] = (0.5, 0.5)
+        TOP_LEFT: tuple[float, float] = (-0.5, 0.5)
+        BOTTOM_RIGHT: tuple[float, float] = (0.5, -0.5)
+        BOTTOM_LEFT: tuple[float, float] = (-0.5, -0.5)
 
     def __init__(self, x_lim: int, y_lim: int) -> None:
         self._x_lim = x_lim
@@ -95,38 +96,6 @@ class SquareGrid:
             ],
         }
 
-    def _get_neighbour(
-        self, qubit: QubitCoordinate, displacer: Displacer
-    ) -> QubitCoordinate | None:
-        """Given a qubit coordinate and a displacement,
-        get the neighbour of the qubit.
-
-        self._get_neighbour(
-            qubit=QubitCoordinate(1.5, 0.5),
-            displacer=Displacement.TOP_LEFT
-        )
-        >>> QubitCoordinate(1, 1)
-
-        Parameters
-        ----------
-        stabilizer_q : QubitCoordinate
-            Stabilizer qubit coordinate.
-        displacer : Displacer
-            Displacement operator.
-
-
-        Returns
-        -------
-        QubitCoordinate | None
-            Returns a qubit coordinate
-        """
-        neighbour = qubit + displacer.value
-        try:
-            idx = self.coordinate_mapping[neighbour]
-        except KeyError:
-            return None
-        return next(key for key, val in self.coordinate_mapping.items() if val == idx)
-
     def stabilizer_data_qubit_groups(
         self, stabilizer: QubitCoordinate
     ) -> list[QubitCoordinate]:
@@ -150,9 +119,9 @@ class SquareGrid:
         )
 
         return [
-            x
-            for x in map(self._get_neighbour, [stabilizer] * len(schedule), schedule)
-            if x
+            qubit
+            for displacement in schedule
+            if (qubit := self._get_neighbour(stabilizer, displacement))  # type: ignore
         ]
 
     def _get_data_qubits(self) -> list[QubitCoordinate]:
@@ -253,9 +222,3 @@ class SquareGrid:
             coord.idx = idx
 
         return data_qubits, x_stabilizers, z_stabilizers, coordinate_mapping
-
-
-if __name__ == "__main__":
-    grid = SquareGrid(4, 4)
-    print(grid.data_qubits)
-    print(grid.x_stabilizers)

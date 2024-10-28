@@ -4,13 +4,14 @@ on hexagonal architectures."""
 from enum import Enum
 import numpy as np
 
-from builder.utilities import QubitCoordinate
+from builder.utilities.grids._grid import QubitGrid
+from builder.utilities._qubit_coordinate import QubitCoordinate
 
 
 # pylint: disable=protected-access
 
 
-class HexagonalGrid:
+class HexagonalGrid(QubitGrid):
     """A hexagonal grid structure, where qubits exist on a weight-3 connectivity
     graph.
 
@@ -67,6 +68,7 @@ class HexagonalGrid:
         NW: tuple[float, float] = (-0.5, 1)
 
     def __init__(self, x_lim: int, y_lim: int) -> None:
+        super().__init__()
         self._x_lim = x_lim
         self._y_lim = y_lim
 
@@ -237,47 +239,9 @@ class HexagonalGrid:
 
         return list(set(colored_stabilizers + additions))
 
-    def _get_neighbour(
-        self, qubit: QubitCoordinate, displacer: Displacer
-    ) -> QubitCoordinate | None:
-        """Given a qubit coordinate and a displacement, get
-        the neighbouring qubit if it exists.
-
-        Parameters
-        ----------
-        qubit : QubitCoordinate
-            Qubit to check neighbours of.
-        displacer : Displacer
-            A displacement to look for another qubit.
-
-        Returns
-        -------
-        QubitCoordinate | None
-            A qubit coordinate or None, if no qubit exists at
-            that displacement.
-        """
-        neighbour = qubit + displacer  # type: ignore
-        try:
-            return next(q for q in self.data_qubits if q == neighbour)
-        except StopIteration:
-            return None
-
     def stabilizer_data_qubit_groups(
         self, stabilizer: QubitCoordinate
     ) -> list[QubitCoordinate]:
-        """Given a stabilizer qubit, return a list of
-        the data qubits incident on the stabilizer.
-
-        Parameters
-        ----------
-        stabilizer : QubitCoordinate
-            Which stabilizer to consider.
-
-        Returns
-        -------
-        list[QubitCoordinate]
-            List of data qubits incident on the stabilizer.
-        """
         return [
             qubit
             for displacement in HexagonalGrid.Displacer._value2member_map_
