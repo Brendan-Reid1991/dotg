@@ -2,9 +2,8 @@
 
 import matplotlib
 
-from builder.utilities import QubitCoordinate
-from builder.patches.grids import HexagonalGrid
-from builder.utilities import Visualiser
+from builder.utilities import QubitCoordinate, Visualiser
+from builder.utilities.grids import HexagonalGrid
 
 
 def _num_data_qubits_in_triangular_color_code(distance: int) -> int:
