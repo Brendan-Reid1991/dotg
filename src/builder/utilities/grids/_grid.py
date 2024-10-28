@@ -12,6 +12,7 @@ class QubitGrid:
 
     def __init__(self, *args, **kwargs) -> None:
         self._data_qubits: list[QubitCoordinate] = []
+        self._coord_to_index_map: dict[QubitCoordinate, int] = {}
 
     @property
     def data_qubits(self) -> list[QubitCoordinate]:
@@ -27,7 +28,7 @@ class QubitGrid:
         ValueError
             If the attribute has not been set correctly.
         """
-        if len(self._data_qubits) == 0:
+        if not self._data_qubits:
             raise ValueError(
                 f"""Grid class {self.__class__.__name__} must allocate an attribute
                 data_qubits."""
@@ -37,6 +38,30 @@ class QubitGrid:
     @data_qubits.setter
     def data_qubits(self, updated_list_of_data_qubits: list[QubitCoordinate]) -> None:
         self._data_qubits = updated_list_of_data_qubits
+
+    @property
+    def coordinate_mapping(self) -> dict[QubitCoordinate, int]:
+        """A map from qubit coordinates to qubit indices.
+
+        Returns
+        -------
+        dict[QubitCoordinate, int]
+
+        Raises
+        ------
+        ValueError
+            If the property has not been instantiated.
+        """
+        if not self._coord_to_index_map:
+            raise ValueError(
+                f"""Grid class {self.__class__.__name__} must allocate an attribute
+                coordinate_mapping."""
+            )
+        return self._coord_to_index_map
+
+    @coordinate_mapping.setter
+    def coordinate_mapping(self, updated_map: dict[QubitCoordinate, int]) -> None:
+        self._coord_to_index_map = updated_map
 
     def _get_neighbour(
         self, qubit: QubitCoordinate, displacer: Displacer
