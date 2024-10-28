@@ -125,7 +125,7 @@ class HexagonalGrid(QubitGrid):
             self._add_bulk_stabilizers(
                 [QubitCoordinate(x, 0) for x in np.arange(1, self._x_lim, 3)]
             ),
-            key=lambda x: x[1],
+            key=lambda x: (x[1], x[0]),
         )
 
     def _get_blue_stabilizer_qubits(self) -> list[QubitCoordinate]:
@@ -139,7 +139,7 @@ class HexagonalGrid(QubitGrid):
             self._add_bulk_stabilizers(
                 [QubitCoordinate(x, 1) for x in np.arange(2.5, self._x_lim, 3)]
             ),
-            key=lambda x: x[1],
+            key=lambda x: (x[1], x[0]),
         )
 
     def _get_green_stabilizer_qubits(self) -> list[QubitCoordinate]:
@@ -153,7 +153,7 @@ class HexagonalGrid(QubitGrid):
             self._add_bulk_stabilizers(
                 [QubitCoordinate(x, 2) for x in np.arange(1, self._x_lim, 3)]
             ),
-            key=lambda x: x[1],
+            key=lambda x: (x[1], x[0]),
         )
 
     def _add_bulk_stabilizers(
