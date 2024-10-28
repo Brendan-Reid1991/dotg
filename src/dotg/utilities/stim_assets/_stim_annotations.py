@@ -4,7 +4,7 @@ from dotg.utilities.stim_assets._stim_operations import StimOperations
 
 
 class StimAnnotations(StimOperations):
-    """An enum detailing all relevant stim decorators. The values are the strings that
+    """An enum detailing all relevant stim annotations. The values are the strings that
     are present in stim circuits.
 
     Options are:
