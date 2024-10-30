@@ -1,10 +1,15 @@
 """Module to define a base class for all stim enums."""
 
-from enum import StrEnum
-from typing import List
+from enum import Enum, EnumMeta
+from typing import Any, List
 
 
-class StimOperations(StrEnum):
+class _StimOpsMeta(EnumMeta):
+    def __contains__(cls: type[Any], member: object) -> bool:
+        return member in cls.__members__
+
+
+class StimOperations(str, Enum, metaclass=_StimOpsMeta):
     """Top level enum for all stim operations."""
 
     @classmethod
