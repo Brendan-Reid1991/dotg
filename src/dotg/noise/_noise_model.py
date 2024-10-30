@@ -238,11 +238,24 @@ class NoiseModel:
             instruction.name in TwoQubitGates.members()
             and self._two_qubit_gate_noise_parameter
         ):
-            circuit.append(
-                name=self._two_qubit_gate_noise_channel,
-                targets=instruction.targets_copy(),
-                arg=self._two_qubit_gate_noise_parameter,
-            )
+
+            if any(x.value < 0 for x in instruction.targets_copy()):
+                circuit.append(
+                    OneQubitNoiseChannels.DEPOLARIZE1,
+                    targets=[x for x in instruction.targets_copy() if x.value >= 0],
+                    arg=self._one_qubit_gate_noise_parameter,
+                )
+            else:
+                circuit.append(
+                    TwoQubitNoiseChannels.DEPOLARIZE2,
+                    targets=instruction.targets_copy(),
+                    arg=self._two_qubit_gate_noise_parameter,
+                )
+            # circuit.append(
+            #     name=self._two_qubit_gate_noise_channel,
+            #     targets=instruction.targets_copy(),
+            #     arg=self._two_qubit_gate_noise_parameter,
+            # )
 
         if instruction.name in ResetGates.members() and self._reset_noise_parameter:
             circuit.append(
