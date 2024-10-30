@@ -1,10 +1,11 @@
 """A base class for qubit grids."""
 
 from abc import abstractmethod
-from typing import TypeAlias
+from typing import TypeAlias, TypeVar
 from builder.utilities._qubit_coordinate import QubitCoordinate
 
-Displacer: TypeAlias = tuple[float, float]
+# Displacer: TypeAlias = tuple[float, float]
+Displacer = TypeVar("Displacer")
 
 
 class QubitGrid:
