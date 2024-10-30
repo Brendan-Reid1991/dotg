@@ -44,7 +44,7 @@ class RotatedSurfaceCode(Patch):
         self,
         code_distance: tuple[int, int],
         qubit_grid: SquareGrid,
-        anchor: QubitCoordinate,
+        anchor: QubitCoordinate | tuple[float, float],
     ) -> None:
         super().__init__(
             code_distance=code_distance, qubit_grid=qubit_grid, anchor=anchor
