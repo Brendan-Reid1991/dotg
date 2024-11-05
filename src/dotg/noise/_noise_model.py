@@ -251,11 +251,6 @@ class NoiseModel:
                     targets=instruction.targets_copy(),
                     arg=self._two_qubit_gate_noise_parameter,
                 )
-            # circuit.append(
-            #     name=self._two_qubit_gate_noise_channel,
-            #     targets=instruction.targets_copy(),
-            #     arg=self._two_qubit_gate_noise_parameter,
-            # )
 
         if instruction.name in ResetGates.members() and self._reset_noise_parameter:
             circuit.append(
