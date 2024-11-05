@@ -28,7 +28,7 @@ class QuantumMemory(LatticeSurgeryExperiment):
     """
 
     def __init__(
-        self, code_distance: tuple[int, int], num_qubits: int, bases: list[Basis]
+        self, code_distance: tuple[int, int], num_qubits: int, bases: list[Basis] | Basis
     ):
         self.num_qubits = num_qubits
         _rows, _columns = code_distance
