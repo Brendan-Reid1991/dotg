@@ -81,7 +81,7 @@ class LatticeSurgeryExperiment:
             Which basis to reset the qubits into.
         """
         if basis not in ResetGates:
-            raise ValueError(f"Invalid measurement operation. Received {basis}.")
+            raise ValueError(f"Invalid reset operation. Received {basis}.")
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
     def measure_qubits(self, qubits: List[QubitCoordinate], basis: MeasurementGates):
