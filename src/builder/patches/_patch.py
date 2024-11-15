@@ -36,6 +36,7 @@ class Patch:
         ] = None,
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
+        show_all_data_qubits: bool = False,
     ) -> matplotlib.figure.Figure:
         """Draw the patch on the grid, colouring in the stabilizers
         and optionally adding the indices.
@@ -67,7 +68,10 @@ class Patch:
                     color=color,
                     data_qubit_member_check=self.data_qubits,
                 )
-        for data_q in self.data_qubits:
+        data_qubits_to_plot = (
+            self.data_qubits if not show_all_data_qubits else self.qubit_grid.data_qubits
+        )
+        for data_q in data_qubits_to_plot:
             vis.draw_qubit(qubit=data_q)
 
         return vis.figure
