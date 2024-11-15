@@ -151,15 +151,16 @@ class TriangularColorCode(Patch):
         stabilizer_color_map: Optional[dict[str, list[QubitCoordinate]]] = None,
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
+        show_all_data_qubits: bool = False,
     ) -> matplotlib.figure.Figure:
         stabilizer_color_map = stabilizer_color_map or {
             "red": self.red_qubits,
             "blue": self.blue_qubits,
             "green": self.green_qubits,
         }
-        __doc__ = super().draw.__doc__
         return super().draw(
             stabilizer_color_map=stabilizer_color_map,
             figsize=figsize,
             indices=indices,
+            show_all_data_qubits=show_all_data_qubits,
         )

@@ -188,6 +188,7 @@ class RotatedSurfaceCode(Patch):
         stabilizer_color_map: Optional[dict[str, list[QubitCoordinate]]] = None,
         figsize: tuple[int, int] = (10, 8),
         indices: bool = True,
+        show_all_data_qubits: bool = False,
     ) -> matplotlib.figure.Figure:
         """Draw the patch on the grid, colouring in the stabilizers
         and optionally adding the indices.
@@ -209,4 +210,5 @@ class RotatedSurfaceCode(Patch):
             or {"red": self.x_stabilizers, "blue": self.z_stabilizers},
             figsize=figsize,
             indices=indices,
+            show_all_data_qubits=show_all_data_qubits,
         )
