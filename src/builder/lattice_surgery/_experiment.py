@@ -203,6 +203,10 @@ class LatticeSurgeryExperiment:
         patches : List[Patch]
             List of disjoint patches to perform syndrome extraction on.
         """
+        for patch in patches:
+            self.reset_qubits(patch.z_stabilizers, ResetGates.RZ)
+            self.reset_qubits(patch.x_stabilizers, ResetGates.RX)
+        self.tick()
 
         self._depth_4_syndrome_extraction(patches=patches)
         for patch in patches:
@@ -211,6 +215,8 @@ class LatticeSurgeryExperiment:
 
             self.measure_qubits(patch.x_stabilizers, MeasurementGates.MX)
             self.detector_batch(patch.x_stabilizers)
+        self.timeshift()
+        self.tick()
 
     def detector_batch(
         self, qubits: List[QubitCoordinate], new_measurements_deterministic: bool = False
@@ -285,3 +291,75 @@ class LatticeSurgeryExperiment:
                 ],
             )
         self._increment_measurement_record(stabilizers)
+
+    def grow(
+        self,
+        patch: RotatedSurfaceCode,
+        new_distances: tuple[int, int],
+        idling_patches: Optional[list[RotatedSurfaceCode]] = None,
+    ) -> RotatedSurfaceCode:
+        idling_patches = idling_patches or []
+        new_dx, new_dz = new_distances
+        if new_dx <= patch.x_distance and new_dz <= patch.z_distance:
+            raise ValueError("Calling grow function for a shrink operation.")
+
+        grown_patch = RotatedSurfaceCode(
+            code_distance=new_distances, qubit_grid=patch.qubit_grid, anchor=patch.anchor
+        )
+
+        data_qubits_to_reset: list[QubitCoordinate] = sorted(
+            set(grown_patch.data_qubits) - set(patch.data_qubits)
+        )
+
+        reset_in_x_basis: list[QubitCoordinate] = list(
+            filter(
+                lambda data_qubit: data_qubit.x <= patch.z_distance, data_qubits_to_reset
+            )
+        )
+        reset_in_z_basis: list[QubitCoordinate] = list(
+            filter(
+                lambda data_qubit: data_qubit.y <= patch.x_distance, data_qubits_to_reset
+            )
+        ) + list(
+            filter(
+                lambda data_qubit: data_qubit.x > patch.z_distance
+                and data_qubit.y > patch.x_distance,
+                data_qubits_to_reset,
+            )
+        )
+
+        self.reset_qubits(qubits=reset_in_z_basis, basis=ResetGates.RZ)
+        self.reset_qubits(qubits=reset_in_x_basis, basis=ResetGates.RX)
+        self.reset_qubits(
+            qubits=grown_patch.z_stabilizers
+            + [idling_patch.z_stabilizers for idling_patch in idling_patches],
+            basis=ResetGates.RZ,
+        )
+        self.tick()
+
+        print(grown_patch, data_qubits_to_reset)
+        print(reset_in_x_basis)
+        print(reset_in_z_basis)
+
+
+if __name__ == "__main__":
+    grid = SquareGrid(6, 6)
+    patch = RotatedSurfaceCode((3, 3), grid, (1, 1))
+    experiment = LatticeSurgeryExperiment(grid)
+    experiment.reset_qubits(patch.data_qubits, "RZ")
+    experiment.reset_qubits(patch.x_stabilizers, "RX")
+    experiment.reset_qubits(patch.z_stabilizers, "RZ")
+    experiment.tick()
+    experiment._depth_4_syndrome_extraction(patches=[patch])
+    experiment.measure_qubits(patch.z_stabilizers, "MZ")
+    experiment.detector_batch(patch.z_stabilizers, True)
+    experiment.measure_qubits(patch.x_stabilizers, "MX")
+    experiment.detector_batch(patch.x_stabilizers, False)
+    experiment.tick()
+    experiment.timeshift()
+
+    for _ in range(2):
+        experiment.syndrome_extraction_with_detectors(patches=[patch])
+    # print(experiment.circuit)
+    experiment.grow(patch=patch, new_distances=(5, 5))
+    # print(experiment.circuit)
