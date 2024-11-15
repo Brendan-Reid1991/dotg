@@ -88,13 +88,7 @@ class QuantumMemory(LatticeSurgeryExperiment):
             Number of rounds of syndrome extraction to perform.
         """
         for _ in range(rounds):
-            for patch in self.patches:
-                self.reset_qubits(patch.z_stabilizers, ResetGates.RZ)
-                self.reset_qubits(patch.x_stabilizers, ResetGates.RX)
-            self.tick()
             self.syndrome_extraction_with_detectors(patches=self.patches)
-            self.timeshift()
-            self.tick()
 
     def measure_states(self):
         """Measure the states of the logical qubits."""
