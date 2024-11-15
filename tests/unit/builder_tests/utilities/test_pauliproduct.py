@@ -3,7 +3,7 @@ from builder.utilities import PauliProduct
 import pytest
 import stim
 
-STRINGS = ["X0", "Z0.Y1.X23", stim.PauliString("__X____Y__Z__X")]
+STRINGS = ["X0", "Z0.Y1.X23", stim.PauliString("__X____Y__Z__X"), ""]
 
 INDICES = [[0], [0, 1, 23], [2, 7, 10, 13]]
 PAULIS = [["X"], ["Z", "Y", "X"], ["X", "Y", "Z", "X"]]

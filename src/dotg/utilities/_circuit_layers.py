@@ -4,7 +4,7 @@ from typing import List
 
 import stim
 
-from dotg.utilities.stim_assets import StimDecorators
+from dotg.utilities.stim_assets import StimAnnotations
 
 
 def get_circuit_layers(circuit: stim.Circuit) -> List[stim.Circuit]:
@@ -22,7 +22,9 @@ def get_circuit_layers(circuit: stim.Circuit) -> List[stim.Circuit]:
         List of stim circuits, where each element represents one timestep of the circuit.
     """
     layers = [
-        idx + 1 for idx, instr in enumerate(circuit) if instr.name == StimDecorators.TICK
+        idx + 1
+        for idx, instr in enumerate(circuit)
+        if instr.name == StimAnnotations.TICK
     ]
     circuit_by_layers = [
         (list(circuit) + [""])[slice(ix, iy)]

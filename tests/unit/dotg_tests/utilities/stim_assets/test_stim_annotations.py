@@ -11,6 +11,6 @@ CURRENT_ANNOTATIONS = [
 ]
 
 
-class TestStimDecorators(BaseTestStimOperations):
+class TestStimAnnotations(BaseTestStimOperations):
     ENUM = StimAnnotations
     CURRENT_MEMBERS = CURRENT_ANNOTATIONS

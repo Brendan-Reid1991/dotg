@@ -13,7 +13,7 @@ from dotg.utilities.stim_assets import (
     OneQubitGates,
     OneQubitNoiseChannels,
     ResetGates,
-    StimDecorators,
+    StimAnnotations,
     TwoQubitGates,
     TwoQubitNoiseChannels,
 )
@@ -115,18 +115,20 @@ class NoiseModel:
             _channel, _param = _arg
             if (
                 _arg_name == "two_qubit_gate_noise"
-                and _channel not in TwoQubitNoiseChannels.members()
+                and _channel not in TwoQubitNoiseChannels
             ) or (
                 _arg_name != "two_qubit_gate_noise"
-                and _channel not in OneQubitNoiseChannels.members()
+                and _channel not in OneQubitNoiseChannels
             ):
-                raise ValueError(f"Invalid gate/noise pairing: {_arg_name} - {_channel}")
+                raise ValueError(
+                    f"Invalid gate/noise pairing: {_arg_name} - {_channel.name}"
+                )
 
             if isinstance(_param, float | int):
                 if not 0 <= _param < 1:
                     raise ValueError(
                         """Invalid noise parameter passed for channel"""
-                        f""" {_channel}: {_param}"""
+                        f""" {_channel.name}: {_param}"""
                     )
             if _channel in [
                 OneQubitNoiseChannels.PAULI_CHANNEL_1,
@@ -197,7 +199,7 @@ class NoiseModel:
             targets=instruction.targets_copy(),
             arg=self._measurement_noise_parameter,
         )
-        circuit.append(name=StimDecorators.TICK)
+        circuit.append(name=StimAnnotations.TICK)
         circuit.append(name=ResetGates.RZ, targets=instruction.targets_copy())
         if self._reset_noise_parameter:
             circuit.append(
@@ -276,7 +278,7 @@ class NoiseModel:
         qubit_indices = set(
             next(x.value for x in line.targets_copy())
             for line in circuit
-            if line.name == StimDecorators.QUBIT_COORDS
+            if line.name == StimAnnotations.QUBIT_COORDS
         )
         if not qubit_indices:
             raise ValueError(
@@ -340,7 +342,7 @@ class NoiseModel:
 
             noisy_circuit.append(instr)
 
-            if instr.name in StimDecorators.members():
+            if instr.name in StimAnnotations.members():
                 continue
 
             noisy_circuit = self._gate_instruction(
