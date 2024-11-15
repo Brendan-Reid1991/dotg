@@ -379,18 +379,7 @@ class CXExperiment(LatticeSurgeryExperiment):
         patches = self._active_patches(stage=stage)
 
         for _ in range(rounds):
-            self.reset_stabilizers(patches=patches)
-            self.tick()
-            self._depth_4_syndrome_extraction(patches=patches)
-            for patch in patches:
-                self.measure_qubits(patch.z_stabilizers, MeasurementGates.MZ)
-                self.detector_batch(patch.z_stabilizers)
-
-                self.measure_qubits(patch.x_stabilizers, MeasurementGates.MX)
-                self.detector_batch(patch.x_stabilizers)
-
-            self.timeshift()
-            self.tick()
+            self.syndrome_extraction_with_detectors(patches=patches)
 
     def end_experiment(self):
         """End the experiment."""
