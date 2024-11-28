@@ -2,10 +2,12 @@
 
 from enum import Enum, EnumMeta
 
+# pylint: disable=bad-mcs-method-argument
+
 
 class _StimOpsMeta(EnumMeta):
-    def __contains__(self: EnumMeta, member: object) -> bool:
-        return member in self.__members__  # type: ignore
+    def __contains__(cls: EnumMeta, member: object) -> bool:
+        return member in cls.__members__
 
 
 class StimOperations(str, Enum, metaclass=_StimOpsMeta):
