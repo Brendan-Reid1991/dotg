@@ -291,3 +291,9 @@ class HexagonalGrid(QubitGrid):
             coordinate_mapping[qubit] = idx
 
         return data_qubits, red_qubits, blue_qubits, green_qubits, coordinate_mapping
+
+
+if __name__ == "__main__":
+    expected_values = [(0.5, 1), (1, 0), (0.5, -1), (-0.5, -1), (-1, 0), (-0.5, 1)]
+    for displacement, expected in zip(HexagonalGrid.Displacer, expected_values):
+        print(displacement, expected)
