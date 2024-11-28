@@ -1,6 +1,6 @@
 """The Visualiser class can be used to draw logical patches."""
 
-from typing import Optional, TypeAlias, Literal
+from typing import TypeAlias, Literal
 from enum import Enum
 import matplotlib
 import matplotlib.patches
