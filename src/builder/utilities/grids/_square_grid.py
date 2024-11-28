@@ -121,7 +121,9 @@ class SquareGrid(QubitGrid):
         return [
             qubit
             for displacement in schedule
-            if (qubit := self._get_neighbour(stabilizer, displacement.value))  # type: ignore
+            if (
+                qubit := self._get_neighbour(stabilizer, displacement.value)
+            )  # type: ignore
         ]
 
     def _get_data_qubits(self) -> list[QubitCoordinate]:
