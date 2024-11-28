@@ -8,6 +8,30 @@ from builder.utilities import QubitCoordinate, Visualiser
 
 
 class Patch:
+    """A Patch class for defining logical qubits.
+
+    Patch classes have much the same attributes as Grid classes, as Patches
+    exist on Grids. For example, a single Grid may have multiple Patches.
+
+    However, Patches only need access to a subset of the attributes of Grids.
+
+    Parameters
+    ----------
+    code_distance: tuple[int, int] | int
+        The code distance of the Patch, reported as either a (d_X, d_Z) tuple
+        or as a single integer.
+    qubit_grid: QubitGrid
+        The grid that this Patch is defined on.
+    anchor: QubitCoordinate | tuple[float, float]
+        The `anchor' - the data qubit that exists in the bottom left hand corner
+        of the Patch. Well defined for most topological qubits.
+
+    Raises
+    ------
+    ValueError
+        If the anchor is not a data qubit on the grid.
+    """
+
     def __init__(
         self,
         code_distance: tuple[int, int] | int,
@@ -16,7 +40,9 @@ class Patch:
     ) -> None:
         self.code_distance = code_distance
         self.qubit_grid = qubit_grid
-        self.anchor = QubitCoordinate(*anchor) if isinstance(anchor, tuple) else anchor
+        self.anchor = (
+            anchor if isinstance(anchor, QubitCoordinate) else QubitCoordinate(*anchor)
+        )
 
         if self.anchor not in self.qubit_grid.data_qubits:
             raise ValueError(
