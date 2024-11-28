@@ -1,7 +1,7 @@
 """A base class for qubit grids."""
 
 from abc import abstractmethod
-from typing import TypeAlias, TypeVar
+from typing import TypeVar
 from builder.utilities._qubit_coordinate import QubitCoordinate
 
 # Displacer: TypeAlias = tuple[float, float]
@@ -10,6 +10,8 @@ Displacer = TypeVar("Displacer")
 
 class QubitGrid:
     """A simple base class for qubit grids."""
+
+    """TODO change to a protocol rather than a base class"""
 
     def __init__(self, *args, **kwargs) -> None:
         self._data_qubits: list[QubitCoordinate] = []
@@ -106,4 +108,3 @@ class QubitGrid:
         list[QubitCoordinate]
             List of data qubits incident on the stabilizer.
         """
-        pass
