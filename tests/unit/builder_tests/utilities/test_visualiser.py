@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from builder.utilities._qubit_coordinate import QubitCoordinate
-from builder.utilities.grids import SquareGrid, HexagonalGrid
+from builder.utilities.grids import SquareGrid
 
 from builder.utilities._visualiser import Visualiser
 
