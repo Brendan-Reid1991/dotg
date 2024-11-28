@@ -6,11 +6,13 @@ from dotg.decoders._belief_propagation_base_class import (
     MessageUpdates,
     OSDMethods,
 )
-from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
+from tests.unit.dotg_tests.decoders._basic_tests._basic_bp_bposd_tests import (
     BasicBeliefPropagationDecoderTests,
     BasicMemoryCircuits,
 )
-from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
+from tests.unit.dotg_tests.decoders._basic_tests._basic_decoder_tests import (
+    BasicDecoderTests,
+)
 
 
 class TestBPOSD(BasicBeliefPropagationDecoderTests, BasicDecoderTests):

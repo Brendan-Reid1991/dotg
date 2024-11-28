@@ -3,18 +3,20 @@
 from dotg.utilities.stim_assets._stim_operations import StimOperations
 
 
-class StimDecorators(StimOperations):
-    """An enum detailing all relevant stim decorators. The values are the strings that
+class StimAnnotations(StimOperations):
+    """An enum detailing all relevant stim annotations. The values are the strings that
     are present in stim circuits.
 
     Options are:
         DETECTOR - Dectector annotation\n
         OBSERVABLE_INCLUDE - Logical observable annotation\n
         QUBIT_COORDS - Qubit coordinates annotation\n
-        TICK - Circuit layer annotation
+        TICK - Circuit layer annotation\n
+        SHIFT_COORDS - Instruction on how to change DETECTOR labels.
     """
 
     DETECTOR = "DETECTOR"
     OBSERVABLE_INCLUDE = "OBSERVABLE_INCLUDE"
     QUBIT_COORDS = "QUBIT_COORDS"
     TICK = "TICK"
+    SHIFT_COORDS = "SHIFT_COORDS"

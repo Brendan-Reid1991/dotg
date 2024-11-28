@@ -9,13 +9,13 @@ from dotg.utilities import ThresholdHeuristic
 class TestThreshold:
     PHYSICAL_ERRORS = np.logspace(-3, -2, 20)
     with open(
-        "tests/unit/utilities/threshold_test_data/logical_error_test_data_x.txt",
+        "tests/unit/dotg_tests/utilities/threshold_test_data/logical_error_test_data_x.txt",
         "r",
         encoding="utf-8",
     ) as _data:
         X_MEMORY_LOGICAL = literal_eval(_data.read())
     with open(
-        "tests/unit/utilities/threshold_test_data/logical_error_test_data_z.txt",
+        "tests/unit/dotg_tests/utilities/threshold_test_data/logical_error_test_data_z.txt",
         "r",
         encoding="utf-8",
     ) as _data:

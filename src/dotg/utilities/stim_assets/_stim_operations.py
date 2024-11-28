@@ -1,14 +1,20 @@
 """Module to define a base class for all stim enums."""
 
-from enum import StrEnum
-from typing import List
+from enum import Enum, EnumMeta
+
+# pylint: disable=bad-mcs-method-argument
 
 
-class StimOperations(StrEnum):
+class _StimOpsMeta(EnumMeta):
+    def __contains__(cls: EnumMeta, member: object) -> bool:
+        return member in cls.__members__
+
+
+class StimOperations(str, Enum, metaclass=_StimOpsMeta):
     """Top level enum for all stim operations."""
 
     @classmethod
-    def members(cls) -> List[str]:
+    def members(cls) -> list[str]:
         """classmethod to get all members of an Enum returned as a list.
 
         Returns

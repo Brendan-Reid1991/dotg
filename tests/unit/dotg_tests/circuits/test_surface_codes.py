@@ -4,7 +4,7 @@ import pytest
 
 from dotg.circuits import SurfaceCode
 from dotg.circuits._surface_codes import SurfaceCodeSubClass
-from tests.unit.circuits._basic_circuit_tests import (
+from tests.unit.dotg_tests.circuits._basic_circuit_tests import (
     BasicCircuitTests,
     BasicCodeFamilyTests,
 )

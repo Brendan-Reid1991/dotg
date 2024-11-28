@@ -7,7 +7,7 @@ from dotg.decoders._belief_propagation_base_class import (
     LDPCDecoderOptions,
 )
 from dotg.utilities import Sampler
-from tests.unit.circuits._basic_circuits import BasicMemoryCircuits
+from tests.unit.dotg_tests.circuits._basic_circuits import BasicMemoryCircuits
 
 
 class BasicBeliefPropagationDecoderTests:

@@ -5,7 +5,7 @@ from dotg.utilities._syndrome_sampler import (
     NoNoiseInCircuitError,
     check_if_noisy_circuit,
 )
-from tests.unit.circuits import BasicMemoryCircuits
+from tests.unit.dotg_tests.circuits import BasicMemoryCircuits
 
 
 @pytest.mark.parametrize(

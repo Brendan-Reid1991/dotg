@@ -4,7 +4,7 @@ import pytest
 
 from dotg.circuits import ColorCode
 from dotg.circuits._code_base_class import Code
-from tests.unit.circuits._basic_circuit_tests import (
+from tests.unit.dotg_tests.circuits._basic_circuit_tests import (
     BasicCircuitTests,
     BasicCodeFamilyTests,
 )

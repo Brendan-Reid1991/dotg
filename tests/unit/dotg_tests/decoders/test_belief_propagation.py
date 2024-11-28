@@ -9,11 +9,13 @@ from dotg.decoders._belief_propagation_base_class import (
     LDPCDecoderOptions,
     MessageUpdates,
 )
-from tests.unit.decoders._basic_tests._basic_bp_bposd_tests import (
+from tests.unit.dotg_tests.decoders._basic_tests._basic_bp_bposd_tests import (
     BasicBeliefPropagationDecoderTests,
     BasicMemoryCircuits,
 )
-from tests.unit.decoders._basic_tests._basic_decoder_tests import BasicDecoderTests
+from tests.unit.dotg_tests.decoders._basic_tests._basic_decoder_tests import (
+    BasicDecoderTests,
+)
 
 # TODO: Improve these tests; Coverage is 94% but tests are not very robust.
 

@@ -1,0 +1,350 @@
+"""The Visualiser class can be used to draw logical patches."""
+
+from typing import TypeAlias, Literal
+from enum import Enum
+import matplotlib
+import matplotlib.patches
+import matplotlib.pyplot as plt
+
+from builder.utilities._qubit_coordinate import QubitCoordinate
+from builder.utilities.grids._grid import QubitGrid
+
+# pylint: disable=protected-access,invalid-name
+
+
+class Visualiser:
+    """The Visualiser allows qubits to be plotted via matplotlib."""
+
+    STABILIZER_OPACITY: float = 0.4
+    CIRCLE_RADII: float = 0.25
+    BoundaryT: TypeAlias = Literal["top", "bottom", "left", "right"]
+
+    class Colors(str, Enum):
+        """A collection of colors for ease of access."""
+
+        RED = "red"
+        DARKRED = "darkred"
+        BLUE = "blue"
+        DARKBLUE = "darkblue"
+        PURPLE = "purple"
+        DARKGREEN = "darkgreen"
+        GREEN = "green"
+        BLACK = "black"
+        WHITE = "white"
+        GREY = "grey"
+
+    class FontStyle(str, Enum):
+        """A collection of fonts for ease of access."""
+
+        OBLIQUE = "oblique"
+        NORMAL = "normal"
+        ITALIC = "italic"
+
+    def __init__(
+        self,
+        grid: QubitGrid,
+        figsize: tuple[int, int] = (10, 8),
+        show_indices: bool = True,
+    ):
+        self.grid = grid
+        plt.style.use("fast")
+        self.figure, self.ax = plt.subplots(1, 1, figsize=figsize)
+        self.ax.set_aspect("equal")
+        self.ax.tick_params(which="both", width=2)
+        self.ax.tick_params(which="major", length=7)
+        self._gridlines()
+        self.show_indices = show_indices
+
+    def _gridlines(self):
+        """Add a grid to the figure, to guide the eye.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            Figure axis.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The same axis, but now with gridlines.
+        """
+        for i in range(self.grid._x_lim + 1):
+            self.ax.vlines(
+                i,
+                0,
+                self.grid._y_lim,
+                colors="black",
+                linestyles="dashed",
+                alpha=0.1,
+                zorder=1,
+            )
+        for j in range(self.grid._y_lim + 1):
+            self.ax.hlines(
+                j,
+                0,
+                self.grid._x_lim,
+                colors="black",
+                linestyles="dashed",
+                alpha=0.1,
+                zorder=1,
+            )
+
+    def _stabilizer(
+        self,
+        coordinate: QubitCoordinate,
+        data_qubit_member_check: list[QubitCoordinate],
+        color: Colors | str,
+        opacity: float = STABILIZER_OPACITY,
+    ) -> matplotlib.patches.Patch:
+        """Draw a stabilizer patch centered on a given coordinate.
+
+        The method returns a Polygon.
+
+        In the case of a square grid where we require weight-2 stabilizers
+        along the boundaries, here we amend the vertex list in order to return a
+        rectangle.
+
+        Rather than using the matplotlib.patches.Rectangle class however,
+        we instead simply return a Polygon. This means we must manipulate
+        the list to ensure the entire shape is filled.
+
+
+        Parameters
+        ----------
+        coordinate : QubitCoordinate
+            Coordinate of the stabilizer qubit.
+        data_qubit_member_check: list[QubitCoordinate]
+            pass
+        color : Colors | str
+            The color of the stabilizer plaquette.
+        opacity : float, optional
+            Opacity value, by default STABILIZER_OPACITY
+
+        Returns
+        -------
+        matplotlib.patches.Patch
+            A Polygon Patch object which can be added to an axes.
+        """
+        vertices = [
+            vertex
+            for vertex in self.grid.stabilizer_data_qubit_groups(stabilizer=coordinate)
+            if vertex in data_qubit_member_check
+        ]
+
+        if len(vertices) == 2:
+            if all(coordinate.y > vert.y for vert in vertices):
+                vertices += [vert + (0, +0.5) for vert in vertices]
+            elif all(coordinate.y < vert.y for vert in vertices):
+                vertices += [vert + (0, -0.5) for vert in vertices]
+            elif all(coordinate.x > vert.x for vert in vertices):
+                vertices += [vert + (+0.5, 0) for vert in vertices]
+            elif all(coordinate.x < vert.x for vert in vertices):
+                vertices += [vert + (-0.5, 0) for vert in vertices]
+            else:
+                raise ValueError(
+                    """Weight-2 stabilizer detected but could not reason
+                                 out the boundary type."""
+                    f"""\nStabilizer Q: {coordinate}\n"""
+                    f"""    Neighbouring vertices: {vertices}"""
+                )
+
+        def make_rectangle(vertices: list[QubitCoordinate]) -> list[QubitCoordinate]:
+            """Sort the indices in a clockwise fashion for easy plotting.
+
+            Intended for use on vertex lists that have been amended to create a boundary
+            stabilizer.
+
+            Parameters
+            ----------
+            vertices : list[QubitCoordinate]
+                List of vertices that define the rectangle.
+
+            Returns
+            -------
+            list[QubitCoordinate]
+                Amended list.
+            """
+            sorted_vertices = sorted(vertices, key=lambda x: (x[1], x[0]))
+            half_length = len(sorted_vertices) // 2
+            return sorted_vertices[0:half_length] + sorted_vertices[half_length:][::-1]
+
+        return matplotlib.patches.Polygon(
+            xy=(
+                make_rectangle(vertices)  # type: ignore
+                if self.grid.__class__.__name__ == "SquareGrid"
+                else vertices
+            ),
+            color=color,
+            alpha=opacity,
+            zorder=1,
+            label=coordinate,
+        )
+
+    def _qubit_patch(
+        self,
+        coordinate: QubitCoordinate,
+        edgecolor: Colors = Colors.BLACK,
+        facecolor: Colors = Colors.WHITE,
+        opacity: float = 1.0,
+    ) -> matplotlib.patches.Patch:
+        """A circle centered over a qubit.
+
+        Parameters
+        ----------
+        coordinate : QubitCoordinate
+            Qubit coordinate.
+        edgecolor : Colors, optional
+            Edgecolor of the circle, by default Colors.BLACK
+        facecolor : Colors, optional
+            Facecolor of the circle, by default Colors.WHITE
+        opacity : float, optional
+            Opacity of the circle, by default 1.0
+
+        Returns
+        -------
+        matplotlib.patches.Patch
+            Circle patch to be added to an axes.
+        """
+        return plt.Circle(
+            xy=coordinate,
+            radius=self.CIRCLE_RADII,
+            linewidth=1,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+            zorder=2,
+            alpha=opacity,
+        )
+
+    def annotate(
+        self,
+        coordinate: QubitCoordinate,
+        text: str,
+        color: Colors = Colors.BLACK,
+        style: FontStyle = FontStyle.OBLIQUE,
+        fontsize: float = 12.5,
+        opacity: float = 1.0,
+    ) -> None:
+        """Annotate the figure, by writing text on a given coordinate.
+
+        Parameters
+        ----------
+        coordinate : QubitCoordinate
+            Location of the text box.
+        text : str
+            Text to add ot the figure.
+        color : Colors, optional
+            Text color, by default Colors.BLACK
+        style : FontStyle, optional
+            Text style, by default FontStyle.OBLIQUE
+        fontsize : float, optional
+            Fontsize, by default 12.5
+        opacity : float, optional
+            Opacity of the text, by default 1.0.
+        """
+        self.ax.annotate(
+            text,
+            xy=coordinate,
+            color=color,
+            style=style,
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+            alpha=opacity,
+            zorder=3,
+        )
+
+    def draw_stabilizer(
+        self,
+        stabilizer: QubitCoordinate,
+        color: Colors | str,
+        data_qubit_member_check: list[QubitCoordinate],
+        fade_index: bool = False,
+        opacity: float = 0.4,
+    ):
+        """Generate a stabilizer patch and add it to the figure.
+
+        Parameters
+        ----------
+        stabilizer : QubitCoordinate
+            Stabilizer coordinate.
+        color : Colors | str
+            What color to fill the stabilizer.
+        data_qubit_member_check: list[QubitCoordinate]
+            pass
+        fade_index : bool, optional
+            Whether or not to fade the index, by default False. If true, sets
+            the index to 50% opacity.
+        opacity : float, optional
+            Overall opacity of the stabilizer plaquette, by default 0.4.
+
+        """
+        self.ax.add_patch(
+            self._stabilizer(
+                coordinate=stabilizer,
+                data_qubit_member_check=data_qubit_member_check,
+                color=color,
+                opacity=opacity,
+            )
+        )
+        if self.show_indices:
+            self.annotate(
+                coordinate=stabilizer,
+                text=f"{stabilizer.idx}",
+                opacity=0.5 if fade_index else 1.0,
+            )
+
+    def draw_qubit(
+        self,
+        qubit: QubitCoordinate,
+        patch_opacity: float = 1.0,
+        text_opacity: float = 1.0,
+    ):
+        """Generate a qubit patch and add it to the figure.
+
+        Parameters
+        ----------
+        qubit : QubitCoordinate
+            Which qubit to draw.
+        patch_opacity : float, optional
+            Opacity of the circle, by default 1.0
+        text_opacity : float, optional
+            Opacity of the label, by default 1.0
+        """
+        self.ax.add_patch(self._qubit_patch(coordinate=qubit, opacity=patch_opacity))
+        if self.show_indices:
+            self.annotate(coordinate=qubit, text=f"{qubit.idx}", opacity=text_opacity)
+
+    def highlight_qubit(self, qubit: QubitCoordinate, color: Colors):
+        """Highlight a qubit by drawing an empty circle around it.
+
+        Parameters
+        ----------
+        qubit : QubitCoordinate
+            Which qubit coordinate to highlight.
+        color : Colors
+            Which color to highlight it with.
+        """
+        circle = plt.Circle(
+            xy=qubit,
+            radius=0.8 * self.CIRCLE_RADII,
+            linewidth=2,
+            edgecolor=color,
+            fill=False,
+            zorder=3,
+        )
+        self.ax.add_patch(circle)
+
+
+# if __name__ == "__main__":
+#     grid = SquareGrid(3, 3)
+#     vis = Visualiser(grid)
+#     vis.draw_stabilizer(
+#         stabilizer=QubitCoordinate(1.5, 1.5),
+#         color="red",
+#         data_qubit_member_check=[
+#             QubitCoordinate(1, 2),
+#             QubitCoordinate(2, 1),
+#             QubitCoordinate(2, 2),
+#         ],
+#     )
+#     vis.figure.savefig("test.png")
