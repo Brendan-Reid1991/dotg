@@ -38,6 +38,22 @@ class RotatedSurfaceCode(Patch):
         The list of x stabilizer qubits in this patch.
     z_stabilizers: list[QubitCoordinate]
         The list of z stabilizer qubits in this patch.
+    right_boundary_data: list[QubitCoordinate]
+        The data qubits that lie on the right hand boundary.
+    left_boundary_data: list[QubitCoordinate]
+        The data qubits that lie on the left hand boundary.
+    top_boundary_data: list[QubitCoordinate]
+        The data qubits that lie on the top boundary.
+    bottom_boundary_data: list[QubitCoordinate]
+        The data qubits that lie on the bottom boundary.
+    right_boundary_stabilizers: list[QubitCoordinate]
+        The weight-2 stabilizers that lie on the right hand boundary.
+    left_boundary_stabilizers: list[QubitCoordinate]
+        The weight-2 stabilizers that lie on the left hand boundary.
+    top_boundary_stabilizers: list[QubitCoordinate]
+        The weight-2 stabilizers that lie on the top boundary.
+    bottom_boundary_data: list[QubitCoordinate]
+        The weight-2 stabilizers that lie on the bottom boundary.
     """
 
     def __init__(
