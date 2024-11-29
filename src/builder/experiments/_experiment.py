@@ -3,7 +3,7 @@
 from typing import Optional
 import stim
 
-
+from builder.experiments import Basis
 from builder.patches import RotatedSurfaceCode
 from builder.utilities import QubitCoordinate
 from builder.utilities.grids import SquareGrid
@@ -106,6 +106,25 @@ class Experiment:
 
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
+    def initialize_qubits(
+        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
+    ):
+        for patch, basis in zip(patches, logical_bases):
+            self.reset_qubits(
+                patch.data_qubits, ResetGates.RX if basis == "X" else ResetGates.RZ
+            )
+            self.reset_qubits(patch.x_stabilizers, ResetGates.RX)
+            self.reset_qubits(patch.z_stabilizers, ResetGates.RZ)
+        self.tick()
+        self._depth_4_syndrome_extraction(patches=patches)
+        for patch, basis in zip(patches, logical_bases):
+            self.measure_qubits(patch.x_stabilizers, MeasurementGates.MX)
+            self.detector_batch(patch.x_stabilizers, basis == "X")
+            self.measure_qubits(patch.z_stabilizers, MeasurementGates.MZ)
+            self.detector_batch(patch.z_stabilizers, basis == "Z")
+        self.tick()
+        self.timeshift()
+
     def apply_gate(
         self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
     ):
@@ -199,13 +218,13 @@ class Experiment:
         for x_displacer, z_displacer in zip(*self.grid.schedules.values()):
             cnot_pairs = self._syndrome_extraction_circuit_entries(
                 patches=patches,
-                x_displacer=x_displacer.value,
-                z_displacer=z_displacer.value,
+                x_displacer=x_displacer,
+                z_displacer=z_displacer,
             )
             self.circuit.append(TwoQubitGates.CX, targets=[q.idx for q in cnot_pairs])
             self.tick()
 
-    def syndrome_extraction_with_detectors(self, patches: List[RotatedSurfaceCode]):
+    def syndrome_extraction_with_detectors(self, patches: list[RotatedSurfaceCode]):
         """Perform a syndrome extraction circuit and add in detectors
         for a list of disjoint patches.
 
@@ -233,7 +252,7 @@ class Experiment:
         self.tick()
 
     def detector_batch(
-        self, qubits: List[QubitCoordinate], new_measurements_deterministic: bool = False
+        self, qubits: list[QubitCoordinate], new_measurements_deterministic: bool = False
     ):
         """A convenience method for adding a batch of detectors
         during syndrome extraction rounds.
@@ -258,8 +277,8 @@ class Experiment:
 
     def detector_batch_with_data_qubits(
         self,
-        stabilizers: List[QubitCoordinate],
-        data_qubit_member_check: List[QubitCoordinate],
+        stabilizers: list[QubitCoordinate],
+        data_qubit_member_check: list[QubitCoordinate],
         final_round_detector: bool = True,
     ):
         """Add a detector batch that uses some data qubit measurements.
