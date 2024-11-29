@@ -1,4 +1,6 @@
-from typing import List, Dict, Tuple, Optional
+"""A helper class for running simulations."""
+
+from typing import Optional
 import stim
 
 
@@ -16,8 +18,12 @@ from dotg.utilities.stim_assets import (
 )
 
 
-class LatticeSurgeryExperiment:
-    """WIP as a base class for different lattice surgery experiments.
+class Experiment:
+    """A helper class for streamlining common aspects of experiments,
+    such as syndrome extraction circuits and detector definitions.
+
+    This class will generate a stim.Circuit object that defines
+    the experiment.
 
     Parameters
     ----------
@@ -43,9 +49,9 @@ class LatticeSurgeryExperiment:
                 name=StimAnnotations.QUBIT_COORDS, arg=qubit, targets=idx
             )
 
-        self.measurement_record: Dict[QubitCoordinate, int] = {}
+        self.measurement_record: dict[QubitCoordinate, int] = {}
 
-    def _increment_measurement_record(self, batch: List[QubitCoordinate]):
+    def _increment_measurement_record(self, batch: list[QubitCoordinate]):
         """Increment the measurement record given the latest batch of measurements.
 
         Parameters
@@ -69,7 +75,7 @@ class LatticeSurgeryExperiment:
         """Increment the timelike entry of all detectors by 1."""
         self.circuit.append(StimAnnotations.SHIFT_COORDS, arg=[0, 0, 1])
 
-    def reset_qubits(self, qubits: List[QubitCoordinate], basis: ResetGates):
+    def reset_qubits(self, qubits: list[QubitCoordinate], basis: ResetGates):
         """Write a line to the stim circuit, resetting
         a list of qubits in the specified basis.
 
@@ -84,7 +90,7 @@ class LatticeSurgeryExperiment:
             raise ValueError(f"Invalid reset operation. Received {basis}.")
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
-    def measure_qubits(self, qubits: List[QubitCoordinate], basis: MeasurementGates):
+    def measure_qubits(self, qubits: list[QubitCoordinate], basis: MeasurementGates):
         """Write a line to the stim circuit, measuring
         a list of qubits in the specified basis.
 
@@ -101,8 +107,13 @@ class LatticeSurgeryExperiment:
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
     def apply_gate(
-        self, qubits: List[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
+        self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
     ):
+        if all(
+            gate not in quantum_ops for quantum_ops in [OneQubitGates, TwoQubitGates]
+        ):
+            raise ValueError(f"Invalid gate operation. Received {gate}.")
+
         self.circuit.append(gate, targets=[q.idx for q in qubits])
 
     def detector(self, qubit: QubitCoordinate, targets: list[int] | int):
@@ -122,8 +133,10 @@ class LatticeSurgeryExperiment:
             targets=map(stim.target_rec, targets),
         )
 
-    def observable(self, observable_index: int, targets: List[int]):
+    def observable(self, observable_index: int, targets: list[int]):
         """Add an observable to the circuit.
+
+        TODO Add automatic tracking by evolving PauliProducts.
 
         Parameters
         ----------
@@ -140,7 +153,7 @@ class LatticeSurgeryExperiment:
 
     def _syndrome_extraction_circuit_entries(
         self,
-        patches: List[RotatedSurfaceCode],
+        patches: list[RotatedSurfaceCode],
         x_displacer: SquareGrid.Displacer,
         z_displacer: SquareGrid.Displacer,
     ) -> list[QubitCoordinate]:
@@ -161,7 +174,7 @@ class LatticeSurgeryExperiment:
         List[QubitCoordinate]
             A list of qubit coordinates to apply a CX gate to.
         """
-        cnot_pairs: List[QubitCoordinate] = []
+        cnot_pairs: list[QubitCoordinate] = []
         for patch in patches:
             for stab in patch.x_stabilizers:
                 neighbour = self.grid._get_neighbour(qubit=stab, displacer=x_displacer)
@@ -173,7 +186,7 @@ class LatticeSurgeryExperiment:
                     cnot_pairs += [neighbour, stab]
         return cnot_pairs
 
-    def _depth_4_syndrome_extraction(self, patches: List[RotatedSurfaceCode]):
+    def _depth_4_syndrome_extraction(self, patches: list[RotatedSurfaceCode]):
         """Write a depth-4 syndrome extraction circuit to the stim circuit
         for individual patches.
 
@@ -340,26 +353,3 @@ class LatticeSurgeryExperiment:
         print(grown_patch, data_qubits_to_reset)
         print(reset_in_x_basis)
         print(reset_in_z_basis)
-
-
-if __name__ == "__main__":
-    grid = SquareGrid(6, 6)
-    patch = RotatedSurfaceCode((3, 3), grid, (1, 1))
-    experiment = LatticeSurgeryExperiment(grid)
-    experiment.reset_qubits(patch.data_qubits, "RZ")
-    experiment.reset_qubits(patch.x_stabilizers, "RX")
-    experiment.reset_qubits(patch.z_stabilizers, "RZ")
-    experiment.tick()
-    experiment._depth_4_syndrome_extraction(patches=[patch])a
-    experiment.measure_qubits(patch.z_stabilizers, "MZ")
-    experiment.detector_batch(patch.z_stabilizers, True)
-    experiment.measure_qubits(patch.x_stabilizers, "MX")
-    experiment.detector_batch(patch.x_stabilizers, False)
-    experiment.tick()
-    experiment.timeshift()
-
-    for _ in range(2):
-        experiment.syndrome_extraction_with_detectors(patches=[patch])
-    # print(experiment.circuit)
-    experiment.grow(patch=patch, new_distances=(5, 5))
-    # print(experiment.circuit)
