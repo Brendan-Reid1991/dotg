@@ -195,6 +195,7 @@ class Experiment:
         patches : List[Patch]
             List of patches to perform syndrome extraction on.
         """
+        x_displacer
         for x_displacer, z_displacer in zip(*self.grid.schedules.values()):
             cnot_pairs = self._syndrome_extraction_circuit_entries(
                 patches=patches,
