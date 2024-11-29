@@ -1,7 +1,5 @@
 poetry.lock
 .vscode/
 __pycache__/
-*.ini
-*.coverage
 *.DS_Store
 .venv/
