@@ -58,7 +58,7 @@ class SquareGrid(QubitGrid):
         in that timestep.
     """
 
-    class Displacer(Enum):
+    class Displacer(tuple, Enum):
         """Displacement tuples for checking the neighbours
         of stabilizer qubits.
 
@@ -121,9 +121,7 @@ class SquareGrid(QubitGrid):
         return [
             qubit
             for displacement in schedule
-            if (
-                qubit := self._get_neighbour(stabilizer, displacement.value)
-            )  # type: ignore
+            if (qubit := self._get_neighbour(stabilizer, displacement))
         ]
 
     def _get_data_qubits(self) -> list[QubitCoordinate]:
@@ -224,3 +222,7 @@ class SquareGrid(QubitGrid):
             coord.idx = idx
 
         return data_qubits, x_stabilizers, z_stabilizers, coordinate_mapping
+
+
+if __name__ == "__main__":
+    print(SquareGrid.Displacer.BOTTOM_LEFT == (-0.5, -0.5))
