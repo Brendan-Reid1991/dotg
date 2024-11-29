@@ -106,7 +106,7 @@ class Experiment:
 
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
-    def initialize_qubits(
+    def initialize_patches(
         self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
     ):
         for patch, basis in zip(patches, logical_bases):
@@ -124,6 +124,21 @@ class Experiment:
             self.detector_batch(patch.z_stabilizers, basis == "Z")
         self.tick()
         self.timeshift()
+
+    def measure_patches(
+        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
+    ):
+        for patch, basis in zip(patches, logical_bases):
+            self.measure_qubits(
+                patch.data_qubits,
+                MeasurementGates.MX if basis == "X" else MeasurementGates.MZ,
+            )
+            self._increment_measurement_record(batch=patch.data_qubits)
+            self.detector_batch_with_data_qubits(
+                stabilizers=patch.x_stabilizers if basis == "X" else patch.z_stabilizers,
+                data_qubit_member_check=patch.data_qubits,
+                final_round_detector=True,
+            )
 
     def apply_gate(
         self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
@@ -214,7 +229,8 @@ class Experiment:
         patches : List[Patch]
             List of patches to perform syndrome extraction on.
         """
-        x_displacer
+        x_displacer: tuple[float, float]
+        z_displacer: tuple[float, float]
         for x_displacer, z_displacer in zip(*self.grid.schedules.values()):
             cnot_pairs = self._syndrome_extraction_circuit_entries(
                 patches=patches,
@@ -373,3 +389,4 @@ class Experiment:
         print(grown_patch, data_qubits_to_reset)
         print(reset_in_x_basis)
         print(reset_in_z_basis)
+        return
