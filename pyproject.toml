@@ -6,12 +6,12 @@ authors = ["Brendan-Reid1991 <brendan.reid1991@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 stim = "^1.11.0"
 PyMatching = "^2.1.0"
 ldpc = "^0.1.50"
 pytest-cov = "^4.1.0"
-numpy="1.25"
+numpy="1.26"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
