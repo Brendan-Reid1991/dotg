@@ -30,6 +30,8 @@ class Patch:
     ------
     ValueError
         If the anchor is not a data qubit on the grid.
+
+    TODO: Make a Protocol (possibly?)
     """
 
     def __init__(
