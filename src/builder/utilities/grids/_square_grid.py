@@ -222,7 +222,3 @@ class SquareGrid(QubitGrid):
             coord.idx = idx
 
         return data_qubits, x_stabilizers, z_stabilizers, coordinate_mapping
-
-
-if __name__ == "__main__":
-    print(SquareGrid.Displacer.BOTTOM_LEFT == (-0.5, -0.5))
