@@ -7,10 +7,13 @@ from builder.utilities.grids import SquareGrid
 small_grid = SquareGrid(4, 4)
 large_grid = SquareGrid(10, 10)
 pathway = "tests/unit/builder_tests/patches/patch_data/"
-file_str = (
-    lambda code: pathway
-    + f"RSC_d{code.x_distance}{code.z_distance}_grid{code.qubit_grid._x_lim}{code.qubit_grid._y_lim}_anchor{code.anchor[0]}{code.anchor[1]}.txt"
-)
+
+
+def file_str(code: RotatedSurfaceCode) -> str:
+    return (
+        pathway
+        + f"RSC_d{code.x_distance}{code.z_distance}_grid{code.qubit_grid._x_lim}{code.qubit_grid._y_lim}_anchor{code.anchor[0]}{code.anchor[1]}.txt"
+    )
 
 
 class TestRotatedSurfaceCode:
