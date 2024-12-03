@@ -5,7 +5,7 @@ import stim
 
 from builder.experiments import Basis
 from builder.patches import RotatedSurfaceCode
-from builder.utilities import QubitCoordinate
+from builder.utilities import QubitCoordinate, Visualiser
 from builder.utilities.grids import SquareGrid
 
 
@@ -90,7 +90,9 @@ class Experiment:
             raise ValueError(f"Invalid reset operation. Received {basis}.")
         self.circuit.append(basis, targets=[q.idx for q in qubits])
 
-    def measure_qubits(self, qubits: list[QubitCoordinate], basis: MeasurementGates):
+    def measure_qubits(
+        self, qubits: list[QubitCoordinate], basis: MeasurementGates
+    ) -> None:
         """Write a line to the stim circuit, measuring
         a list of qubits in the specified basis.
 
@@ -108,7 +110,18 @@ class Experiment:
 
     def initialize_patches(
         self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
-    ):
+    ) -> None:
+        """Initialize patches by resetting all data and stabilizer qubits,
+        running a single round of syndrome extraction and measuring the stabilizer
+        qubits to complete encoding.
+
+        Parameters
+        ----------
+        patches : list[RotatedSurfaceCode]
+            A list of rotated surface code patches.
+        logical_bases : list[Basis]
+            A list of logical states to encode in each logical qubit.
+        """
         for patch, basis in zip(patches, logical_bases):
             self.reset_qubits(
                 patch.data_qubits, ResetGates.RX if basis == "X" else ResetGates.RZ
@@ -127,7 +140,17 @@ class Experiment:
 
     def measure_patches(
         self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
-    ):
+    ) -> None:
+        """Destructively measure the data qubits in each provided patch, in the
+        corresponding basis.
+
+        Parameters
+        ----------
+        patches : list[RotatedSurfaceCode]
+            A list of rotated surface code patches.
+        logical_bases : list[Basis]
+            A list of logical bases to measure the logical qubits in.
+        """
         for patch, basis in zip(patches, logical_bases):
             self.measure_qubits(
                 patch.data_qubits,
@@ -143,6 +166,20 @@ class Experiment:
     def apply_gate(
         self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
     ):
+        """Add a gate operation to the circuit.
+
+        Parameters
+        ----------
+        qubits : list[QubitCoordinate]
+            The target qubits for the gate.
+        gate : OneQubitGates | TwoQubitGates
+            The quantum gate operation.
+
+        Raises
+        ------
+        ValueError
+            If the gate is not a one- or two-qubit gate.
+        """
         if all(
             gate not in quantum_ops for quantum_ops in [OneQubitGates, TwoQubitGates]
         ):
@@ -258,6 +295,7 @@ class Experiment:
         self.tick()
 
         self._depth_4_syndrome_extraction(patches=patches)
+
         for patch in patches:
             self.measure_qubits(patch.z_stabilizers, MeasurementGates.MZ)
             self.detector_batch(patch.z_stabilizers)
@@ -347,46 +385,78 @@ class Experiment:
         new_distances: tuple[int, int],
         idling_patches: Optional[list[RotatedSurfaceCode]] = None,
     ) -> RotatedSurfaceCode:
-        idling_patches = idling_patches or []
-        new_dx, new_dz = new_distances
-        if new_dx <= patch.x_distance and new_dz <= patch.z_distance:
-            raise ValueError("Calling grow function for a shrink operation.")
+        raise NotImplementedError("Growth is a work in progress.")
+        # idling_patches = idling_patches or []
+        # new_dx, new_dz = new_distances
+        # if new_dx <= patch.x_distance and new_dz <= patch.z_distance:
+        #     raise ValueError("Calling grow function for a shrink operation.")
 
-        grown_patch = RotatedSurfaceCode(
-            code_distance=new_distances, qubit_grid=patch.qubit_grid, anchor=patch.anchor
-        )
+        # grown_patch = RotatedSurfaceCode(
+        #     code_distance=new_distances, qubit_grid=patch.qubit_grid, anchor=patch.anchor
+        # )
 
-        data_qubits_to_reset: list[QubitCoordinate] = sorted(
-            set(grown_patch.data_qubits) - set(patch.data_qubits)
-        )
+        # data_qubits_to_reset: list[QubitCoordinate] = sorted(
+        #     set(grown_patch.data_qubits) - set(patch.data_qubits)
+        # )
 
-        reset_in_x_basis: list[QubitCoordinate] = list(
-            filter(
-                lambda data_qubit: data_qubit.x <= patch.z_distance, data_qubits_to_reset
-            )
-        )
-        reset_in_z_basis: list[QubitCoordinate] = list(
-            filter(
-                lambda data_qubit: data_qubit.y <= patch.x_distance, data_qubits_to_reset
-            )
-        ) + list(
-            filter(
-                lambda data_qubit: data_qubit.x > patch.z_distance
-                and data_qubit.y > patch.x_distance,
-                data_qubits_to_reset,
-            )
-        )
+        # reset_in_x_basis: list[QubitCoordinate] = list(
+        #     filter(
+        #         lambda data_qubit: data_qubit.x <= patch.z_distance, data_qubits_to_reset
+        #     )
+        # )
+        # reset_in_z_basis: list[QubitCoordinate] = list(
+        #     filter(
+        #         lambda data_qubit: data_qubit.y <= patch.x_distance, data_qubits_to_reset
+        #     )
+        # ) + list(
+        #     filter(
+        #         lambda data_qubit: data_qubit.x > patch.z_distance
+        #         and data_qubit.y > patch.x_distance,
+        #         data_qubits_to_reset,
+        #     )
+        # )
 
-        self.reset_qubits(qubits=reset_in_z_basis, basis=ResetGates.RZ)
-        self.reset_qubits(qubits=reset_in_x_basis, basis=ResetGates.RX)
-        self.reset_qubits(
-            qubits=grown_patch.z_stabilizers
-            + [idling_patch.z_stabilizers for idling_patch in idling_patches],
-            basis=ResetGates.RZ,
-        )
-        self.tick()
+        # self.reset_qubits(qubits=reset_in_z_basis, basis=ResetGates.RZ)
+        # self.reset_qubits(qubits=reset_in_x_basis, basis=ResetGates.RX)
+        # self.reset_qubits(
+        #     qubits=grown_patch.z_stabilizers
+        #     + [idling_patch.z_stabilizers for idling_patch in idling_patches],
+        #     basis=ResetGates.RZ,
+        # )
+        # self.tick()
 
-        print(grown_patch, data_qubits_to_reset)
-        print(reset_in_x_basis)
-        print(reset_in_z_basis)
-        return
+        # print(grown_patch, data_qubits_to_reset)
+        # print(reset_in_x_basis)
+        # print(reset_in_z_basis)
+        # return
+
+    def _draw(self, patches: list[RotatedSurfaceCode]) -> Visualiser:
+        """Draw a list of patches.
+
+        Parameters
+        ----------
+        patches : list[RotatedSurfaceCode]
+
+        Returns
+        -------
+        Visualiser
+            The visualiser object containing the figure.
+        """
+        vis = Visualiser(grid=self.grid)
+        for patch in patches:
+            for qubit in patch.data_qubits:
+                vis.draw_qubit(qubit=qubit)
+            for stabilizer in patch.x_stabilizers:
+                vis.draw_stabilizer(
+                    stabilizer=stabilizer,
+                    color=Visualiser.Colors.RED,
+                    data_qubit_member_check=patch.data_qubits,
+                )
+            for stabilizer in patch.z_stabilizers:
+                vis.draw_stabilizer(
+                    stabilizer=stabilizer,
+                    color=Visualiser.Colors.BLUE,
+                    data_qubit_member_check=patch.data_qubits,
+                )
+
+        return vis
