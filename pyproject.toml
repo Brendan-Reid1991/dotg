@@ -22,7 +22,7 @@ black = "^23.7.0"
 ipykernel = "^6.25.2"
 
 [tool.pylint.MASTER]
-ignore-paths = '^tests/dotg/.*$'
+ignore-paths = '^tests/.*$'
 
 [build-system]
 requires = ["poetry-core"]
