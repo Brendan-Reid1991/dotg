@@ -17,6 +17,8 @@ from dotg.utilities.stim_assets import (
     OneQubitGates,
 )
 
+# pylint: disable=protected-access
+
 
 class Experiment:
     """A helper class for streamlining common aspects of experiments,
@@ -60,8 +62,8 @@ class Experiment:
             The qubits that have just been measured.
         """
         lookback = len(batch)
-        for idx, q in enumerate(batch):
-            self.measurement_record[q] = -lookback + idx
+        for idx, qubit in enumerate(batch):
+            self.measurement_record[qubit] = -lookback + idx
         for _index, _record in self.measurement_record.items():
             if _index in batch:
                 continue
@@ -266,8 +268,8 @@ class Experiment:
         patches : List[Patch]
             List of patches to perform syndrome extraction on.
         """
-        x_displacer: tuple[float, float]
-        z_displacer: tuple[float, float]
+        x_displacer: SquareGrid.Displacer
+        z_displacer: SquareGrid.Displacer
         for x_displacer, z_displacer in zip(*self.grid.schedules.values()):
             cnot_pairs = self._syndrome_extraction_circuit_entries(
                 patches=patches,
@@ -385,6 +387,7 @@ class Experiment:
         new_distances: tuple[int, int],
         idling_patches: Optional[list[RotatedSurfaceCode]] = None,
     ) -> RotatedSurfaceCode:
+        """"""
         raise NotImplementedError("Growth is a work in progress.")
         # idling_patches = idling_patches or []
         # new_dx, new_dz = new_distances
@@ -392,7 +395,8 @@ class Experiment:
         #     raise ValueError("Calling grow function for a shrink operation.")
 
         # grown_patch = RotatedSurfaceCode(
-        #     code_distance=new_distances, qubit_grid=patch.qubit_grid, anchor=patch.anchor
+        #     code_distance=new_distances,
+        # qubit_grid=patch.qubit_grid, anchor=patch.anchor
         # )
 
         # data_qubits_to_reset: list[QubitCoordinate] = sorted(
@@ -401,12 +405,14 @@ class Experiment:
 
         # reset_in_x_basis: list[QubitCoordinate] = list(
         #     filter(
-        #         lambda data_qubit: data_qubit.x <= patch.z_distance, data_qubits_to_reset
+        #         lambda data_qubit: data_qubit.x <=
+        #  patch.z_distance, data_qubits_to_reset
         #     )
         # )
         # reset_in_z_basis: list[QubitCoordinate] = list(
         #     filter(
-        #         lambda data_qubit: data_qubit.y <= patch.x_distance, data_qubits_to_reset
+        #         lambda data_qubit: data_qubit.y <=
+        #  patch.x_distance, data_qubits_to_reset
         #     )
         # ) + list(
         #     filter(
