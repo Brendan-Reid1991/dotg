@@ -111,6 +111,10 @@ class SquareGrid(QubitGrid):
         list[QubitCoordinate]
             A list of data qubits in the stabilizers neighbourhood.
         """
+        if (stabilizer not in self.x_stabilizers) and (
+            stabilizer not in self.z_stabilizers
+        ):
+            raise ValueError(f"Invalid stabilizer provided: {stabilizer}")
 
         schedule = (
             self.schedules["x"]
