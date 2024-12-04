@@ -71,7 +71,8 @@ class Patch:
 
         Parameters
         ----------
-        stabilizer_color_map: dict[str | Visualiser.Colors, list[QubitCoordinate]], optional
+        stabilizer_color_map: dict[str | Visualiser.Colors, list[QubitCoordinate]],
+        optional
             The stabilizer color map, indicating which stabilizers to draw in what
             color. The default coloring scheme is set in each Patch, by overriding this
             method.

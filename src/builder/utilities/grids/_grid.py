@@ -85,7 +85,7 @@ class QubitGrid:
             A qubit coordinate or None, if no qubit exists at
             that displacement.
         """
-        neighbour = QubitCoordinate(*qubit) + displacer
+        neighbour = QubitCoordinate(*qubit) + displacer  # type: ignore
         try:
             return next(q for q in self.data_qubits if q == neighbour)
         except StopIteration:
