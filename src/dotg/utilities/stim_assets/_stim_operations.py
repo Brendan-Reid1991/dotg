@@ -7,7 +7,7 @@ from enum import Enum, EnumMeta
 
 class _StimOpsMeta(EnumMeta):
     def __contains__(cls: EnumMeta, member: object) -> bool:
-        return member in cls.__members__
+        return member in cls.__members__  # type: ignore
 
 
 class StimOperations(str, Enum, metaclass=_StimOpsMeta):
