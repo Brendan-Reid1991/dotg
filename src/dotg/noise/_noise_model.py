@@ -75,7 +75,7 @@ class NoiseModel:
         )
 
         (self._two_qubit_gate_noise_channel, self._two_qubit_gate_noise_parameter) = (
-            (TwoQubitNoiseChannels.DEPOLARIZE2, 0)
+            (TwoQubitNoiseChannels.DEPOLARIZE2, 0.0)
             if two_qubit_gate_noise is None
             else two_qubit_gate_noise
         )
