@@ -1,6 +1,8 @@
 """A helper class for running simulations."""
 
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, Callable, Any, Protocol
+from mypy_extensions import NamedArg
 import stim
 
 from builder.experiments import Basis
@@ -18,6 +20,10 @@ from dotg.utilities.stim_assets import (
 )
 
 # pylint: disable=protected-access
+
+
+class CircuitModificationMethod(Protocol):
+    def __call__(self, qubits: list[QubitCoordinate], **kwargs): ...
 
 
 class Experiment:
@@ -53,6 +59,27 @@ class Experiment:
 
         self.measurement_record: dict[QubitCoordinate, int] = {}
 
+    def confirm_valid_qubits(circuit_modifier: CircuitModificationMethod):
+        def wrapper(self: Experiment, *args, **kwargs):
+            if not all(isinstance(q, QubitCoordinate) for q in kwargs["qubits"]):
+                raise ValueError(
+                    f"""Some qubits provided to {circuit_modifier.__name__} are not 
+                    QubitCoordinate objects, and therefore will not have indices. 
+                    Qubits are required to have defined indices for simulation in 
+                    stim."""
+                )
+            if not any(q.idx for q in kwargs["qubits"]):
+                raise ValueError("QubitCoordinate index is not defined!")
+            if len(set(q.idx for q in kwargs["qubits"])) != len(kwargs["qubits"]):
+                raise ValueError(
+                    f"""Some qubits provided to {circuit_modifier.__name__} have the 
+                    same indices; Qubits must have unique indices to be effectively 
+                    added to a circuit."""
+                )
+            return circuit_modifier(self, *args, **kwargs)
+
+        return wrapper
+
     def _increment_measurement_record(self, batch: list[QubitCoordinate]):
         """Increment the measurement record given the latest batch of measurements.
 
@@ -77,7 +104,9 @@ class Experiment:
         """Increment the timelike entry of all detectors by 1."""
         self.circuit.append(StimAnnotations.SHIFT_COORDS, arg=[0, 0, 1])
 
-    def reset_qubits(self, qubits: list[QubitCoordinate], basis: ResetGates):
+    @confirm_valid_qubits
+    # @check_qubit_coordinate_validity
+    def reset_qubits(self, *, qubits: list[QubitCoordinate], basis: ResetGates):
         """Write a line to the stim circuit, resetting
         a list of qubits in the specified basis.
 
@@ -90,10 +119,12 @@ class Experiment:
         """
         if basis not in ResetGates:
             raise ValueError(f"Invalid reset operation. Received {basis}.")
-        self.circuit.append(basis, targets=[q.idx for q in qubits])
+        self.circuit.append(name=basis, targets=[q.idx for q in qubits])
 
+    # @check_qubit_coordinate_validity
+    @confirm_valid_qubits
     def measure_qubits(
-        self, qubits: list[QubitCoordinate], basis: MeasurementGates
+        self, *, qubits: list[QubitCoordinate], basis: MeasurementGates
     ) -> None:
         """Write a line to the stim circuit, measuring
         a list of qubits in the specified basis.
@@ -108,7 +139,7 @@ class Experiment:
         if basis not in MeasurementGates:
             raise ValueError(f"Invalid measurement operation. Received {basis}.")
 
-        self.circuit.append(basis, targets=[q.idx for q in qubits])
+        self.circuit.append(name=basis, targets=[q.idx for q in qubits])
 
     def initialize_patches(
         self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
@@ -126,16 +157,17 @@ class Experiment:
         """
         for patch, basis in zip(patches, logical_bases):
             self.reset_qubits(
-                patch.data_qubits, ResetGates.RX if basis == "X" else ResetGates.RZ
+                qubits=patch.data_qubits,
+                basis=ResetGates.RX if basis == "X" else ResetGates.RZ,
             )
-            self.reset_qubits(patch.x_stabilizers, ResetGates.RX)
-            self.reset_qubits(patch.z_stabilizers, ResetGates.RZ)
+            self.reset_qubits(qubits=patch.x_stabilizers, basis=ResetGates.RX)
+            self.reset_qubits(qubits=patch.z_stabilizers, basis=ResetGates.RZ)
         self.tick()
         self._depth_4_syndrome_extraction(patches=patches)
         for patch, basis in zip(patches, logical_bases):
-            self.measure_qubits(patch.x_stabilizers, MeasurementGates.MX)
+            self.measure_qubits(qubits=patch.x_stabilizers, basis=MeasurementGates.MX)
             self.detector_batch(patch.x_stabilizers, basis == "X")
-            self.measure_qubits(patch.z_stabilizers, MeasurementGates.MZ)
+            self.measure_qubits(qubits=patch.z_stabilizers, basis=MeasurementGates.MZ)
             self.detector_batch(patch.z_stabilizers, basis == "Z")
         self.tick()
         self.timeshift()
@@ -155,8 +187,8 @@ class Experiment:
         """
         for patch, basis in zip(patches, logical_bases):
             self.measure_qubits(
-                patch.data_qubits,
-                MeasurementGates.MX if basis == "X" else MeasurementGates.MZ,
+                qubits=patch.data_qubits,
+                basis=MeasurementGates.MX if basis == "X" else MeasurementGates.MZ,
             )
             self._increment_measurement_record(batch=patch.data_qubits)
             self.detector_batch_with_data_qubits(
@@ -165,8 +197,10 @@ class Experiment:
                 final_round_detector=True,
             )
 
+    # @check_qubit_coordinate_validity
+    @confirm_valid_qubits
     def apply_gate(
-        self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
+        self, *, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
     ):
         """Add a gate operation to the circuit.
 
@@ -292,23 +326,25 @@ class Experiment:
             List of disjoint patches to perform syndrome extraction on.
         """
         for patch in patches:
-            self.reset_qubits(patch.z_stabilizers, ResetGates.RZ)
-            self.reset_qubits(patch.x_stabilizers, ResetGates.RX)
+            self.reset_qubits(qubits=patch.z_stabilizers, basis=ResetGates.RZ)
+            self.reset_qubits(qubits=patch.x_stabilizers, basis=ResetGates.RX)
         self.tick()
 
         self._depth_4_syndrome_extraction(patches=patches)
 
         for patch in patches:
-            self.measure_qubits(patch.z_stabilizers, MeasurementGates.MZ)
+            self.measure_qubits(qubits=patch.z_stabilizers, basis=MeasurementGates.MZ)
             self.detector_batch(patch.z_stabilizers)
 
-            self.measure_qubits(patch.x_stabilizers, MeasurementGates.MX)
+            self.measure_qubits(qubits=patch.x_stabilizers, basis=MeasurementGates.MX)
             self.detector_batch(patch.x_stabilizers)
         self.timeshift()
         self.tick()
 
     def detector_batch(
-        self, qubits: list[QubitCoordinate], new_measurements_deterministic: bool = False
+        self,
+        qubits: list[QubitCoordinate],
+        new_measurements_deterministic: bool = False,
     ):
         """A convenience method for adding a batch of detectors
         during syndrome extraction rounds.
@@ -466,3 +502,9 @@ class Experiment:
                 )
 
         return vis
+
+
+if __name__ == "__main__":
+    grid = SquareGrid(4, 4)
+    a = Experiment(grid)
+    a.reset_qubits(qubits=grid.data_qubits, basis=ResetGates.RZ)
