@@ -32,7 +32,7 @@ class QubitCoordinate(tuple):
 
     def __new__(cls, x, y):
         instance = super().__new__(cls, (x, y))
-        instance._idx = -1
+        instance._idx = None
         instance.x = x
         instance.y = y
         return instance

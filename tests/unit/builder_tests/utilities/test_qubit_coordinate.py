@@ -18,7 +18,7 @@ class TestQubitCoordinate:
         q.idx = 400
         final_index = q.idx
 
-        assert initial_index == -1 and final_index == 400
+        assert initial_index is None and final_index == 400
 
     def test_adder(self):
         q0 = QubitCoordinate(4, 5)
