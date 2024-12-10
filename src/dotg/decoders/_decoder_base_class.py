@@ -1,7 +1,6 @@
 """This module defines the decoder base class."""
 
 from abc import ABC, abstractmethod
-from typing import Protocol
 
 import stim
 from numpy.typing import NDArray
@@ -12,7 +11,7 @@ from dotg.utilities._syndrome_sampler import (
 )
 
 
-class Decoder(Protocol):
+class Decoder(ABC):
     """A decoder base class.
 
 
@@ -33,6 +32,7 @@ class Decoder(Protocol):
         if not check_if_noisy_circuit(circuit=self.circuit):
             raise NoNoiseInCircuitError()
 
+    @abstractmethod
     def decode_syndrome(self, syndrome: list[int] | NDArray) -> NDArray | list[int]:
         """Decode a single syndrome and return a corresponding error pattern that gives
         such a syndrome.
@@ -48,8 +48,8 @@ class Decoder(Protocol):
         NDArray | List[int]
             An error pattern that results in the given syndrome
         """
-        ...
 
+    @abstractmethod
     def logical_error(self, num_shots: int | float) -> float:
         """Decode a bulk of syndromes and return the fraction of which
         resulted in a logical error.
@@ -67,4 +67,3 @@ class Decoder(Protocol):
         float
             The logical error probability.
         """
-        ...
