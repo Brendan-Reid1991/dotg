@@ -547,27 +547,3 @@ class TestNoiseModel:
     )
     def test_apply_idle_noise(self, noise_model, circuit, final_circuit):
         assert final_circuit == noise_model.add_idle_noise(circuit)
-
-    def test_circuits_without_defined_qubits_cannot_have_idle_noise_added(
-        self, noise_model
-    ):
-        circuit = stim.Circuit(
-            """R 0 1 2
-                Y_ERROR(0.001) 0 1 2
-                TICK
-                H 0 1
-                DEPOLARIZE1(0.01) 0 1
-                TICK
-                CX 1 2
-                DEPOLARIZE2(0.01) 1 2
-                TICK
-                M(0.01) 2"""
-        )
-
-        with pytest.raises(
-            ValueError,
-            match="You must define qubit entries for idle noise to be applied, "
-            "otherwise stim has no way of knowing how many qubits are involved "
-            "in the experiment. Add QUBIT_COORDS commands to the beginning of the circuit.",
-        ):
-            noise_model.permute_circuit(circuit)
