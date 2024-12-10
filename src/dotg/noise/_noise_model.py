@@ -262,31 +262,20 @@ class NoiseModel:
         are not involved in the layer have idle noise applied to them at the end of the
         timeslice.
 
-        Total qubit count is found by looking for qubit definitions - QUBIT_COORDS
-        entries in the full circuit.
+        Qubit indices are found by searching all non-trivial operations, i.e. quantum
+        operations.
 
         Returns
         -------
         stim.Circuit
             New stim circuit with idle noise.
-
-        Raises
-        ------
-        ValueError
-            If the circuit does not have qubit coordinate definitions.
         """
-        qubit_indices = set(
-            next(x.value for x in line.targets_copy())
+        qubit_indices: set[int] = set(
+            x.value
             for line in circuit
-            if line.name == StimAnnotations.QUBIT_COORDS
+            for x in line.targets_copy()
+            if line.name not in StimAnnotations
         )
-        if not qubit_indices:
-            raise ValueError(
-                "You must define qubit entries for idle noise to be applied, "
-                "otherwise stim has no way of knowing how many qubits are involved "
-                "in the experiment. Add QUBIT_COORDS commands to the beginning of the"
-                " circuit."
-            )
         circuit_layers = get_circuit_layers(circuit=circuit)
         final_circuit = stim.Circuit()
         for timeslice in circuit_layers:
@@ -327,7 +316,7 @@ class NoiseModel:
         """
 
         noisy_circuit = stim.Circuit()
-        for instr in circuit:
+        for instr in circuit.flattened():
             if instr.name in MeasureAndReset.members():
                 self._measurement_and_reset_instruction(
                     circuit=noisy_circuit, instruction=instr
