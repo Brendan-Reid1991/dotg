@@ -33,18 +33,16 @@ def confirm_valid_qubits(
     def wrapper(self: Experiment, qubits: list[QubitCoordinate], gate: StimOperation):
         if not all(isinstance(q, QubitCoordinate) for q in qubits):
             raise ValueError(
-                f"""Some qubits provided to {circuit_modifier.__name__} are not 
-                QubitCoordinate objects, and therefore will not have indices. 
-                Qubits are required to have defined indices for simulation in 
-                stim."""
+                f"""Some qubits are not QubitCoordinate objects, and therefore will not 
+                have indices. Qubits are required to have defined indices 
+                for simulation in stim."""
             )
         if not any(q.idx for q in qubits):
             raise ValueError("QubitCoordinate index is not defined!")
         if len(set(q.idx for q in qubits)) != len(qubits):
             raise ValueError(
-                f"""Some qubits provided to {circuit_modifier.__name__} have the 
-                same indices; Qubits must have unique indices to be effectively 
-                added to a circuit."""
+                f"""Some qubits have the same indices. 
+                Qubits must have unique indices to be added to a circuit."""
             )
         return circuit_modifier(self, qubits, gate)
 
@@ -157,62 +155,6 @@ class Experiment:
         if basis not in MeasurementGates:
             raise ValueError(f"Invalid measurement operation. Received {basis}.")
         self._append_operation_to_circuit(qubits, basis)
-
-    def initialize_patches(
-        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
-    ) -> None:
-        """Initialize patches by resetting all data and stabilizer qubits,
-        running a single round of syndrome extraction and measuring the stabilizer
-        qubits to complete encoding.
-
-        Parameters
-        ----------
-        patches : list[RotatedSurfaceCode]
-            A list of rotated surface code patches.
-        logical_bases : list[Basis]
-            A list of logical states to encode in each logical qubit.
-        """
-        for patch, basis in zip(patches, logical_bases):
-            self.reset_qubits(
-                qubits=patch.data_qubits,
-                basis=ResetGates.RX if basis == "X" else ResetGates.RZ,
-            )
-            self.reset_qubits(qubits=patch.x_stabilizers, basis=ResetGates.RX)
-            self.reset_qubits(qubits=patch.z_stabilizers, basis=ResetGates.RZ)
-        self.tick()
-        self._depth_4_syndrome_extraction(patches=patches)
-        for patch, basis in zip(patches, logical_bases):
-            self.measure_qubits(qubits=patch.x_stabilizers, basis=MeasurementGates.MX)
-            self.detector_batch(patch.x_stabilizers, basis == "X")
-            self.measure_qubits(qubits=patch.z_stabilizers, basis=MeasurementGates.MZ)
-            self.detector_batch(patch.z_stabilizers, basis == "Z")
-        self.tick()
-        self.timeshift()
-
-    def measure_patches(
-        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
-    ) -> None:
-        """Destructively measure the data qubits in each provided patch, in the
-        corresponding basis.
-
-        Parameters
-        ----------
-        patches : list[RotatedSurfaceCode]
-            A list of rotated surface code patches.
-        logical_bases : list[Basis]
-            A list of logical bases to measure the logical qubits in.
-        """
-        for patch, basis in zip(patches, logical_bases):
-            self.measure_qubits(
-                qubits=patch.data_qubits,
-                basis=MeasurementGates.MX if basis == "X" else MeasurementGates.MZ,
-            )
-            self._increment_measurement_record(batch=patch.data_qubits)
-            self.detector_batch_with_data_qubits(
-                stabilizers=patch.x_stabilizers if basis == "X" else patch.z_stabilizers,
-                data_qubit_member_check=patch.data_qubits,
-                final_round_detector=True,
-            )
 
     def apply_gate(
         self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
@@ -431,6 +373,62 @@ class Experiment:
                 ],
             )
         self._increment_measurement_record(stabilizers)
+
+    def initialize_patches(
+        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
+    ) -> None:
+        """Initialize patches by resetting all data and stabilizer qubits,
+        running a single round of syndrome extraction and measuring the stabilizer
+        qubits to complete encoding.
+
+        Parameters
+        ----------
+        patches : list[RotatedSurfaceCode]
+            A list of rotated surface code patches.
+        logical_bases : list[Basis]
+            A list of logical states to encode in each logical qubit.
+        """
+        for patch, basis in zip(patches, logical_bases):
+            self.reset_qubits(
+                qubits=patch.data_qubits,
+                basis=ResetGates.RX if basis == "X" else ResetGates.RZ,
+            )
+            self.reset_qubits(qubits=patch.x_stabilizers, basis=ResetGates.RX)
+            self.reset_qubits(qubits=patch.z_stabilizers, basis=ResetGates.RZ)
+        self.tick()
+        self._depth_4_syndrome_extraction(patches=patches)
+        for patch, basis in zip(patches, logical_bases):
+            self.measure_qubits(qubits=patch.x_stabilizers, basis=MeasurementGates.MX)
+            self.detector_batch(patch.x_stabilizers, basis == "X")
+            self.measure_qubits(qubits=patch.z_stabilizers, basis=MeasurementGates.MZ)
+            self.detector_batch(patch.z_stabilizers, basis == "Z")
+        self.timeshift()
+        self.tick()
+
+    def measure_patches(
+        self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
+    ) -> None:
+        """Destructively measure the data qubits in each provided patch, in the
+        corresponding basis.
+
+        Parameters
+        ----------
+        patches : list[RotatedSurfaceCode]
+            A list of rotated surface code patches.
+        logical_bases : list[Basis]
+            A list of logical bases to measure the logical qubits in.
+        """
+        for patch, basis in zip(patches, logical_bases):
+            self.measure_qubits(
+                qubits=patch.data_qubits,
+                basis=MeasurementGates.MX if basis == "X" else MeasurementGates.MZ,
+            )
+            self._increment_measurement_record(batch=patch.data_qubits)
+            self.detector_batch_with_data_qubits(
+                stabilizers=patch.x_stabilizers if basis == "X" else patch.z_stabilizers,
+                data_qubit_member_check=patch.data_qubits,
+                final_round_detector=True,
+            )
 
     def grow(
         self,
