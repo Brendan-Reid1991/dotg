@@ -1,7 +1,7 @@
 """A helper class for running simulations."""
 
 from __future__ import annotations
-from typing import Optional, Callable, Any, Protocol
+from typing import Optional, Callable, TypeAlias
 from mypy_extensions import NamedArg
 import stim
 
@@ -19,11 +19,36 @@ from dotg.utilities.stim_assets import (
     OneQubitGates,
 )
 
+StimOperation: TypeAlias = ResetGates | MeasurementGates | TwoQubitGates | OneQubitGates
 # pylint: disable=protected-access
 
 
-class CircuitModificationMethod(Protocol):
-    def __call__(self, qubits: list[QubitCoordinate], **kwargs): ...
+def confirm_valid_qubits(
+    circuit_modifier: Callable[[Experiment, list[QubitCoordinate], StimOperation], None]
+):
+    """A decorator to confirm the qubit inputs to a stim circuit are valid, i.e.
+    that they have well defined indices.
+    """
+
+    def wrapper(self: Experiment, qubits: list[QubitCoordinate], gate: StimOperation):
+        if not all(isinstance(q, QubitCoordinate) for q in qubits):
+            raise ValueError(
+                f"""Some qubits provided to {circuit_modifier.__name__} are not 
+                QubitCoordinate objects, and therefore will not have indices. 
+                Qubits are required to have defined indices for simulation in 
+                stim."""
+            )
+        if not any(q.idx for q in qubits):
+            raise ValueError("QubitCoordinate index is not defined!")
+        if len(set(q.idx for q in qubits)) != len(qubits):
+            raise ValueError(
+                f"""Some qubits provided to {circuit_modifier.__name__} have the 
+                same indices; Qubits must have unique indices to be effectively 
+                added to a circuit."""
+            )
+        return circuit_modifier(self, qubits, gate)
+
+    return wrapper
 
 
 class Experiment:
@@ -59,27 +84,6 @@ class Experiment:
 
         self.measurement_record: dict[QubitCoordinate, int] = {}
 
-    def confirm_valid_qubits(circuit_modifier: CircuitModificationMethod):
-        def wrapper(self: Experiment, *args, **kwargs):
-            if not all(isinstance(q, QubitCoordinate) for q in kwargs["qubits"]):
-                raise ValueError(
-                    f"""Some qubits provided to {circuit_modifier.__name__} are not 
-                    QubitCoordinate objects, and therefore will not have indices. 
-                    Qubits are required to have defined indices for simulation in 
-                    stim."""
-                )
-            if not any(q.idx for q in kwargs["qubits"]):
-                raise ValueError("QubitCoordinate index is not defined!")
-            if len(set(q.idx for q in kwargs["qubits"])) != len(kwargs["qubits"]):
-                raise ValueError(
-                    f"""Some qubits provided to {circuit_modifier.__name__} have the 
-                    same indices; Qubits must have unique indices to be effectively 
-                    added to a circuit."""
-                )
-            return circuit_modifier(self, *args, **kwargs)
-
-        return wrapper
-
     def _increment_measurement_record(self, batch: list[QubitCoordinate]):
         """Increment the measurement record given the latest batch of measurements.
 
@@ -105,8 +109,24 @@ class Experiment:
         self.circuit.append(StimAnnotations.SHIFT_COORDS, arg=[0, 0, 1])
 
     @confirm_valid_qubits
-    # @check_qubit_coordinate_validity
-    def reset_qubits(self, *, qubits: list[QubitCoordinate], basis: ResetGates):
+    def _append_operation_to_circuit(
+        self,
+        qubits: list[QubitCoordinate],
+        gate_name: StimOperation,
+    ) -> None:
+        """Append a single line to the stim circuit, applying a specific gate
+        onto a list of qubits.
+
+        Parameters
+        ----------
+        qubits : list[QubitCoordinate]
+            The qubits to apply the gate to.
+        gate_name : StimOperation
+            The name of the operation.
+        """
+        self.circuit.append(gate_name, [q.idx for q in qubits])
+
+    def reset_qubits(self, qubits: list[QubitCoordinate], basis: ResetGates):
         """Write a line to the stim circuit, resetting
         a list of qubits in the specified basis.
 
@@ -119,12 +139,10 @@ class Experiment:
         """
         if basis not in ResetGates:
             raise ValueError(f"Invalid reset operation. Received {basis}.")
-        self.circuit.append(name=basis, targets=[q.idx for q in qubits])
+        self._append_operation_to_circuit(qubits, basis)
 
-    # @check_qubit_coordinate_validity
-    @confirm_valid_qubits
     def measure_qubits(
-        self, *, qubits: list[QubitCoordinate], basis: MeasurementGates
+        self, qubits: list[QubitCoordinate], basis: MeasurementGates
     ) -> None:
         """Write a line to the stim circuit, measuring
         a list of qubits in the specified basis.
@@ -138,8 +156,7 @@ class Experiment:
         """
         if basis not in MeasurementGates:
             raise ValueError(f"Invalid measurement operation. Received {basis}.")
-
-        self.circuit.append(name=basis, targets=[q.idx for q in qubits])
+        self._append_operation_to_circuit(qubits, basis)
 
     def initialize_patches(
         self, patches: list[RotatedSurfaceCode], logical_bases: list[Basis]
@@ -197,10 +214,8 @@ class Experiment:
                 final_round_detector=True,
             )
 
-    # @check_qubit_coordinate_validity
-    @confirm_valid_qubits
     def apply_gate(
-        self, *, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
+        self, qubits: list[QubitCoordinate], gate: OneQubitGates | TwoQubitGates
     ):
         """Add a gate operation to the circuit.
 
@@ -221,7 +236,7 @@ class Experiment:
         ):
             raise ValueError(f"Invalid gate operation. Received {gate}.")
 
-        self.circuit.append(gate, targets=[q.idx for q in qubits])
+        self._append_operation_to_circuit(qubits, gate)
 
     def detector(self, qubit: QubitCoordinate, targets: list[int] | int):
         """Add a detector to the stim circuit.
