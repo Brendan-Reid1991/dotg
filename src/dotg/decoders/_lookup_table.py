@@ -33,10 +33,11 @@ class LookupTable(Decoder):
         By default 1_000_000.
     overwrite_table: bool, optional
         Whether or not to overwrite a previously saved table under the same name.
+
     Raises
     ------
-    NotImplementedError
-        If the sample size covers less than 5% of the search space.
+    RuntimeWarning
+        If the sample size covers less than 2.5% of the search space.
     """
 
     DEFAULT_PATHWAY = os.getcwd() + "/.lookuptable_cache"
@@ -54,10 +55,10 @@ class LookupTable(Decoder):
         self.sample_size = int(sample_size)
         self.overwrite_table = overwrite_table
 
-        if self.sample_size / 2**self.circuit.num_detectors < 5e-2:
+        if self.sample_size / 2**self.circuit.num_detectors < 2.5e-2:
             warn(
                 message="""!!!!!!!!!!!!!!!
-                Your sample size covers less than 5% of the detector space.
+                Your sample size covers less than 2.5% of the detector space.
                 Your circuit may be intractable for a lookup table decoder to 
                 perform reasonably.""",
                 category=RuntimeWarning,
