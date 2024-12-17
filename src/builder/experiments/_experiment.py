@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 from typing import Optional, Callable, TypeAlias
-from mypy_extensions import NamedArg
 import stim
 
 from builder.experiments import Basis
@@ -33,7 +32,7 @@ def confirm_valid_qubits(
     def wrapper(self: Experiment, qubits: list[QubitCoordinate], gate: StimOperation):
         if not all(isinstance(q, QubitCoordinate) for q in qubits):
             raise ValueError(
-                f"""Some qubits are not QubitCoordinate objects, and therefore will not 
+                """Some qubits are not QubitCoordinate objects, and therefore will not 
                 have indices. Qubits are required to have defined indices 
                 for simulation in stim."""
             )
@@ -41,7 +40,7 @@ def confirm_valid_qubits(
             raise ValueError("QubitCoordinate index is not defined!")
         if len(set(q.idx for q in qubits)) != len(qubits):
             raise ValueError(
-                f"""Some qubits have the same indices. 
+                """Some qubits have the same indices. 
                 Qubits must have unique indices to be added to a circuit."""
             )
         return circuit_modifier(self, qubits, gate)
@@ -515,9 +514,3 @@ class Experiment:
                 )
 
         return vis
-
-
-if __name__ == "__main__":
-    grid = SquareGrid(4, 4)
-    a = Experiment(grid)
-    a.reset_qubits(qubits=grid.data_qubits, basis=ResetGates.RZ)
